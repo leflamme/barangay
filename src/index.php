@@ -1,5 +1,5 @@
 <?php
-//indexnew.php
+// indexnew.php
 include_once 'connection.php';
 session_start();
 
