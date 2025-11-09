@@ -1,0 +1,30 @@
+services:
+
+  # 1. Your PHP Application
+  app:
+    build: .  # This tells Docker to build your 'Dockerfile'
+    ports:
+      - "8080:80" # Access your site at http://localhost:8080
+    volumes:
+      - ./src:/var/www/html/ # Syncs your PHP code
+    depends_on:
+      - db  # Tells this container to wait for the 'db' to be ready
+
+  # 2. Your MySQL Database
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'brgy_root_pass'
+      MYSQL_DATABASE: 'barangay' # The database name you want
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+    volumes:
+      # This is the MAGIC for IMPORTING your file:
+      - ./mysql-init:/docker-entrypoint-initdb.d
+
+      # This is the MAGIC for PERSISTING your data:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data: # This tells Docker to create the persistent volume
