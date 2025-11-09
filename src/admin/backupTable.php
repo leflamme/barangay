@@ -1,12 +1,8 @@
 <?php 
-
-
 include_once '../connection.php';
 
 
 try{
-
-
   $sql = "SELECT * FROM backup ORDER BY id DESC";
   $stmt = $con->prepare($sql) or die ($con->error);
   $stmt->execute();

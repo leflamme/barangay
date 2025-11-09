@@ -1,11 +1,7 @@
 <?php 
-
 include_once '../connection.php';
 
-
 try{
-
-
   $position = $con->real_escape_string($_REQUEST['position']);
 
   $whereClause = [];

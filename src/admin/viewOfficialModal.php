@@ -1,11 +1,7 @@
 <?php 
-
-
-
 include_once '../connection.php';
 
 try{
-
 
   if(isset($_REQUEST['official_id'])){
 

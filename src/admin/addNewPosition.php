@@ -1,9 +1,7 @@
 <?php 
-
 include_once '../connection.php';
 
 try{
-
   date_default_timezone_set('Asia/Manila');
   $date = new DateTime();
   $uniqid_date = $date->format("mdYHisv");

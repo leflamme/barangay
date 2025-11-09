@@ -1,13 +1,7 @@
 <?php 
-
 include_once '../connection.php';
 
-
-
-
 try{
-
-
   $first_name = $con->real_escape_string($_POST['first_name']);
   $middle_name = $con->real_escape_string($_POST['middle_name']);
   $last_name = $con->real_escape_string($_POST['last_name']);

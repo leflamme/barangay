@@ -1,10 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
-try{
-  
 
+try{
   if(isset($_REQUEST['residence_id'])){
     $residence_id = $con->real_escape_string(trim($_REQUEST['residence_id']));
 

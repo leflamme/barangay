@@ -1,14 +1,7 @@
 <?php 
-
 include_once '../connection.php';
 
-
 try{
-
-
-
-
-  
   $sql = "SELECT * FROM users WHERE user_type != 'resident' AND user_type !='admin'";
   if($_REQUEST['search']['value']){
     $sql .= " AND (first_name LIKE '%" .$_REQUEST['search']['value']. "%' ";

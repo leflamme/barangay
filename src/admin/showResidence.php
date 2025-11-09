@@ -1,11 +1,8 @@
 <?php 
-
-
 include_once '../connection.php';
 
 
 try{
-
   if(isset($_REQUEST['residence_id']) && $_REQUEST['residence_id'] !=''){
 
   

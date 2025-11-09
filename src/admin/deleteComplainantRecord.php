@@ -1,12 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
-
   if(isset($_REQUEST['blotter_id']) && isset($_REQUEST['complainant_id'])){
     $blotter_id = $con->real_escape_string($_REQUEST['blotter_id']);
     $complainant_id = $con->real_escape_string($_REQUEST['complainant_id']);
@@ -17,11 +12,7 @@ try{
     $stmt_delete_complainant_record->bind_param('sss',$blank,$blotter_id,$complainant_id);
     $stmt_delete_complainant_record->execute();
     $stmt_delete_complainant_record->close();
-
-
   }
-
-
 
 }catch(Exception $e){
   echo $e->getMessage();

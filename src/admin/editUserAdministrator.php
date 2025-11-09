@@ -1,11 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
   $user_id = $con->real_escape_string(trim($_POST['user_id']));
   $edit_first_name = $con->real_escape_string($_POST['edit_first_name']);
   $edit_middle_name = $con->real_escape_string($_POST['edit_middle_name']);

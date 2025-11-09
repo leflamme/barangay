@@ -1,10 +1,7 @@
 <?php 
-
-
-  include_once '../connection.php';
+include_once '../connection.php';
 
 try{
-
   if(isset($_REQUEST['residence_id']) && isset($_REQUEST['certificate_id'])){
     $residence_id = $con->real_escape_string($_REQUEST['residence_id']);
     $certificate_id = $con->real_escape_string($_REQUEST['certificate_id']);

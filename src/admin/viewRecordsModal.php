@@ -1,11 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
 try{
-
-
   if(isset($_REQUEST['record_id'])){
 
     $record_id = $con->real_escape_string(trim($_REQUEST['record_id']));

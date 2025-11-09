@@ -1,11 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
 try{
-
-
   $edit_position_id = $con->real_escape_string(trim($_REQUEST['edit_position_id']));
   $edit_position = $con->real_escape_string($_REQUEST['edit_position']);
   $edit_description = $con->real_escape_string($_REQUEST['edit_description']);

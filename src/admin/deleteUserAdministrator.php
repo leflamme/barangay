@@ -1,12 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
-
   if(isset($_REQUEST['user_id'])){
     $user_id = $con->real_escape_string($_REQUEST['user_id']);
 

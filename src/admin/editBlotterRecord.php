@@ -1,12 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
-
   $blotter_id = $_POST['blotter_id'];
   if(isset($_POST['edit_complainant_residence']) && $_POST['edit_complainant_residence'] != ''){
     $complainant_blotter_id =  $_POST['edit_complainant_residence'];

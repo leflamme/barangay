@@ -1,9 +1,7 @@
 <?php 
-
 include_once '../connection.php';
 
 try{
-
   if(isset($_REQUEST['status_position'])){
 
     $status_position_id = $con->real_escape_string(trim($_REQUEST['status_position']));

@@ -1,12 +1,7 @@
 <?php 
-
-
-
 include_once '../connection.php';
 
-
 try{
-
     $var_date_request = $con->real_escape_string($_REQUEST['date_request']);
     $var_date_issued = $con->real_escape_string($_REQUEST['date_issued']);
     $var_date_expired = $con->real_escape_string($_REQUEST['date_expired']);

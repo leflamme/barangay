@@ -1,15 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
-
-
-
-
   if(!empty($_POST['complainant_residence'])){
     $complainant_resident = $_POST['complainant_residence'];
    

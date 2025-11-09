@@ -1,11 +1,7 @@
 <?php
-
 include_once '../connection.php';
 
 try {
-  
-     
-      
         $selected_values = $_REQUEST['selected_values'];
 
         if(!empty($selected_values)){

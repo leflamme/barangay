@@ -1,11 +1,7 @@
 <?php 
-
 include_once '../connection.php';
 
-
 try{
-
-
 
 if($_POST['edit_pwd'] == 'YES'){
   $edit_pwd_info = $con->real_escape_string($_POST['edit_pwd_info']);
