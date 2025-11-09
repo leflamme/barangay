@@ -1,6 +1,6 @@
 <?php
-include_once '../connection.php';
 session_start();
+include_once '../connection.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'resident') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);

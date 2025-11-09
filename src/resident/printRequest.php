@@ -1,14 +1,9 @@
-
 <?php 
-
-include_once '../connection.php';
 session_start();
+include_once '../connection.php';
 
 try{
-
   if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'resident'){
-
-    
     $sql_barangay_information = "SELECT * FROM `barangay_information`";
     $stmt_barangay_information = $con->prepare($sql_barangay_information) or die ($con->error);
     $stmt_barangay_information->execute();

@@ -1,9 +1,8 @@
 <?php 
-
+session_start();
 include_once '../connection.php';
 
 try{
-
   $user_id = $con->real_escape_string(trim($_POST['user_id']));;
   $username = $con->real_escape_string($_POST['username']);
   $current_password = $con->real_escape_string($_POST['current_password']);

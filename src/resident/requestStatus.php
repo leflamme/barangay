@@ -1,14 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
-
 try{
-
-
-
   $residence_id = $con->real_escape_string($_POST['residence_id']);
   $purpose = $con->real_escape_string(strtoupper($_POST['purpose']));
   $certificate_id = $con->real_escape_string($_POST['certificate_id']);
