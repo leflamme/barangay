@@ -1,7 +1,7 @@
 <?php
 // indexnew.php
-include_once 'connection.php';
 session_start();
+include_once 'connection.php';
 
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
   $user_id = $_SESSION['user_id'];
