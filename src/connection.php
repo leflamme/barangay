@@ -1,10 +1,10 @@
 <?php 
 // Read credentials from Environment Variables provided by Railway
-$host = getenv('MYSQLHOST'); 
-$db_name = getenv('MYSQLDATABASE'); 
-$username = getenv('MYSQLUSER');
-$password = getenv('MYSQLPASSWORD');
-$port = getenv('MYSQLPORT');
+$host = getenv('MYSQL_HOST'); 
+$db_name = getenv('MYSQL_DATABASE'); 
+$username = getenv('MYSQL_USER');
+$password = getenv('MYSQL_PASSWORD');
+$port = getenv('MYSQL_PORT');
 
 // Create connection using MySQLi
 $con = new mysqli($host, $username, $password, $db_name, $port);
