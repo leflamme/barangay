@@ -264,13 +264,13 @@ try{
     }
 
     // Blotter Records ----- FOR DEBUGGING PLS LANG -----
-    $sql_blotter ="SELECT date_added as yyyy, count(blotter_id) as gago from blotter_record group by date_added order by yyyy";
+    $sql_blotter ="SELECT date_added as yyyy, count(blotter_id) as blotter_count from blotter_record group by date_added order by yyyy";
     $result_blotter = $con->query($sql_blotter) or die ($con->error);
     $count_blotter_result = $result_blotter->num_rows;
     if($count_blotter_result > 0){
       while ($row_blotter = $result_blotter->fetch_array()) { 
         $year[]  = $row_blotter['yyyy']  ;
-        $totalBlotter[] = number_format($row_blotter['gago']);
+        $totalBlotter[] = number_format($row_blotter['blotter_count']);
       }
     }else{
       $year[]  = ['0000','1000'];
