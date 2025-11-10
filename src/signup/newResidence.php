@@ -10,10 +10,15 @@ use PHPMailer\PHPMailer\Exception;
 
 function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
   $mail = new PHPMailer(true); 
-      
-  $gmail_username = 'brgykalusugan814@gmail.com'; 
-  $gmail_password = 'sphx awcj lmlv upgc'; 
-  $barangay_name = 'BARANGAY KALUSUGAN'; 
+   
+  // --- OLD (Hard-Coded) ---
+  // $gmail_username = 'brgykalusugan814@gmail.com'; 
+  // $gmail_password = 'sphx awcj lmlv upgc'; 
+  // $barangay_name = 'BARANGAY KALUSUGAN'; 
+
+  $gmail_username = getenv('GMAIL_USER');
+  $gmail_password = getenv('GMAIL_PASS');
+  $barangay_name = getenv('BARANGAY_NAME');
   // ---------------------------------------------------
 
   try {     
