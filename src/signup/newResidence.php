@@ -72,14 +72,13 @@ $uniqid = uniqid(mt_rand().$date->format("mdYHisv").rand());
 
 $generate = md5($uniqid);
 $rand = uniqid(rand()) . $generate;
-$residence_id = $rand;
+$number = $rand; // Use $number, which the rest of the code expects
 $date_added = date("m/d/Y h:i A");
 $archive = 'NO';
 
 
 date_default_timezone_set('Asia/Manila');
 $date = new DateTime();
-$number = rand($date->format("mdyHisv"),true);
 
 if(isset($_POST['add_pwd_info'])){
   $add_pwd_check = $con->real_escape_string($_POST['add_pwd_info']);
@@ -129,8 +128,11 @@ if($add_password != $add_confirm_password){
   exit('errorPassword');
 }
 
-$sql_check_username = "SELECT username FROM users WHERE username = '$add_username'";
-$query_check_username = $con->query($sql_check_username) or die ($con->error);
+$sql_check_username = "SELECT username FROM users WHERE username = ?";
+$stmt_check = $con->prepare($sql_check_username) or die ($con->error);
+$stmt_check->bind_param('s', $add_username);
+$stmt_check->execute();
+$query_check_username = $stmt_check->get_result();
 $count_username = $query_check_username->num_rows;
 
 if($count_username > 0){
