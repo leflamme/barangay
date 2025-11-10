@@ -1,14 +1,8 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
   if(isset($_REQUEST['residence_id']) && $_REQUEST['residence_id'] !=''){
-
-  
       $residence_id = $con->real_escape_string(trim($_REQUEST['residence_id']));
       $sql_residence_view = "SELECT residence_information.*, residence_status.* FROM residence_information INNER JOIN residence_status ON  residence_information.residence_id = residence_status.residence_id WHERE residence_information.residence_id = ?";
       $stmt_view_residence = $con->prepare($sql_residence_view) or die ($con->error);

@@ -1,13 +1,8 @@
 <?php 
-
-
 include_once '../connection.php';
 
 try{
-
-
   if(isset($_REQUEST['record_id'])){
-
     $record_id = $con->real_escape_string(trim($_REQUEST['record_id']));
     $sql_record = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
     INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main

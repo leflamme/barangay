@@ -1,39 +1,27 @@
 <?php 
-
-
 include_once '../connection.php';
 
-
 try{
-
   if(isset($_REQUEST['residence_id'])){
-  
-      $residence_id = $con->real_escape_string(trim($_REQUEST['residence_id']));
-      $sql_residence_view = "SELECT residence_information.*, residence_status.* FROM residence_information INNER JOIN residence_status ON  residence_information.residence_id = residence_status.residence_id WHERE residence_information.residence_id = ?";
-      $stmt_view_residence = $con->prepare($sql_residence_view) or die ($con->error);
-      $stmt_view_residence->bind_param('s',$residence_id);
-      $stmt_view_residence->execute();
-      $residence_view = $stmt_view_residence->get_result();
-      $row_view_residence = $residence_view->fetch_assoc();
+    $residence_id = $con->real_escape_string(trim($_REQUEST['residence_id']));
+    $sql_residence_view = "SELECT residence_information.*, residence_status.* FROM residence_information INNER JOIN residence_status ON  residence_information.residence_id = residence_status.residence_id WHERE residence_information.residence_id = ?";
+    $stmt_view_residence = $con->prepare($sql_residence_view) or die ($con->error);
+    $stmt_view_residence->bind_param('s',$residence_id);
+    $stmt_view_residence->execute();
+    $residence_view = $stmt_view_residence->get_result();
+    $row_view_residence = $residence_view->fetch_assoc();
 
 
 
-      $sql_barangay_information = "SELECT * FROM `barangay_information`";
-      $stmt_barangay_information = $con->prepare($sql_barangay_information) or die ($con->error);
-      $stmt_barangay_information->execute();
-      $result_barangay_information = $stmt_barangay_information->get_result();
-      $row_barangay_information = $result_barangay_information->fetch_assoc();
-   
-       
+    $sql_barangay_information = "SELECT * FROM `barangay_information`";
+    $stmt_barangay_information = $con->prepare($sql_barangay_information) or die ($con->error);
+    $stmt_barangay_information->execute();
+    $result_barangay_information = $stmt_barangay_information->get_result();
+    $row_barangay_information = $result_barangay_information->fetch_assoc();  
   }
-
-
-
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
 
 ?>
 

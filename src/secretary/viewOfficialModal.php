@@ -1,14 +1,8 @@
 <?php 
-
-
-
 include_once '../connection.php';
 
 try{
-
-
   if(isset($_REQUEST['official_id'])){
-
     $official_id = $con->real_escape_string($_REQUEST['official_id']);
 
 

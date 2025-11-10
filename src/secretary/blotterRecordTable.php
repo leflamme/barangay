@@ -1,14 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
 try{
-
-
-
-
-
   $sql_blooter_check = "SELECT * FROM blotter_record ";
   if(isset($_REQUEST['search']['value'])){
     $sql_blooter_check .= " WHERE status LIKE '%" . $_REQUEST['search']['value'] . "%' ";

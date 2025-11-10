@@ -1,10 +1,7 @@
 <?php 
-
-
 include_once '../connection.php';
 
 try{
-
   $edit_residence_id = $con->real_escape_string($_REQUEST['edit_residence_id']);
 
   $sql_blooter_check = "SELECT blotter_record.*, blotter_status.*, blotter_complainant.*, blotter_record.blotter_id AS gago FROM `blotter_record` 

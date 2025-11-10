@@ -1,39 +1,33 @@
-
 <?php 
-
-include_once '../connection.php';
 session_start();
+include_once '../connection.php';
 
 try{
+  if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'secretary'){
+    $user_id = $_SESSION['user_id'];
+    $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
+    $stmt_user = $con->prepare($sql_user) or die ($con->error);
+    $stmt_user->bind_param('s',$user_id);
+    $stmt_user->execute();
+    $result_user = $stmt_user->get_result();
+    $row_user = $result_user->fetch_assoc();
+    $first_name_user = $row_user['first_name'];
+    $last_name_user = $row_user['last_name'];
+    $user_type = $row_user['user_type'];
+    $user_image = $row_user['image'];
 
 
-  
-if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'secretary'){
-
-  $user_id = $_SESSION['user_id'];
-  $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
-  $stmt_user = $con->prepare($sql_user) or die ($con->error);
-  $stmt_user->bind_param('s',$user_id);
-  $stmt_user->execute();
-  $result_user = $stmt_user->get_result();
-  $row_user = $result_user->fetch_assoc();
-  $first_name_user = $row_user['first_name'];
-  $last_name_user = $row_user['last_name'];
-  $user_type = $row_user['user_type'];
-  $user_image = $row_user['image'];
-
-
-  $sql = "SELECT * FROM `barangay_information`";
-$query = $con->prepare($sql) or die ($con->error);
-$query->execute();
-$result = $query->get_result();
-while($row = $result->fetch_assoc()){
-    $barangay = $row['barangay'];
-    $zone = $row['zone'];
-    $district = $row['district'];
-    $image = $row['image'];
-    $image_path = $row['image_path'];
-    $id = $row['id'];
+    $sql = "SELECT * FROM `barangay_information`";
+    $query = $con->prepare($sql) or die ($con->error);
+    $query->execute();
+    $result = $query->get_result();
+    while($row = $result->fetch_assoc()){
+      $barangay = $row['barangay'];
+      $zone = $row['zone'];
+      $district = $row['district'];
+      $image = $row['image'];
+      $image_path = $row['image_path'];
+      $id = $row['id'];
 }
 
 if(isset($_REQUEST['request'])){

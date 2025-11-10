@@ -1,12 +1,8 @@
 <?php 
-
-
-include_once '../connection.php';
 session_start();
-
+include_once '../connection.php';
  
   if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'secretary'){
-  
     $user_id = $_SESSION['user_id'];
     $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
     $stmt_user = $con->prepare($sql_user) or die ($con->error);
