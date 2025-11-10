@@ -323,7 +323,7 @@ try{
 
     // Official Position Data
     $sql_official_position = "SELECT COUNT(*) AS dis,  position.color, position.position AS official_position, position.color, official_status.position FROM position
-    INNER JOIN official_status ON position.position_id = official_status.position GROUP BY official_status.position,position.position";
+    INNER JOIN official_status ON position.position_id = official_status.position GROUP BY official_status.position,position.position, position.color";
     $stmt_official_position = $con->prepare($sql_official_position) or die ($con->error);
     $stmt_official_position->execute();
     $result_official_position = $stmt_official_position->get_result();
