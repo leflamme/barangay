@@ -253,7 +253,6 @@ $stmt_residence_status->bind_param('sssssssss',$number,$add_status,$add_voters,$
 $stmt_residence_status->execute();
 $stmt_residence_status->close();
 
-  // Activity Log
   $date_activity = $now = date("j-n-Y g:i A");  
   $admin = strtoupper('RESIDENT').':' .' '. 'REGISTER RESIDENT -'.' ' .$number.' |' .'  '.$add_first_name .' '. $add_last_name .' '. $add_suffix;
   $status_activity_log = 'create';
