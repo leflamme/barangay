@@ -72,11 +72,10 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
 try{  
 date_default_timezone_set('Asia/Manila');
 $date = new DateTime();
-$uniqid = uniqid(mt_rand().$date->format("mdYHisv").rand());
 
-$generate = md5($uniqid);
-$rand = uniqid(rand()) . $generate;
-$number = $rand; // Use $number, which the rest of the code expects
+// NEW ID GENERATOR
+$number = mt_rand(100000, 999999) . $date->format("mdHis");
+
 $date_added = date("m/d/Y h:i A");
 $archive = 'NO';
 
