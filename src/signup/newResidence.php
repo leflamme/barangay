@@ -11,6 +11,10 @@ use PHPMailer\PHPMailer\Exception;
 function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
   $mail = new PHPMailer(true); 
    
+  // --- ADD THESE TWO LINES ---
+  $mail->SMTPDebug = 2; // Shows client/server conversation
+  $mail->Debugoutput = 'error_log'; // Sends this output to your Railway logs
+  
   // --- OLD (Hard-Coded) ---
   // $gmail_username = 'brgykalusugan814@gmail.com'; 
   // $gmail_password = 'sphx awcj lmlv upgc'; 
