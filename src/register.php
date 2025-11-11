@@ -859,35 +859,51 @@ $('#proceed-guardian').click(function(e) {
                     processData: false,
                     contentType: false,
                     cache: false,
-                    success:function(data){
-                      if(data == 'errorPassword'){
+                    success: function(data) {
+                      // Trim whitespace from the response
+                      var response = data.trim(); 
+
+                      if (response == 'success') {
+                          // This is the ONLY success case
                           Swal.fire({
-                            title: '<strong class="text-danger">ERROR</strong>',
-                            icon: 'error',
-                            html: '<b>Password not Match</b>',
-                            confirmButtonColor: '#6610f2',
-                          })
-                      }else if(data == 'errorUsername'){
-                        Swal.fire({
-                            title: '<strong class="text-danger">ERROR</strong>',
-                            icon: 'error',
-                            html: '<b>Username is Already Taken</b>',
-                            confirmButtonColor: '#6610f2',
-                          })
-                      }else{
-                        Swal.fire({
-                          title: '<strong class="text-success">SUCCESS</strong>',
-                          type: 'success',
-                          html: '<b>Registered Successfully</b>',
-                          width: '400px',
-                          allowOutsideClick: false,
-                          showConfirmButton: false,
-                          timer: 2000,
-                        }).then(()=>{
-                          window.location.href = 'login.php';
-                        })
+                              title: '<strong class="text-success">SUCCESS</strong>',
+                              type: 'success',
+                              html: '<b>Registered Successfully</b><br>You will now be redirected.',
+                              width: '400px',
+                              allowOutsideClick: false,
+                              showConfirmButton: false,
+                              timer: 2000,
+                          }).then(() => {
+                              window.location.href = 'login.php';
+                          });
+
+                      } else if (response == 'errorPassword') {
+                          Swal.fire({
+                              title: '<strong class="text-danger">ERROR</strong>',
+                              icon: 'error',
+                              html: '<b>Password not Match</b>',
+                              confirmButtonColor: '#6610f2',
+                          });
+
+                      } else if (response == 'errorUsername') {
+                          Swal.fire({
+                              title: '<strong class="text-danger">ERROR</strong>',
+                              icon: 'error',
+                              html: '<b>Username is Already Taken</b>',
+                              confirmButtonColor: '#6610f2',
+                          });
+
+                      } else {
+                          // THIS IS THE NEW ERROR HANDLER
+                          // It will show the exact PHP error message
+                          Swal.fire({
+                              title: '<strong class="text-danger">Registration Failed!</strong>',
+                              icon: 'error',
+                              html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + response + '</pre>',
+                              confirmButtonColor: '#d33',
+                          });
                       }
-                    }
+                  }
                 }).fail(function(){
                     Swal.fire({
                       title: '<strong class="text-danger">Ooppss..</strong>',
