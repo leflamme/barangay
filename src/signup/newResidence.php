@@ -185,67 +185,28 @@ if($add_age_date == '0'){
 
 // CREATE A NEW ALIAS VARIABLE
 $alias = $add_first_name . ' ' . $add_last_name; 
+$add_occupation = ''; // Add a blank occupation
 
 $sql = "INSERT INTO `residence_information`(
-  `residence_id`, 
-  `first_name`, 
-  `middle_name`, 
-  `last_name`, 
-  `age`, 
-  `suffix`, 
-  `gender`, 
-  `civil_status`, 
-  `religion`, 
-  `nationality`, 
-  `contact_number`, 
-  `email_address`, 
-  `address`, 
-  `birth_date`, 
-  `birth_place`, 
-  `municipality`, 
-  `zip`, 
-  `barangay`, 
-  `house_number`, 
-  `street`, 
-  `fathers_name`, 
-  `mothers_name`, 
-  `guardian`, 
-  `guardian_contact`,
-  `image`,
-  `image_path`,
-  `alias` 
-  ) 
-VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; // Added one more '?'
+  `residence_id`, `first_name`, `middle_name`, `last_name`, `age`, 
+  `suffix`, `gender`, `civil_status`, `religion`, `nationality`, 
+  `contact_number`, `email_address`, `address`, `birth_date`, `birth_place`, 
+  `municipality`, `zip`, `barangay`, `house_number`, `street`, 
+  `fathers_name`, `mothers_name`, `guardian`, `guardian_contact`, `image`, 
+  `image_path`, `alias`, `occupation`
+) 
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; // 28 '?' marks
 $stmt = $con->prepare($sql) or die ($con->error);
-$stmt->bind_param('sssssssssssssssssssssssssss',  // Added one more 's'
-  $number,
-  $add_first_name,
-  $add_middle_name,
-  $add_last_name,
-  $age_add,
-  $add_suffix,
-  $add_gender,
-  $add_civil_status,
-  $add_religion,
-  $add_nationality,
-  $add_contact_number,
-  $add_email_address,
-  $add_address,
-  $add_birth_date,
-  $add_birth_place,
-  $add_municipality,
-  $add_zip,
-  $add_barangay,
-  $add_house_number,
-  $add_street,
-  $add_fathers_name,
-  $add_mothers_name,
-  $add_guardian,
-  $add_guardian_contact,
-  $new_image_name,
-  $new_image_path,
-  $alias // Add the new alias variable here
+
+$stmt->bind_param('ssssssssssssssssssssssssssss',  // 28 's' characters
+  $number, $add_first_name, $add_middle_name, $add_last_name, $age_add,
+  $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
+  $add_contact_number, $add_email_address, $add_address, $add_birth_date, $add_birth_place,
+  $add_municipality, $add_zip, $add_barangay, $add_house_number, $add_street,
+  $fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name,
+  $new_image_path, $alias, $add_occupation // Add the new occupation variable here
 );
+
 $stmt->execute();
 $stmt->close();
 
