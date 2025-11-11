@@ -183,7 +183,8 @@ if($add_age_date == '0'){
   $age_add = $add_age_date;
 }
 
-
+// CREATE A NEW ALIAS VARIABLE
+$alias = $add_first_name . ' ' . $add_last_name; 
 
 $sql = "INSERT INTO `residence_information`(
   `residence_id`, 
@@ -211,11 +212,12 @@ $sql = "INSERT INTO `residence_information`(
   `guardian`, 
   `guardian_contact`,
   `image`,
-  `image_path`
+  `image_path`,
+  `alias` 
   ) 
-VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; // Added one more '?'
 $stmt = $con->prepare($sql) or die ($con->error);
-$stmt->bind_param('ssssssssssssssssssssssssss',
+$stmt->bind_param('sssssssssssssssssssssssssss',  // Added one more 's'
   $number,
   $add_first_name,
   $add_middle_name,
@@ -241,7 +243,8 @@ $stmt->bind_param('ssssssssssssssssssssssssss',
   $add_guardian,
   $add_guardian_contact,
   $new_image_name,
-  $new_image_path
+  $new_image_path,
+  $alias // Add the new alias variable here
 );
 $stmt->execute();
 $stmt->close();
@@ -255,14 +258,14 @@ $stmt_residence_status->close();
   $date_activity = $now = date("j-n-Y g:i A");  
   $admin = strtoupper('RESIDENT').':' .' '. 'REGISTER RESIDENT -'.' ' .$number.' |' .'  '.$add_first_name .' '. $add_last_name .' '. $add_suffix;
   $status_activity_log = 'create';
-  $alias = 'RESIDENT'; // <-- ADD THIS LINE
+  // $alias = 'RESIDENT'; // <-- DELETE THIS LINE
 
-  // ADD `alias` to the query
-  $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`, `alias`) VALUES (?,?,?,?)";
+  // REMOVE `alias` from the query
+  $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
 
-  // ADD 's' for the new string and $alias
-  $stmt_activity_log->bind_param('ssss',$admin,$date_activity,$status_activity_log, $alias);
+  // REMOVE 's' and $alias
+  $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
   $stmt_activity_log->execute();
   $stmt_activity_log->close();
 
