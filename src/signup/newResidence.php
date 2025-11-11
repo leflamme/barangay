@@ -14,7 +14,7 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
   // --- ADD THESE TWO LINES ---
   $mail->SMTPDebug = 2; // Shows client/server conversation
   $mail->Debugoutput = 'error_log'; // Sends this output to your Railway logs
-  
+
   // --- OLD (Hard-Coded) ---
   // $gmail_username = 'brgykalusugan814@gmail.com'; 
   // $gmail_password = 'sphx awcj lmlv upgc'; 
@@ -253,15 +253,18 @@ $stmt_residence_status->bind_param('sssssssss',$number,$add_status,$add_voters,$
 $stmt_residence_status->execute();
 $stmt_residence_status->close();
 
-
-$date_activity = $now = date("j-n-Y g:i A");  
+  // Activity Log
+  $date_activity = $now = date("j-n-Y g:i A");  
   $admin = strtoupper('RESIDENT').':' .' '. 'REGISTER RESIDENT -'.' ' .$number.' |' .'  '.$add_first_name .' '. $add_last_name .' '. $add_suffix;
   $status_activity_log = 'create';
+  $alias = 'RESIDENT'; // <-- ADD THIS LINE
 
-
-  $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
+  // ADD `alias` to the query
+  $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`, `alias`) VALUES (?,?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
-  $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
+
+  // ADD 's' for the new string and $alias
+  $stmt_activity_log->bind_param('ssss',$admin,$date_activity,$status_activity_log, $alias);
   $stmt_activity_log->execute();
   $stmt_activity_log->close();
 
