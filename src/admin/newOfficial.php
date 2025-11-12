@@ -43,9 +43,6 @@ while($row = $result->fetch_assoc()){
   echo $e->getMessage();
 }
 
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -53,35 +50,27 @@ while($row = $result->fetch_assoc()){
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>New Official</title>
 
  
 
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-  <!-- DONT FORGET -->
-<link rel="stylesheet" href="../assets/dist/css/admin.css?v=2">
+  <link rel="stylesheet" href="../assets/dist/css/admin.css?v=2">
 
-<!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
  
 </head>
-<!-- <body class="hold-transition sidebar-mini   "> -->
 <div class="wrapper">
 
-<!-- Preloader -->
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
@@ -230,11 +219,8 @@ body {
 
 </style>
   
-  <!-- Navbar -->
-
   <nav class="main-header navbar navbar-expand navbar-dark">
-<!-- Left navbar links (COPY LEFT ONLY)  -->
-  <ul class="navbar-nav">
+<ul class="navbar-nav">
     <li class="nav-item">
       <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
     </li>
@@ -255,11 +241,9 @@ body {
     </li>
   </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-      <!-- profile_dropdown.php (COPY THIS) -->
-<li class="nav-item dropdown">
+      <li class="nav-item dropdown">
   <a class="nav-link" data-toggle="dropdown" href="#">
     <i class="far fa-user"></i>
   </a>
@@ -286,17 +270,11 @@ body {
 </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container (COPY THIS ASIDE TO ASIDE) -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
   
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
@@ -407,7 +385,6 @@ body {
             </a>
           </li>
 
-          <!-- DRM Part   (START)   -->
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -433,9 +410,7 @@ body {
                 </li>
               </ul>
           </li>
-        <!-- End of DRM Part -->
-
-          <li class="nav-item">
+        <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
               <p>
@@ -477,16 +452,12 @@ body {
           </li>
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
    
 
-    <!-- Main content -->
     <section class="content mt-3">
       <div class="container-fluid">
 
@@ -594,23 +565,25 @@ body {
 
                
               </div>
-              <!-- /.card-body -->
-            </div>
+              </div>
           </div>
           <div class="col-sm-8">
     <div class="card  card-tabs h-100 transparent-card shadow-card">
               <div class="card-header p-0 pt-1">
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                   <li class="nav-item">
-    <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
-  </li>
-</ul>
+                    <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link tab-nav-link" id="account-tab" data-toggle="pill" href="#account">Account</a>
+                  </li>
+                </ul>
               </div>
               <div class="card-body">
                 <div class="tab-content" id="custom-tabs-one-tabContent">
@@ -766,13 +739,61 @@ body {
                       </div>
                     
                   </div>
+                  
+                  <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+                    <p class="lead text-center">Account Credentials</p>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>User Type</label>
+                                <select name="add_user_type" id="add_user_type" class="form-control">
+                                    <option value=""></option>
+                                    <option value="admin">Admin</option>
+                                    <option value="secretary">Secretary</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="add_username" name="add_username" class="form-control" placeholder="USERNAME">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <div class="input-group" id="show_hide_password">
+                                    <input type="password" id="add_password" name="add_password" class="form-control" placeholder="PASSWORD" style="border-right: none;">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-transparent">
+                                            <a href="#" style="text-decoration:none;"><i class="fas fa-eye-slash" aria-hidden="true"></i></a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <div class="input-group" id="show_hide_password_confirm">
+                                    <input type="password" id="add_confirm_password" name="add_confirm_password" class="form-control" placeholder="CONFIRM PASSWORD" style="border-right: none;">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-transparent">
+                                            <a href="#" style="text-decoration:none;"><i class="fas fa-eye-slash" aria-hidden="true"></i></a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
               <div class="card-footer">
                 <button type="submit"  class="btn btn-success px-3  elevation-5 btn-flat"> <i class="fas fa-user-plus"></i> ADD NEW OFFICIAL</button>
               </div> 
-              <!-- /.card -->
-            </div>
+              </div>
 
           </div>
         </div>
@@ -781,32 +802,16 @@ body {
 
 
 
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
- <!--Main footer (COPY THIS)-->
-<footer class="main-footer">
+      </div></section>
+    </div>
+  <footer class="main-footer">
   <strong>&copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')) ?></strong>
   <div class="float-right d-none d-sm-inline-block">
   </div>
 </footer>
-<!-- ./wrapper -->
-
-
-
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -854,22 +859,40 @@ body {
               processData: false,
               contentType: false,
               success:function(data){
-                if(data == 'error'){
+                
+                var response = data.trim();
 
+                if(response == 'error'){
                     Swal.fire({
                       title: '<strong class="text-danger">ERROR</strong>',
                       type: 'error',
-                      html: '<b>Position Limited<b>',
+                      html: '<b>Position Limit Reached<b>',
                       width: '400px',
                       confirmButtonColor: '#6610f2',
                       allowOutsideClick: false,
                     });
 
-                }else{
+                } else if(response == 'errorPassword'){
+                    Swal.fire({
+                      title: '<strong class="text-danger">ERROR</strong>',
+                      icon: 'error',
+                      html: '<b>Passwords do not Match</b>',
+                      confirmButtonColor: '#6610f2',
+                    });
+                
+                } else if(response == 'errorUsername'){
+                    Swal.fire({
+                      title: '<strong class="text-danger">ERROR</strong>',
+                      icon: 'error',
+                      html: '<b>Username is Already Taken</b>',
+                      confirmButtonColor: '#6610f2',
+                    });
+
+                } else {
                   Swal.fire({
                     title: '<strong class="text-success">SUCCESS</strong>',
                     type: 'success',
-                    html: '<b>Added Official has Successfully<b>',
+                    html: '<b>Added Official Successfully<b>',
                     width: '400px',
                     confirmButtonColor: '#6610f2',
                     allowOutsideClick: false,
@@ -941,6 +964,23 @@ body {
           add_pwd_info:{
             required: true,
           },
+          // NEW VALIDATION RULES
+          add_user_type: {
+            required: true,
+          },
+          add_username:{
+            required: true,
+            minlength: 8
+          },
+          add_password:{
+            required: true,
+            minlength: 8
+          },
+          add_confirm_password:{
+            required: true,
+            minlength: 8,
+            equalTo: "#add_password"
+          },
         },
         messages: {
           add_first_name: {
@@ -975,6 +1015,23 @@ body {
             add_contact_number:{
               required: "Please provide a Contact Number",
               minlength: "Input Exact Contact Number"
+            },
+            // NEW VALIDATION MESSAGES
+            add_user_type: {
+                required: "Please select a user type"
+            },
+            add_username: {
+                required: "Please provide a Username",
+                minlength: "Username must be at least 8 characters long"
+            },
+            add_password: {
+                required: "Please provide a Password",
+                minlength: "Password must be at least 8 characters long"
+            },
+            add_confirm_password: {
+                required: "Please confirm the Password",
+                minlength: "Password must be at least 8 characters long",
+                equalTo: "Passwords do not match"
             },
         },
         errorElement: 'span',
@@ -1039,6 +1096,31 @@ body {
       displayImge(this);
     })
 
+    // NEW PASSWORD TOGGLE SCRIPT
+    $("#show_hide_password a").on('click', function(event) {
+        event.preventDefault();
+        if($('#show_hide_password input').attr("type") == "text"){
+            $('#show_hide_password input').attr('type', 'password');
+            $('#show_hide_password i').addClass( "fa-eye-slash" );
+            $('#show_hide_password i').removeClass( "fa-eye" );
+        }else if($('#show_hide_password input').attr("type") == "password"){
+            $('#show_hide_password input').attr('type', 'text');
+            $('#show_hide_password i').removeClass( "fa-eye-slash" );
+            $('#show_hide_password i').addClass( "fa-eye" );
+        }
+    });
+    $("#show_hide_password_confirm a").on('click', function(event) {
+        event.preventDefault();
+        if($('#show_hide_password_confirm input').attr("type") == "text"){
+            $('#show_hide_password_confirm input').attr('type', 'password');
+            $('#show_hide_password_confirm i').addClass( "fa-eye-slash" );
+            $('#show_hide_password_confirm i').removeClass( "fa-eye" );
+        }else if($('#show_hide_password_confirm input').attr("type") == "password"){
+            $('#show_hide_password_confirm input').attr('type', 'text');
+            $('#show_hide_password_confirm i').removeClass( "fa-eye-slash" );
+            $('#show_hide_password_confirm i').addClass( "fa-eye" );
+        }
+    });
 
     
   })

@@ -24,38 +24,61 @@ try{
     $add_pwd_check = '';
   }
   
+  // --- Personal Info ---
   $add_single_parent = $con->real_escape_string($_POST['add_single_parent']);
-$add_pwd = $con->real_escape_string($_POST['add_pwd']);
-$add_term_from = $con->real_escape_string($_POST['add_term_from']);
-$add_term_to = $con->real_escape_string($_POST['add_term_to']);
-$add_position = $con->real_escape_string($_POST['add_position']);
-$add_voters = $con->real_escape_string($_POST['add_voters']);
-$add_first_name = $con->real_escape_string($_POST['add_first_name']);
-$add_middle_name = $con->real_escape_string($_POST['add_middle_name']);
-$add_last_name = $con->real_escape_string($_POST['add_last_name']);
-$add_suffix = $con->real_escape_string($_POST['add_suffix']);
-$add_gender = $con->real_escape_string($_POST['add_gender']);
-$add_civil_status = $con->real_escape_string($_POST['add_civil_status']);
-$add_religion = $con->real_escape_string($_POST['add_religion']);
-$add_nationality = $con->real_escape_string($_POST['add_nationality']);
-$add_contact_number = $con->real_escape_string($_POST['add_contact_number']);
-$add_email_address = $con->real_escape_string($_POST['add_email_address']);
-$add_address = $con->real_escape_string($_POST['add_address']);
-$add_birth_date = $con->real_escape_string($_POST['add_birth_date']);
-$add_birth_place = $con->real_escape_string($_POST['add_birth_place']);
-$add_municipality = $con->real_escape_string($_POST['add_municipality']);
-$add_zip = $con->real_escape_string($_POST['add_zip']);
-$add_barangay = $con->real_escape_string($_POST['add_barangay']);
-$add_house_number = $con->real_escape_string($_POST['add_house_number']);
-$add_street = $con->real_escape_string($_POST['add_street']);
-$add_fathers_name = $con->real_escape_string($_POST['add_fathers_name']);
-$add_mothers_name = $con->real_escape_string($_POST['add_mothers_name']);
-$add_guardian = $con->real_escape_string($_POST['add_guardian']);
-$add_guardian_contact = $con->real_escape_string($_POST['add_guardian_contact']);
-$add_image = $con->real_escape_string($_FILES['add_image']['name']);
-$add_status = 'ACTIVE';
-$add_approval = 'ACCEPTED';
+  $add_pwd = $con->real_escape_string($_POST['add_pwd']);
+  $add_term_from = $con->real_escape_string($_POST['add_term_from']);
+  $add_term_to = $con->real_escape_string($_POST['add_term_to']);
+  $add_position = $con->real_escape_string($_POST['add_position']);
+  $add_voters = $con->real_escape_string($_POST['add_voters']);
+  $add_first_name = $con->real_escape_string($_POST['add_first_name']);
+  $add_middle_name = $con->real_escape_string($_POST['add_middle_name']);
+  $add_last_name = $con->real_escape_string($_POST['add_last_name']);
+  $add_suffix = $con->real_escape_string($_POST['add_suffix']);
+  $add_gender = $con->real_escape_string($_POST['add_gender']);
+  $add_civil_status = $con->real_escape_string($_POST['add_civil_status']);
+  $add_religion = $con->real_escape_string($_POST['add_religion']);
+  $add_nationality = $con->real_escape_string($_POST['add_nationality']);
+  $add_contact_number = $con->real_escape_string($_POST['add_contact_number']);
+  $add_email_address = $con->real_escape_string($_POST['add_email_address']);
+  $add_address = $con->real_escape_string($_POST['add_address']);
+  $add_birth_date = $con->real_escape_string($_POST['add_birth_date']);
+  $add_birth_place = $con->real_escape_string($_POST['add_birth_place']);
+  $add_municipality = $con->real_escape_string($_POST['add_municipality']);
+  $add_zip = $con->real_escape_string($_POST['add_zip']);
+  $add_barangay = $con->real_escape_string($_POST['add_barangay']);
+  $add_house_number = $con->real_escape_string($_POST['add_house_number']);
+  $add_street = $con->real_escape_string($_POST['add_street']);
+  $add_fathers_name = $con->real_escape_string($_POST['add_fathers_name']);
+  $add_mothers_name = $con->real_escape_string($_POST['add_mothers_name']);
+  $add_guardian = $con->real_escape_string($_POST['add_guardian']);
+  $add_guardian_contact = $con->real_escape_string($_POST['add_guardian_contact']);
+  $add_image = $con->real_escape_string($_FILES['add_image']['name']);
+  $add_status = 'ACTIVE';
+  $add_approval = 'ACCEPTED';
 
+  // --- NEW ACCOUNT INFO ---
+  $add_user_type = $con->real_escape_string($_POST['add_user_type']);
+  $add_username = $con->real_escape_string($_POST['add_username']);
+  $add_password = $con->real_escape_string($_POST['add_password']);
+  $add_confirm_password = $con->real_escape_string($_POST['add_confirm_password']);
+
+  // --- NEW VALIDATION CHECKS ---
+  if($add_password != $add_confirm_password){
+    exit('errorPassword');
+  }
+
+  $sql_check_username = "SELECT username FROM users WHERE username = ?";
+  $stmt_check = $con->prepare($sql_check_username) or die ($con->error);
+  $stmt_check->bind_param('s', $add_username);
+  $stmt_check->execute();
+  $query_check_username = $stmt_check->get_result();
+  $count_username = $query_check_username->num_rows;
+
+  if($count_username > 0){
+    exit('errorUsername');
+  }
+  // --- END NEW VALIDATION ---
 
 
 if(isset($add_image)){
@@ -89,12 +112,6 @@ if($row_position_limit['position_limit'] == $row_position['count_position']){
   exit('error');
 }
 
-
-
-
-
-
-
 date_default_timezone_set('Asia/Manila');
 $date = new DateTime();
 
@@ -102,7 +119,8 @@ $today = date("Y/m/d");
 $age = date_diff(date_create($add_birth_date), date_create($today));
 $add_age_date = $age->format("%y");
 
-
+// --- THIS IS THE KEY ---
+// We will use this ID for BOTH the official_information table AND the users table
 $official_id = $date->format("mdYHisv").$add_age_date;
 $date_added = date("m/d/Y h:i A");
 
@@ -113,8 +131,7 @@ if($add_age_date >= '60'){
   $senior = 'NO';
 }
 
-
-
+  // --- 1. INSERT INTO official_information ---
   $sql = "INSERT INTO `official_information`
   (`official_id`,
    `first_name`, 
@@ -175,20 +192,40 @@ if($add_age_date >= '60'){
   $stmt->execute();
   $stmt->close();
   
+  // --- 2. INSERT INTO official_status ---
   $sql_official_status = "INSERT INTO `official_status` (`official_id`, `status`, `senior`,`voters`, `position`,`date_added`, `term_from`, `term_to`, `pwd`,`pwd_info`,`single_parent`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
   $stmt_official_status = $con->prepare($sql_official_status) or die ($con->error);
   $stmt_official_status->bind_param('sssssssssss',$official_id,$add_status,$senior,$add_voters,$add_position,$date_added,$add_term_from,$add_term_to,$add_pwd,$add_pwd_check,$add_single_parent);
   $stmt_official_status->execute();
   $stmt_official_status->close();
 
+  // --- 3. NEW: INSERT INTO users ---
+  // We use the SAME $official_id as the 'id' to link the accounts
+  $sql_add_user = "INSERT INTO `users`(`id`, `first_name`, `middle_name`, `last_name`, `username`, `password`, `user_type`,`contact_number`, `image`,`image_path`) VALUES (?,?,?,?,?,?,?,?,?,?)";
+  $stmt_user = $con->prepare($sql_add_user) or die ($con->error);
+  $stmt_user->bind_param('ssssssssss',
+    $official_id, 
+    $add_first_name,
+    $add_middle_name,
+    $add_last_name,
+    $add_username,
+    $add_password,
+    $add_user_type,
+    $add_contact_number,
+    $new_image_name,
+    $new_image_path
+  );
+  $stmt_user->execute();
+  $stmt_user->close();
   
-
-  
+  // --- 4. INSERT INTO activity_log ---
   $date_activity = $now = date("j-n-Y g:i A");  
   $activity_log_position = strtoupper($row_position_limit['position']);
   $admin = strtoupper('ADMIN').':' .' '. 'ADDED OFFICIAL -'.' ' .$official_id.' |' .' '.$activity_log_position .' '.$add_first_name .' '. $add_last_name .' '. $add_suffix .' | START ' .$add_term_from .' END ' .$add_term_to;
   $status_activity_log = 'create';
-
+  
+  // You can add the alias here if your activity_log table requires it, otherwise remove it
+  // $alias = 'ADMIN'; 
 
   $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
@@ -202,12 +239,5 @@ if($add_age_date >= '60'){
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
-
-
-
-
-
 
 ?>
