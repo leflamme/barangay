@@ -69,47 +69,24 @@ $row_seq = $result_seq->fetch_assoc();
 $next_seq = ($row_seq['max_seq'] ?? 0) + 1;
 $blotter_id = $prefix . '-' . str_pad($next_seq, 4, '0', STR_PAD_LEFT);
 
-// Handle file upload if provided (optional)
-$proof_path = null;
-if (isset($_FILES['proof']) && $_FILES['proof']['error'] == 0) {
-    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-    $max_size = 5 * 1024 * 1024;
-    
-    if (in_array($_FILES['proof']['type'], $allowed_types) && $_FILES['proof']['size'] <= $max_size) {
-        $upload_dir = '../uploads/reports/';
-        if (!is_dir($upload_dir)) {
-            if (!mkdir($upload_dir, 0755, true)) {
-                // Continue without file upload if directory creation fails
-            }
-        }
-        
-        $file_extension = pathinfo($_FILES['proof']['name'], PATHINFO_EXTENSION);
-        $file_name = 'report_' . time() . '_' . uniqid() . '.' . $file_extension;
-        $file_path = $upload_dir . $file_name;
-        
-        if (move_uploaded_file($_FILES['proof']['tmp_name'], $file_path)) {
-            $proof_path = $file_name;
-        }
-    }
-}
-
 try {
     // --- 1. SET UP VARIABLES ---
-    $blotter_id = $blotter_id; // This is from your generator above
-    $statement = $justification; // The 'justification' is the main statement
-    $respodent = $person_being_reported; // This is the person from the form
-    $statement_person = $respondent_name; // This is the logged-in user
-    $date_incident = $incident_date;
-    $date_reported = $date_reported;
-    $type_of_incident = $reason; // 'reason' is the type of incident
-    $location_incident = $location_incident;
+    // These variables already exist from your code above:
+    // $blotter_id, $location_incident, $incident_date, $date_reported,
+    // $person_being_reported, $respondent_name, $reason, $justification
+    
+    // Map them to the correct column names for clarity
+    $statement = $justification;          // The 'justification' is the main statement
+    $respodent = $person_being_reported;  // This is the person from the form
+    $statement_person = $respondent_name; // This is the logged-in user's name
+    $type_of_incident = $reason;          // 'reason' is the type of incident
+    
+    // Set defaults
     $status = 'NEW';
-    $remarks = 'OPEN'; // 'remarks' should be for the status, not the justification
-    $date_added = date('Y-m-d H:i:s'); // Use a standard format
+    $remarks = 'OPEN';
+    $date_added = date('Y-m-d H:i:s'); // Use a standard timestamp format
 
-    // --- 2. FIX THE SQL QUERY ---
-    // We are now inserting the correct variables into the correct columns.
-    // 'complainant_not_residence' and 'involved_not_resident' are left blank.
+    // --- 2. THE CORRECTED SQL QUERY ---
     $sql = "INSERT INTO blotter_record (
         blotter_id,
         complainant_not_residence,
@@ -131,17 +108,17 @@ try {
         throw new Exception("Database prepare error: " . $con->error);
     }
     
-    // --- 3. FIX THE BIND_PARAM ---
-    // There are 11 '?' placeholders, so we need 11 's' characters and 11 variables.
+    // --- 3. THE CORRECTED BIND_PARAM ---
+    // 11 '?' placeholders, so we need 11 's' characters and 11 variables.
     $stmt->bind_param(
         'sssssssssss', // 11 's' characters
         $blotter_id,
-        $statement,
-        $respodent,
-        $statement_person,
-        $date_incident,
+        $statement,         // $justification
+        $respodent,         // $person_being_reported
+        $statement_person,  // $respondent_name (logged-in user)
+        $incident_date,
         $date_reported,
-        $type_of_incident,
+        $type_of_incident,  // $reason
         $location_incident,
         $status,
         $remarks,
@@ -149,8 +126,7 @@ try {
     );
     
     if ($stmt->execute()) {
-        // --- 4. (SUGGESTION) LINK COMPLAINANT ---
-        // Your logic will be much better if you also link the blotter to the user.
+        // --- 4. LINK THE COMPLAINANT (Logged-in User) ---
         $sql_complainant = "INSERT INTO blotter_complainant (blotter_main, complainant_id) VALUES (?, ?)";
         $stmt_complainant = $con->prepare($sql_complainant);
         if ($stmt_complainant) {

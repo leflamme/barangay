@@ -593,15 +593,6 @@ try{
             <textarea class="form-control" id="justification" name="justification" rows="4" required placeholder="Provide details and justification for your report"></textarea>
           </div>
           
-          <div class="form-group">
-            <label for="proof">Proof (Image or File - Optional)</label>
-            <div class="file-input-wrapper">
-              <span class="file-input-label">Choose File</span>
-              <input type="file" id="proof" name="proof" accept="image/*,.pdf">
-            </div>
-            <div class="file-name" id="fileName">No file chosen</div>
-            <small class="form-text text-muted">Supported formats: JPG, PNG, GIF, PDF (Max 5MB)</small>
-          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -698,12 +689,6 @@ try{
     // Refresh button functionality
     $('#refreshRecords').on('click', function() {
       $('#myRecordTable').DataTable().ajax.reload();
-    });
-
-    // Handle file input change
-    $('#proof').on('change', function() {
-      const fileName = this.files.length > 0 ? this.files[0].name : 'No file chosen';
-      $('#fileName').text(fileName);
     });
 
     // Handle form submission
