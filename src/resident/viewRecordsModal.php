@@ -13,7 +13,7 @@ try{
     LEFT JOIN blotter_status s ON blotter_record.blotter_id = s.blotter_main
     LEFT JOIN blotter_complainant c ON blotter_record.blotter_id = c.blotter_main 
     WHERE blotter_record.blotter_id = ?
-    LIMIT 1"; // Add LIMIT 1 since we only expect one main record
+    LIMIT 1";
 
     $stmt_record = $con->prepare($sql_record) or die ($con->error);
     $stmt_record->bind_param('s',$record_id);
