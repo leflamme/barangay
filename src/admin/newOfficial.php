@@ -52,6 +52,8 @@ while($row = $result->fetch_assoc()){
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New Official</title>
 
+ 
+
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
@@ -913,7 +915,7 @@ body {
                       confirmButtonColor: '#6610f2',
                     });
 
-                } else {
+                } else if(response == 'success') { // ** CHANGED THIS LINE **
                   Swal.fire({
                     title: '<strong class="text-success">SUCCESS</strong>',
                     type: 'success',
@@ -927,6 +929,14 @@ body {
                     window.location.reload();
                   })
 
+                } else { // ** ADDED THIS BLOCK **
+                    // This will show the REAL PHP error
+                    Swal.fire({
+                        title: '<strong class="text-danger">Save Failed!</strong>',
+                        icon: 'error',
+                        html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + response + '</pre>',
+                        confirmButtonColor: '#d33',
+                    });
                 }
                 
               }
@@ -982,7 +992,9 @@ body {
             required: true,
           },
           add_pwd_info:{
-            required: true,
+            required: function(element) {
+                return $("#add_pwd").val() == "YES"; // Only required if PWD is YES
+            }
           },
           // NEW REQUIRED FIELDS FROM YOUR LIST
           add_birth_place: {
