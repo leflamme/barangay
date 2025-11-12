@@ -2,91 +2,44 @@
 session_start();
 include_once '../connection.php';
 
+$draw = intval($_REQUEST['draw'] ?? 1);
+$data = [];
+$totalDataBlotter = 0;
+$totalFilteredBlotter = 0;
+
 try {
-    $edit_residence_id = $_REQUEST['edit_residence_id'] ?? '';
+    // 1. Get the logged-in user's ID
+    $complainant_id = $_SESSION['user_id'] ?? '';
     
-    if (empty($edit_residence_id)) {
-        echo json_encode([
-            'draw' => intval($_REQUEST['draw'] ?? 1),
-            'recordsTotal' => 0,
-            'recordsFiltered' => 0,
-            'data' => []
-        ]);
-        exit;
+    if (empty($complainant_id) || $_SESSION['user_type'] != 'resident') {
+        throw new Exception("User not authenticated.");
     }
 
-    // Get user's name to match against respodent field
-    $sql_user = "SELECT first_name, last_name FROM users WHERE id = ?";
-    $stmt_user = $con->prepare($sql_user);
-    if (!$stmt_user) {
-        throw new Exception("Database error");
-    }
-    $stmt_user->bind_param('s', $edit_residence_id);
-    $stmt_user->execute();
-    $result_user = $stmt_user->get_result();
-    
-    if ($result_user->num_rows === 0) {
-        echo json_encode([
-            'draw' => intval($_REQUEST['draw'] ?? 1),
-            'recordsTotal' => 0,
-            'recordsFiltered' => 0,
-            'data' => []
-        ]);
-        exit;
-    }
-    
-    $user_data = $result_user->fetch_assoc();
-    $user_full_name = trim($user_data['first_name'] . ' ' . $user_data['last_name']);
-
-    $draw = intval($_REQUEST['draw'] ?? 1);
-    
-    // Count total records for this user - try both exact match and LIKE for safety
-    $sql_count = "SELECT COUNT(*) as total FROM blotter_record WHERE TRIM(respodent) = ?";
+    // 2. Count total records WHERE THE USER IS THE COMPLAINANT
+    $sql_count = "SELECT COUNT(*) as total 
+                  FROM blotter_record br
+                  JOIN blotter_complainant bc ON br.blotter_id = bc.blotter_main
+                  WHERE bc.complainant_id = ?";
+                  
     $stmt_count = $con->prepare($sql_count);
-    if (!$stmt_count) {
-        throw new Exception("Database error");
-    }
-    $stmt_count->bind_param('s', $user_full_name);
+    $stmt_count->bind_param('s', $complainant_id);
     $stmt_count->execute();
     $result_count = $stmt_count->get_result();
     $totalDataBlotter = $result_count->fetch_assoc()['total'] ?? 0;
-    
-    // If no records found with exact match, try case-insensitive
-    if ($totalDataBlotter == 0) {
-        $sql_count_like = "SELECT COUNT(*) as total FROM blotter_record WHERE LOWER(TRIM(respodent)) = LOWER(?)";
-        $stmt_count_like = $con->prepare($sql_count_like);
-        if ($stmt_count_like) {
-            $stmt_count_like->bind_param('s', $user_full_name);
-            $stmt_count_like->execute();
-            $result_count_like = $stmt_count_like->get_result();
-            $totalDataBlotter = $result_count_like->fetch_assoc()['total'] ?? 0;
-        }
-    }
-    
     $totalFilteredBlotter = $totalDataBlotter;
 
-    // Get the actual data
-    $sql = "SELECT * FROM blotter_record WHERE TRIM(respodent) = ? ORDER BY date_reported DESC";
+    // 3. Get the actual data for the table
+    $sql = "SELECT br.* FROM blotter_record br
+            JOIN blotter_complainant bc ON br.blotter_id = bc.blotter_main
+            WHERE bc.complainant_id = ?
+            ORDER BY br.date_reported DESC";
+            
     $stmt = $con->prepare($sql);
-    if (!$stmt) {
-        throw new Exception("Database error");
-    }
-    $stmt->bind_param('s', $user_full_name);
+    $stmt->bind_param('s', $complainant_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    // If no results, try case-insensitive search
-    if ($result->num_rows == 0 && $totalDataBlotter > 0) {
-        $sql_like = "SELECT * FROM blotter_record WHERE LOWER(TRIM(respodent)) = LOWER(?) ORDER BY date_reported DESC";
-        $stmt_like = $con->prepare($sql_like);
-        if ($stmt_like) {
-            $stmt_like->bind_param('s', $user_full_name);
-            $stmt_like->execute();
-            $result = $stmt_like->get_result();
-        }
-    }
 
-    $data = [];
+    // 4. Format the data for DataTables
     while($row = $result->fetch_assoc()) {
         date_default_timezone_set('Asia/Manila');
         
@@ -108,7 +61,7 @@ try {
         }
 
         $subdata = [];
-        $subdata[] = "1";
+        $subdata[] = "1"; // For the fnRowCallback color
         $subdata[] = htmlspecialchars($row['blotter_id'], ENT_QUOTES, 'UTF-8');
         $subdata[] = $status_blotter;
         $subdata[] = $remarks_blotter;
@@ -121,23 +74,20 @@ try {
         $data[] = $subdata;
     }
 
-    $json_data = [
-        'draw' => $draw,
-        'recordsTotal' => intval($totalDataBlotter),
-        'recordsFiltered' => intval($totalFilteredBlotter),
-        'data' => $data,
-    ];
-
-    echo json_encode($json_data);
-
 } catch(Exception $e) {
-    echo json_encode([
-        'draw' => intval($_REQUEST['draw'] ?? 1),
-        'recordsTotal' => 0,
-        'recordsFiltered' => 0,
-        'data' => []
-    ]);
+    // In case of error, send back an empty table structure
+    $data = [];
+    $totalDataBlotter = 0;
+    $totalFilteredBlotter = 0;
 }
 
+$json_data = [
+    'draw' => $draw,
+    'recordsTotal' => intval($totalDataBlotter),
+    'recordsFiltered' => intval($totalFilteredBlotter),
+    'data' => $data,
+];
+
+echo json_encode($json_data);
 $con->close();
 ?>

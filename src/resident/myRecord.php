@@ -781,7 +781,7 @@ $('#confirmReport').on('click', function() {
   $.ajax({
     url: 'submitReport.php',
     type: 'POST',
-     formData,
+    data: formData, // Fixed AJAX call for missing data property
     processData: false,
     contentType: false,
     success: function(response) {

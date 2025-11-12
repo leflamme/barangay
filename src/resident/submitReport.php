@@ -94,7 +94,22 @@ if (isset($_FILES['proof']) && $_FILES['proof']['error'] == 0) {
 }
 
 try {
-    // Insert into blotter_record table
+    // --- 1. SET UP VARIABLES ---
+    $blotter_id = $blotter_id; // This is from your generator above
+    $statement = $justification; // The 'justification' is the main statement
+    $respodent = $person_being_reported; // This is the person from the form
+    $statement_person = $respondent_name; // This is the logged-in user
+    $date_incident = $incident_date;
+    $date_reported = $date_reported;
+    $type_of_incident = $reason; // 'reason' is the type of incident
+    $location_incident = $location_incident;
+    $status = 'NEW';
+    $remarks = 'OPEN'; // 'remarks' should be for the status, not the justification
+    $date_added = date('Y-m-d H:i:s'); // Use a standard format
+
+    // --- 2. FIX THE SQL QUERY ---
+    // We are now inserting the correct variables into the correct columns.
+    // 'complainant_not_residence' and 'involved_not_resident' are left blank.
     $sql = "INSERT INTO blotter_record (
         blotter_id,
         complainant_not_residence,
@@ -109,36 +124,51 @@ try {
         status,
         remarks,
         date_added
-    ) VALUES (?, '', ?, ?, '', ?, ?, ?, 'Complaint', ?, 'NEW', ?, ?)";
+    ) VALUES (?, '', ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $con->prepare($sql);
     if (!$stmt) {
-        throw new Exception("Database error");
+        throw new Exception("Database prepare error: " . $con->error);
     }
     
+    // --- 3. FIX THE BIND_PARAM ---
+    // There are 11 '?' placeholders, so we need 11 's' characters and 11 variables.
     $stmt->bind_param(
-        'ssssssssss',
+        'sssssssssss', // 11 's' characters
         $blotter_id,
-        $reason,
-        $respondent_name,
-        $person_being_reported,
-        $incident_date,
+        $statement,
+        $respodent,
+        $statement_person,
+        $date_incident,
         $date_reported,
+        $type_of_incident,
         $location_incident,
-        $justification,
-        $date_reported
+        $status,
+        $remarks,
+        $date_added
     );
     
     if ($stmt->execute()) {
+        // --- 4. (SUGGESTION) LINK COMPLAINANT ---
+        // Your logic will be much better if you also link the blotter to the user.
+        $sql_complainant = "INSERT INTO blotter_complainant (blotter_main, complainant_id) VALUES (?, ?)";
+        $stmt_complainant = $con->prepare($sql_complainant);
+        if ($stmt_complainant) {
+            $stmt_complainant->bind_param('ss', $blotter_id, $resident_id); // $resident_id is from session
+            $stmt_complainant->execute();
+            $stmt_complainant->close();
+        }
+        
         echo json_encode(['success' => true, 'message' => 'Report submitted successfully']);
     } else {
-        throw new Exception("Failed to save report");
+        throw new Exception("Failed to save report: " . $stmt->error);
     }
     
     $stmt->close();
     $con->close();
     
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Failed to submit report. Please try again later.']);
+    // Send the actual error message back to the user
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>
