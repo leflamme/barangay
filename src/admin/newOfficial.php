@@ -52,8 +52,6 @@ while($row = $result->fetch_assoc()){
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New Official</title>
 
- 
-
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
@@ -166,6 +164,13 @@ body {
   color: #003366 !important;
 }
 
+/* NEW: Disabled Tab Style */
+.disabled-tab {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Responsive Nav Links */
 @media (max-width: 768px) {
   .navbar-nav .nav-link {
@@ -216,11 +221,17 @@ body {
   border-color: #256d47 !important;
 }
 
+.step-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
 
 </style>
   
   <nav class="main-header navbar navbar-expand navbar-dark">
-<ul class="navbar-nav">
+  <ul class="navbar-nav">
     <li class="nav-item">
       <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
     </li>
@@ -240,41 +251,38 @@ body {
       <h5 class="nav-link text-white"><?= $district ?></h5>
     </li>
   </ul>
-
     <ul class="navbar-nav ml-auto">
-
       <li class="nav-item dropdown">
-  <a class="nav-link" data-toggle="dropdown" href="#">
-    <i class="far fa-user"></i>
-  </a>
-  <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-    <a href="myProfile.php" class="dropdown-item">
-      <div class="media">
-        <?php 
-          if(!empty($user_image)){
-            echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle" alt="User Image">';
-          } else {
-            echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">';
-          }
-        ?>
-        <div class="media-body">
-          <h3 class="dropdown-item-title py-3">
-            <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
-          </h3>
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-user"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <a href="myProfile.php" class="dropdown-item">
+            <div class="media">
+              <?php 
+                if(!empty($user_image)){
+                  echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle" alt="User Image">';
+                } else {
+                  echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">';
+                }
+              ?>
+              <div class="media-body">
+                <h3 class="dropdown-item-title py-3">
+                  <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
+                </h3>
+              </div>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
-      </div>
-    </a>
-    <div class="dropdown-divider"></div>
-    <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
-  </div>
-</li>
+      </li>
     </ul>
   </nav>
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
     <div class="sidebar">
-  
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
@@ -384,7 +392,6 @@ body {
               </p>
             </a>
           </li>
-
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -410,7 +417,7 @@ body {
                 </li>
               </ul>
           </li>
-        <li class="nav-item">
+          <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
               <p>
@@ -457,10 +464,8 @@ body {
 
   <div class="content-wrapper">
    
-
     <section class="content mt-3">
       <div class="container-fluid">
-
 
       <form id="newOfficialForm" method="POST" enctype="multipart/form-data" autocomplete="off">
         <div class="row mb-3">
@@ -477,7 +482,7 @@ body {
                 <div class="row">
                   <div class="col-sm-12">
                     <div class="form-group">
-                      <label>Position</label>
+                      <label>Position <span class="text-danger">*</span></label>
                       <select name="add_position" id="add_position" class="form-control text-uppercase">
                         <option value=""></option>
                         <?php 
@@ -487,11 +492,8 @@ body {
                         $stmt_position->execute();
                         $result_position = $stmt_position->get_result();
                         while($row_position = $result_position->fetch_assoc()){
-
                          echo '<option value="'.$row_position['position_id'].'" class="text-uppercase">'.$row_position['position'].'</option>';
-
                         }
-                        
                         
                         ?>
                       </select>
@@ -499,43 +501,41 @@ body {
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group ">
-                      <label >Start</label>
+                      <label >Start <span class="text-danger">*</span></label>
                       <input type="date" class="form-control" id="add_term_from" name="add_term_from">
                     </div>
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group ">
-                      <label >End</label>
+                      <label >End <span class="text-danger">*</span></label>
                       <input type="date" class="form-control" id="add_term_to" name="add_term_to">
                     </div>
                   </div>
                   <div class="col-sm-12">
                     <div class="form-group">
-                      <label>Voters</label>
+                      <label>Voters <span class="text-danger">*</span></label>
                       <select name="add_voters" id="add_voters" class="form-control">
                         <option value=""></option>
                         <option value="NO">NO</option>
-                        <option value="YES">YES</option>
-                      </select>
+                        <option value="YES" selected>YES</option> </select>
                     </div>
                   </div>
                   
-
                   <div class="col-sm-12">
                     <div class="form-group ">
-                      <label >Date of Birth</label>
+                      <label >Date of Birth <span class="text-danger">*</span></label>
                       <input type="date" class="form-control" id="add_birth_date" name="add_birth_date">
                     </div>
                   </div>
                   <div class="col-sm-12">
                     <div class="form-group ">
-                      <label >Place of Birth</label>
+                      <label >Place of Birth <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_birth_place" name="add_birth_place">
                     </div>
                   </div>
                   <div class="col-sm-12">
                     <div class="form-group">
-                      <label>Pwd</label>
+                      <label>Pwd <span class="text-danger">*</span></label>
                       <select name="add_pwd" id="add_pwd" class="form-control">
                         <option value=""></option>
                         <option value="NO">NO</option>
@@ -560,28 +560,21 @@ body {
                     </div>
                   </div>
                 </div>
-
-
-
-               
               </div>
               </div>
           </div>
           <div class="col-sm-8">
-    <div class="card  card-tabs h-100 transparent-card shadow-card">
+            <div class="card card-tabs h-100 transparent-card shadow-card">
               <div class="card-header p-0 pt-1">
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                   <li class="nav-item">
                     <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
+                    <a class="nav-link tab-nav-link disabled-tab" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link tab-nav-link" id="account-tab" data-toggle="pill" href="#account">Account</a>
+                    <a class="nav-link tab-nav-link disabled-tab" id="account-tab" data-toggle="pill" href="#account">Account</a>
                   </li>
                 </ul>
               </div>
@@ -592,19 +585,19 @@ body {
                       <div class="row">
                         <div class="col-sm-12">
                           <div class="form-group ">
-                            <label>First Name </label>
+                            <label>First Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="add_first_name" name="add_first_name" >
                           </div>
                         </div>
                         <div class="col-sm-12">
                           <div class="form-group ">
-                            <label>Middle Name </label>
+                            <label>Middle Name</label>
                             <input type="text" class="form-control" id="add_middle_name" name="add_middle_name" >
                           </div>
                         </div>
                         <div class="col-sm-12">
                           <div class="form-group ">
-                            <label>Last Name </label>
+                            <label>Last Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="add_last_name" name="add_last_name" >
                           </div>  
                         </div>
@@ -612,15 +605,16 @@ body {
                         <div class="row">
                           <div class="col-sm-6">
                             <div class="form-group ">
-                              <label >Suffix </label>
+                              <label >Suffix</label>
                               <input type="text" class="form-control" id="add_suffix" name="add_suffix" >
                             </div>
                           </div>
                           
                           <div class="col-sm-6">
                             <div class="form-group ">
-                              <label >Gender</label>
+                              <label >Gender <span class="text-danger">*</span></label>
                               <select name="add_gender" id="add_gender" class="form-control">
+                                <option value=""></option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                               </select>
@@ -645,10 +639,14 @@ body {
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group ">
-                              <label >Nationality</label>
-                              <input type="text" class="form-control" id="add_nationality" name="add_nationality">
-                            </div>
+                              <label >Nationality <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" id="add_nationality" name="add_nationality" value="Filipino"> </div>
                           </div>                              
+                        </div>
+                        <div class="card-footer step-footer">
+                          <button type="button" id="proceed-basic" class="btn btn-success px-4 elevation-3">
+                            <i class="fas fa-arrow-right"></i> Proceed to Other Info
+                          </button>
                         </div>
                   </div>
                   <div class="tab-pane fade" id="other-info" role="tabpanel" aria-labelledby="other-info-tab">
@@ -656,96 +654,66 @@ body {
                         <div class="row">
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label>Municipality</label>
+                              <label>Municipality <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" id="add_municipality" name="add_municipality">
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label>Zip</label>
+                              <label>Zip <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" id="add_zip" name="add_zip" >
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label>Barangay</label>
+                              <label>Barangay <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" id="add_barangay" name="add_barangay" >
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label>House Number</label>
+                              <label>House Number <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" id="add_house_number" name="add_house_number" >
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                            <label>Street</label>
+                            <label>Street <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="add_street" name="add_street" >
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label>Address</label>
+                              <label>Address <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" id="add_address" name="add_address" >
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label>Email Address</label>
+                              <label>Email Address <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" id="add_email_address" name="add_email_address" >
                             </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="form-group">
-                              <label >Contact Number</label>
+                              <label >Contact Number <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" maxlength="11" id="add_contact_number" name="add_contact_number">
                             </div>
                           </div>
                         </div>
-     
-
+                        <div class="card-footer step-footer">
+                          <button type="button" id="proceed-other" class="btn btn-success px-4 elevation-3">
+                            <i class="fas fa-arrow-right"></i> Proceed to Account
+                          </button>
+                        </div>
                   </div>
-                  <div class="tab-pane fade" id="guardian" role="tabpanel" aria-labelledby="guardian-tab">
-                   
-                      <p class="lead text-center">Guardian</p>
-                      <div class="row">
 
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Father's Name</label>
-                            <input type="text" class="form-control" id="add_fathers_name" name="add_fathers_name" >
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Mother's Name</label>
-                            <input type="text" class="form-control" id="add_mothers_name" name="add_mothers_name" >
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Guardian</label>
-                            <input type="text" class="form-control" id="add_guardian" name="add_guardian" >
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Guardian Contact</label>
-                            <input type="text" class="form-control" id="add_guardian_contact" name="add_guardian_contact" >
-                          </div>
-                        </div>
-
-                      </div>
-                    
-                  </div>
-                  
                   <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
                     <p class="lead text-center">Account Credentials</p>
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <label>User Type</label>
+                                <label>User Type <span class="text-danger">*</span></label>
                                 <select name="add_user_type" id="add_user_type" class="form-control">
                                     <option value=""></option>
                                     <option value="admin">Admin</option>
@@ -755,13 +723,13 @@ body {
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <label>Username</label>
+                                <label>Username <span class="text-danger">*</span></label>
                                 <input type="text" id="add_username" name="add_username" class="form-control" placeholder="USERNAME">
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <label>Password</label>
+                                <label>Password <span class="text-danger">*</span></label>
                                 <div class="input-group" id="show_hide_password">
                                     <input type="password" id="add_password" name="add_password" class="form-control" placeholder="PASSWORD" style="border-right: none;">
                                     <div class="input-group-append">
@@ -774,7 +742,7 @@ body {
                         </div>
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <label>Confirm Password</label>
+                                <label>Confirm Password <span class="text-danger">*</span></label>
                                 <div class="input-group" id="show_hide_password_confirm">
                                     <input type="password" id="add_confirm_password" name="add_confirm_password" class="form-control" placeholder="CONFIRM PASSWORD" style="border-right: none;">
                                     <div class="input-group-append">
@@ -786,22 +754,16 @@ body {
                             </div>
                         </div>
                     </div>
+                    <div class="card-footer step-footer">
+                        <button type="submit"  class="btn btn-success px-3  elevation-5 btn-flat"> <i class="fas fa-user-plus"></i> ADD NEW OFFICIAL</button>
+                    </div>
                   </div>
-
                 </div>
               </div>
-              <div class="card-footer">
-                <button type="submit"  class="btn btn-success px-3  elevation-5 btn-flat"> <i class="fas fa-user-plus"></i> ADD NEW OFFICIAL</button>
-              </div> 
               </div>
-
           </div>
         </div>
         </form>
-
-
-
-
       </div></section>
     </div>
   <footer class="main-footer">
@@ -809,6 +771,7 @@ body {
   <div class="float-right d-none d-sm-inline-block">
   </div>
 </footer>
+</div>
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
@@ -848,10 +811,72 @@ body {
       }
 
     })
+
+    // NEW FUNCTION TO CHECK VALIDITY OF A TAB
+    function isCurrentStepValid(tabId) {
+        var isValid = true;
+        // Find all inputs in the given tab pane, trigger validation on them
+        $('#' + tabId).find('input, select, textarea').each(function() {
+            if (!$(this).valid()) {
+                isValid = false;
+            }
+        });
+        return isValid;
+    }
+
+    // NEW: Proceed from Basic Info to Other Info
+    $('#proceed-basic').click(function(e) {
+        e.preventDefault();
+        $('#newOfficialForm').validate().settings.ignore = ":disabled"; // Ensure all fields are checked
+        if (isCurrentStepValid('basic-info')) {
+            $('#other-info-tab').removeClass('disabled-tab').tab('show');
+            $('#basic-info-tab').removeClass('active');
+            $('#basic-info').removeClass('active show');
+            $('#other-info').addClass('active show');
+        } else {
+            Swal.fire({
+                title: 'Incomplete Information',
+                text: 'Please fill out all required fields in the Basic Info tab.',
+                icon: 'warning',
+                confirmButtonColor: '#050C9C'
+            });
+        }
+    });
+
+    // NEW: Proceed from Other Info to Account
+    $('#proceed-other').click(function(e) {
+        e.preventDefault();
+        $('#newOfficialForm').validate().settings.ignore = ":disabled"; // Ensure all fields are checked
+        if (isCurrentStepValid('other-info')) {
+            $('#account-tab').removeClass('disabled-tab').tab('show');
+            $('#other-info-tab').removeClass('active');
+            $('#other-info').removeClass('active show');
+            $('#account').addClass('active show');
+        } else {
+            Swal.fire({
+                title: 'Incomplete Information',
+                text: 'Please fill out all required fields in the Other Info tab.',
+                icon: 'warning',
+                confirmButtonColor: '#050C9C'
+            });
+        }
+    });
+
     
     $(function () {
         $.validator.setDefaults({
           submitHandler: function (form) {
+            // Check if the final tab is valid before submitting
+            if (!isCurrentStepValid('account')) {
+                Swal.fire({
+                    title: 'Incomplete Information',
+                    text: 'Please fill out all required fields in the Account tab.',
+                    icon: 'warning',
+                    confirmButtonColor: '#050C9C'
+                });
+                return; // Stop submission
+            }
+            
             $.ajax({
               url: 'addNewOfficial.php',
               type: 'POST',
@@ -917,7 +942,7 @@ body {
           }
         });
       $('#newOfficialForm').validate({
-        ignore: "",
+        ignore: ".disabled-tab", // VALIDATION: Ignore fields in disabled tabs
         rules: {
           add_first_name: {
             required: true,
@@ -927,9 +952,6 @@ body {
             required: true,
             minlength: 2
           },
-          add_age: {
-            required: true,
-          },
           add_birth_date: {
             required: true,
           },
@@ -937,6 +959,7 @@ body {
             required: true,
           },
           add_email_address:{
+            required: true, // Added required
             email: true,
           },
           add_term_from:{
@@ -955,16 +978,38 @@ body {
           add_voters:{
             required: true,
           },
-          add_single_parent:{
-            required: true,
-          },
           add_pwd:{
             required: true,
           },
           add_pwd_info:{
             required: true,
           },
-          // NEW VALIDATION RULES
+          // NEW REQUIRED FIELDS FROM YOUR LIST
+          add_birth_place: {
+            required: true,
+          },
+          add_gender: {
+            required: true,
+          },
+          add_nationality: {
+            required: true,
+          },
+          add_municipality: {
+            required: true,
+          },
+          add_zip: {
+            required: true,
+          },
+          add_barangay: {
+            required: true,
+          },
+          add_house_number: {
+            required: true,
+          },
+          add_street: {
+            required: true,
+          },
+          // ACCOUNT VALIDATION RULES
           add_user_type: {
             required: true,
           },
@@ -991,9 +1036,6 @@ body {
             required: "Please provide a Last Name",
             minlength: "Last Name must be at least 2 characters long"
           },
-          add_age: {
-            required: "Please provide a age",
-          },
           add_birth_date: {
             required: "Please provide a Birth Date",
           },
@@ -1010,6 +1052,7 @@ body {
             required: "Please provide a Position",
           },
           add_email_address:{
+            required: "Please provide an Email Address",
             email:"Enter Valid Email!",
             },
             add_contact_number:{
@@ -1017,6 +1060,30 @@ body {
               minlength: "Input Exact Contact Number"
             },
             // NEW VALIDATION MESSAGES
+            add_birth_place: {
+              required: "Please provide a Place of Birth"
+            },
+            add_gender: {
+              required: "Please select a Gender"
+            },
+            add_nationality: {
+              required: "Please provide a Nationality"
+            },
+            add_municipality: {
+              required: "Please provide a Municipality"
+            },
+            add_zip: {
+              required: "Please provide a Zip Code"
+            },
+            add_barangay: {
+              required: "Please provide a Barangay"
+            },
+            add_house_number: {
+              required: "Please provide a House Number"
+            },
+            add_street: {
+              required: "Please provide a Street"
+            },
             add_user_type: {
                 required: "Please select a user type"
             },
@@ -1146,7 +1213,7 @@ body {
 }(jQuery));
 
  
-  $("#add_contact_number, #add_zip, #add_guardian_contact, #add_age").inputFilter(function(value) {
+  $("#add_contact_number, #add_zip, #add_guardian_contact").inputFilter(function(value) {
   return /^-?\d*$/.test(value); 
   
   });
