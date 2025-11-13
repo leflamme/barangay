@@ -20,7 +20,7 @@ define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
 /**
  * Define Backup behavior
  */
-define("BACKUP_DIR", '../backup'); // This is the folder *inside* the container
+define("BACKUP_DIR", '../uploads/backup'); // This is the folder *inside* the container
 define("TABLES", '*');
 define('IGNORE_TABLES',array()); // Tables to ignore
 define("CHARSET", 'utf8');
