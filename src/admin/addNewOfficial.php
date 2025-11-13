@@ -218,23 +218,19 @@ if($add_age_date >= '60'){
   $stmt_user->close();
   
   // --- 4. INSERT INTO activity_log ---
-  $date_activity = $now = date("j-n-Y g:i A");  
-  $activity_log_position = strtoupper($row_position_limit['position']);
-  $admin = strtoupper('ADMIN').':' .' '. 'ADDED OFFICIAL -'.' ' .$official_id.' |' .' '.$activity_log_position .' '.$add_first_name .' '. $add_last_name .' '. $add_suffix .' | START ' .$add_term_from .' END ' .$add_term_to;
-  $status_activity_log = 'create';
-  
-  // FIXED: This query MUST match your database.
-  // We'll use the safe version that provides all required fields.
-  $alias = 'ADMIN'; 
+$date_activity = $now = date("j-n-Y g:i A");  
+$activity_log_position = strtoupper($row_position_limit['position']);
+$admin = strtoupper('ADMIN').':' .' '. 'ADDED OFFICIAL -'.' ' .$official_id.' |' .' '.$activity_log_position .' '.$add_first_name .' '. $add_last_name .' '. $add_suffix .' | START ' .$add_term_from .' END ' .$add_term_to;
+$status_activity_log = 'create';
 
-  $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`, `alias`) VALUES (?,?,?,?)";
-  $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
-  $stmt_activity_log->bind_param('ssss',$admin,$date_activity,$status_activity_log, $alias);
-  $stmt_activity_log->execute();
-  $stmt_activity_log->close();
-  
-  // If we get here, all 4 queries worked.
-  echo 'success';
+$sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?,?)";
+$stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
+
+$stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
+$stmt_activity_log->execute();
+$stmt_activity_log->close();
+
+echo 'success';
 
 }catch(Exception $e){
   // This will catch any fatal SQL error
