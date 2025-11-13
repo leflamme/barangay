@@ -1,10 +1,25 @@
 <?php 
-// Get credentials from Railway Environment Variables
-$DB_HOST = getenv('MYSQL_HOST');
-$DB_USER = getenv('MYSQL_USER');
-$DB_PASSWORD = getenv('MYSQL_PASSWORD');
-$DB_NAME = getenv('MYSQL_DATABASE');
-$DB_PORT = getenv('MYSQL_PORT'); // Railway often uses a custom port
+include_once '../connection.php';
+
+/**
+ * Get credentials from Railway Environment Variables
+ */
+define("DB_USER", getenv('MYSQL_USER'));
+define("DB_PASSWORD", getenv('MYSQL_PASSWORD'));
+define("DB_NAME", getenv('MYSQL_DATABASE'));
+define("DB_HOST", getenv('MYSQL_HOST'));
+define("DB_PORT", getenv('MYSQL_PORT'));
+
+/**
+ * Define Backup behavior
+ */
+define("BACKUP_DIR", '../backup'); // This is the folder *inside* the container
+define("TABLES", '*');
+define('IGNORE_TABLES', array()); 
+define("CHARSET", 'utf8');
+define("GZIP_BACKUP_FILE", false);
+define("DISABLE_FOREIGN_KEY_CHECKS", true);
+define("BATCH_SIZE", 1000);
 
 /**
  * The Backup_Database class
@@ -453,7 +468,10 @@ if (php_sapi_name() != "cli") {
     echo '<div style="font-family: monospace;">';
 }
 
-$backupDatabase = new Backup_Database($DB_HOST, $DB_USER, $DB_PASSWORD, $DB_NAME, CHARSET);
+$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, CHARSET);
+// We must also update the internal mysqli connection to use the port
+$backupDatabase->conn->close(); // Close the old connection
+$backupDatabase->conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 // Option-1: Backup tables already defined above
 $result = $backupDatabase->backupTables(TABLES) ? 'OK' : 'KO';
