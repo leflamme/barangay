@@ -1,5 +1,5 @@
 <?php
-// indexnew.php
+//indexnew.php
 session_start();
 include_once 'connection.php';
 
@@ -490,6 +490,77 @@ footer.main-footer {
   padding: 1rem;
 }
 
+/* BARANGAY OFFICIALS SECTION */
+.officials-section {
+  background: rgba(255,255,255,0.06); /* same light transparent bg */
+  padding: 60px 20px;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.officials-title {
+  font-size: 38px;
+  font-weight: 800;
+  color: #050C9C; /* same dark blue as egov-section title */
+  margin-bottom: 25px;
+}
+
+.officials-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+  gap: 18px;
+}
+
+/* Card Styling — matched to e-governance cards */
+.official-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.04));
+  padding: 18px 14px;
+  border-radius: 12px;
+  text-align: center;
+  color: #0a195cff; /* same deep navy text */
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.official-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.28);
+  background: #A7E6FF; /* SAME hover blue color */
+  color: #050C9C; /* same hover text color */
+}
+
+.official-name {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.official-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(10,25,92,0.85);
+}
+
+/* Responsiveness — same behavior as e-gov cards */
+@media screen and (max-width: 992px) {
+  .officials-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .officials-container {
+    grid-template-columns: 1fr;
+  }
+}
+
 
   </style>
 </head>
@@ -595,6 +666,76 @@ footer.main-footer {
     Situated in the New Manila/St. Luke’s medical district corridor, Barangay Kalusugan enjoys strategic access to key roads such as E. Rodriguez Sr. Avenue and is near major public transport links.
   </p>
 </section>
+
+<!-- BARANGAY OFFICIALS SECTION -->
+<section class="officials-section">
+  <h2 class="officials-title">Barangay Officials</h2>
+
+  <div class="officials-container">
+
+    <div class="official-card">
+      <h3 class="official-name">Hon. Rocky DC. Rabanal</h3>
+      <p class="official-title">Punong Barangay</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Roderick M. Hara</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Christopher C. Serrano</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Margaret Lyra Maruzzo</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Ferdinan D. Barbon</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Elissa R. Payumo</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Robin C. Porlaje</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Kgd. Reynaldo SJ. Seva</h3>
+      <p class="official-title">Barangay Kagawad</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Corazon L. Prado</h3>
+      <p class="official-title">Secretary</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Fritzie F. Ulpindo</h3>
+      <p class="official-title">Treasurer</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">Elmer Z. Pinca</h3>
+      <p class="official-title">BPSO Ex-O</p>
+    </div>
+
+    <div class="official-card">
+      <h3 class="official-name">John Vincent D. Abaño</h3>
+      <p class="official-title">SK Chairman</p>
+    </div>
+
+  </div>
+</section>
+
 
 <!-- FOOTER -->
 <footer class="main-footer">
