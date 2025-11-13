@@ -230,7 +230,7 @@ try{
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
     <!-- Brand Logo -->
-    <img src="../assets/logo/ksugan.jpg" alt="">
+    <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
     <!-- Sidebar -->
     <div class="sidebar">
