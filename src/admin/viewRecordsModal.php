@@ -5,27 +5,22 @@ try{
   if(isset($_REQUEST['record_id'])){
 
     $record_id = $con->real_escape_string(trim($_REQUEST['record_id']));
-    $sql_record = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-    INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-    INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_record.blotter_id = ?";
+    $sql_record = "SELECT br.*, bs.person_id, bc.complainant_id 
+    FROM blotter_record br
+    LEFT JOIN blotter_status bs ON br.blotter_id = bs.blotter_main
+    LEFT JOIN blotter_complainant bc ON br.blotter_id = bc.blotter_main 
+    WHERE br.blotter_id = ?
+    GROUP BY br.blotter_id"; // Use GROUP BY to ensure one row
+    
     $stmt_record = $con->prepare($sql_record) or die ($con->error);
     $stmt_record->bind_param('s',$record_id);
     $stmt_record->execute();
     $result_blotter = $stmt_record->get_result();
     $row_record_blotter = $result_blotter->fetch_assoc();
-
-
-
   }
-
-
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
-
-
 
 ?>
 
@@ -81,11 +76,9 @@ try{
                             }
                             ?>
                               <option  value="<?= $row_record_resident_id['residence_id'] ?>" <?php
+                                // Fixed code here
+                                $sql_record_while_complainant = "SELECT complainant_id FROM blotter_complainant WHERE blotter_main = ?";
 
-                      
-                                $sql_record_while_complainant = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-                                INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-                                INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_complainant.blotter_main = ?";
                                 $stmt_record_while_complainant = $con->prepare($sql_record_while_complainant) or die ($con->error);
                                 $stmt_record_while_complainant->bind_param('s',$record_id);
                                 $stmt_record_while_complainant->execute();
@@ -164,11 +157,9 @@ try{
                             }
                             ?>
                               <option value="<?= $row_person_id['residence_id'] ?>" <?php 
-
-
-                                    $sql_record_while_person = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-                                    INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-                                    INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_status.blotter_main = ?";
+                                    // Fixed code here
+                                    $sql_record_while_person = "SELECT person_id FROM blotter_status WHERE blotter_main = ?";
+                                    
                                     $stmt_record_while_person = $con->prepare($sql_record_while_person) or die ($con->error);
                                     $stmt_record_while_person->bind_param('s',$record_id);
                                     $stmt_record_while_person->execute();
