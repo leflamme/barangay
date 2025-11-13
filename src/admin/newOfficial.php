@@ -52,8 +52,6 @@ while($row = $result->fetch_assoc()){
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New Official</title>
 
- 
-
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
@@ -868,86 +866,88 @@ body {
     $(function () {
         $.validator.setDefaults({
           submitHandler: function (form) {
-            // Check if the final tab is valid before submitting
+            // 1. Check if the final tab is valid before submitting
             if (!isCurrentStepValid('account')) {
                 Swal.fire({
                     title: 'Incomplete Information',
                     text: 'Please fill out all required fields in the Account tab.',
-                    icon: 'warning',
+                    icon: 'warning', // 'icon' is correct here, 'type' is for the error popup
                     confirmButtonColor: '#050C9C'
                 });
                 return; // Stop submission
             }
             
+            // 2. If valid, proceed with the AJAX submission
             $.ajax({
-              url: 'addNewOfficial.php',
-              type: 'POST',
-              data: new FormData(form),
-              processData: false,
-              contentType: false,
-              success:function(data){
-                
-                var response = data.trim();
+                url: 'addNewOfficial.php',
+                type: 'POST',
+                data: new FormData(form),
+                processData: false,
+                contentType: false,
+                success:function(data){
+                    
+                    var response = data.trim();
 
-                if(response == 'error'){
-                    Swal.fire({
-                      title: '<strong class="text-danger">ERROR</strong>',
-                      type: 'error',
-                      html: '<b>Position Limit Reached<b>',
-                      width: '400px',
-                      confirmButtonColor: '#6610f2',
-                      allowOutsideClick: false,
-                    });
+                    if(response == 'error'){
+                        Swal.fire({
+                            title: '<strong class="text-danger">ERROR</strong>',
+                            type: 'error', // 'type' is correct here
+                            html: '<b>Position Limit Reached<b>',
+                            width: '400px',
+                            confirmButtonColor: '#6610f2',
+                            allowOutsideClick: false,
+                        });
 
-                } else if(response == 'errorPassword'){
-                    Swal.fire({
-                      title: '<strong class="text-danger">ERROR</strong>',
-                      icon: 'error',
-                      html: '<b>Passwords do not Match</b>',
-                      confirmButtonColor: '#6610f2',
-                    });
-                
-                } else if(response == 'errorUsername'){
-                    Swal.fire({
-                      title: '<strong class="text-danger">ERROR</strong>',
-                      icon: 'error',
-                      html: '<b>Username is Already Taken</b>',
-                      confirmButtonColor: '#6610f2',
-                    });
+                    } else if(response == 'errorPassword'){
+                        Swal.fire({
+                            title: '<strong class="text-danger">ERROR</strong>',
+                            type: 'error', // 'type' is correct here
+                            html: '<b>Passwords do not Match</b>',
+                            confirmButtonColor: '#6610f2',
+                        });
+                    
+                    } else if(response == 'errorUsername'){
+                        Swal.fire({
+                            title: '<strong class="text-danger">ERROR</strong>',
+                            type: 'error', // 'type' is correct here
+                            html: '<b>Username is Already Taken</b>',
+                            confirmButtonColor: '#6610f2',
+                        });
 
-                } else if(response == 'success') { // ** CHANGED THIS LINE **
-                  Swal.fire({
-                    title: '<strong class="text-success">SUCCESS</strong>',
-                    type: 'success',
-                    html: '<b>Added Official Successfully<b>',
+                    } else if(response == 'success') { 
+                        Swal.fire({
+                            title: '<strong class="text-success">SUCCESS</strong>',
+                            type: 'success', // 'type' is correct here
+                            html: '<b>Added Official Successfully<b>',
+                            width: '400px',
+                            confirmButtonColor: '#6610f2',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            timer: 2000,
+                        }).then(()=>{
+                            window.location.reload();
+                        })
+
+                    } else { 
+                        // THIS IS THE BLOCK WITH THE FIX
+                        // This will show the REAL PHP error
+                        Swal.fire({
+                            title: '<strong class="text-danger">Save Failed!</strong>',
+                            type: 'error', // <-- THIS IS THE FIX
+                            html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + response + '</pre>',
+                            confirmButtonColor: '#d33',
+                        });
+                    }
+                    
+                }
+            }).fail(function(){
+                Swal.fire({
+                    title: '<strong class="text-danger">Ooppss..</strong>',
+                    type: 'error', // 'type' is correct here
+                    html: '<b>Something went wrong with ajax !<b>',
                     width: '400px',
                     confirmButtonColor: '#6610f2',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    timer: 2000,
-                  }).then(()=>{
-                    window.location.reload();
-                  })
-
-                } else { // ** ADDED THIS BLOCK **
-                    // This will show the REAL PHP error
-                    Swal.fire({
-                        title: '<strong class="text-danger">Save Failed!</strong>',
-                        icon: 'error',
-                        html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + response + '</pre>',
-                        confirmButtonColor: '#d33',
-                    });
-                }
-                
-              }
-            }).fail(function(){
-              Swal.fire({
-                title: '<strong class="text-danger">Ooppss..</strong>',
-                type: 'error',
-                html: '<b>Something went wrong with ajax !<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
+                })
             })
           }
         });
