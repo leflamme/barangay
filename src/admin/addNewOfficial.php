@@ -44,11 +44,7 @@ try{
   $add_barangay = $con->real_escape_string($_POST['add_barangay']);
   $add_house_number = $con->real_escape_string($_POST['add_house_number']);
   $add_street = $con->real_escape_string($_POST['add_street']);
-  $add_fathers_name = $con->real_escape_string($_POST['add_fathers_name']);
-  $add_mothers_name = $con->real_escape_string($_POST['add_mothers_name']);
-  // Guardian fields are removed
-  // $add_guardian = $con->real_escape_string($_POST['add_guardian']);
-  // $add_guardian_contact = $con->real_escape_string($_POST['add_guardian_contact']);
+  // Guardian fields are removed (lines 47-48)
   $add_image = $con->real_escape_string($_FILES['add_image']['name']);
   $add_status = 'ACTIVE';
   $add_approval = 'ACCEPTED';
@@ -101,8 +97,9 @@ $sql_limit_position = "SELECT position_limit, position FROM position WHERE posit
 $stmt_position_limit = $con->prepare($sql_limit_position) or die ($con->error);
 $stmt_position_limit->bind_param('s',$add_position);
 $stmt_position_limit->execute();
-$result_position_limit = $stmt_position_limit->get_result();
-$row_position_limit = $stmt_position_limit->fetch_assoc();
+// *** THIS IS THE FIX FOR THE FATAL ERROR ***
+$result_position_limit = $stmt_position_limit->get_result(); 
+$row_position_limit = $result_position_limit->fetch_assoc();
 
 if($row_position_limit['position_limit'] == $row_position['count_position']){
   exit('error');
@@ -177,8 +174,9 @@ if($add_age_date >= '60'){
     $add_address,
     $add_email_address,
     $add_contact_number,
-    $add_fathers_name,
-    $add_mothers_name,
+    // *** THESE ARE THE FIXES FOR THE WARNINGS ***
+    '', // $add_fathers_name removed
+    '', // $add_mothers_name removed
     // $add_guardian, // Removed
     // $add_guardian_contact, // Removed
     $new_image_name,
