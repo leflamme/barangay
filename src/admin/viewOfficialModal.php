@@ -7,14 +7,18 @@ try{
 
     $official_id = $con->real_escape_string($_REQUEST['official_id']);
 
-
-    $sql_official_view = "SELECT official_information.first_name, official_information.middle_name, official_information.last_name, official_information.gender, official_information.age,
-    official_information.address, official_information.contact_number, official_information.official_id, official_information.image, official_information.image_path, official_status.status, position.position, position.position_description 
+    // Fetch official information
+    $sql_official_view = "SELECT 
+    official_information.first_name, official_information.middle_name, official_information.last_name, official_information.gender, official_information.age,
+    official_information.address, official_information.contact_number, official_information.official_id, official_information.image, official_information.image_path,
+    official_information.birth_date,  -- ADDED THIS
+    official_status.status, official_status.term_from, official_status.term_to, -- ADDED TERM DATES
+    position.position, position.position_description 
     FROM official_status 
     INNER JOIN official_information ON official_status.official_id = official_information.official_id
     INNER JOIN position ON official_status.position = position.position_id
-    
-     WHERE official_information.official_id = ?";
+    WHERE official_information.official_id = ?";
+
     $stmt_official_view = $con->prepare($sql_official_view) or die ($con->error);
     $stmt_official_view->bind_param('s',$official_id);
     $stmt_official_view->execute();
@@ -96,6 +100,18 @@ try{
                       <i class="fa fa-child text-fuchsia text-lg" ></i> <span class="float-right "><?= $row_official_view['age']?></span>
                     </span>
                   </li>
+
+                  <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="BIRTHDAY">
+                    <span href="#" class="nav-link" >
+                      <i class="fa fa-birthday-cake text-fuchsia text-lg" ></i> <span class="float-right "><?= date("F d, Y", strtotime($row_official_view['birth_date'])) ?></span>
+                    </span>
+                  </li>
+                  <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="TERM OF SERVICE">
+                    <span href="#" class="nav-link" >
+                      <i class="fa fa-calendar-alt text-fuchsia text-lg" ></i> <span class="float-right "><?= date("M Y", strtotime($row_official_view['term_from'])) ?> - <?= date("M Y", strtotime($row_official_view['term_to'])) ?></span>
+                    </span>
+                  </li>
+                  
                   <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="CONTACT NUMBER">
                     <span href="#" class="nav-link" >
                       <i class="fa fa-phone text-fuchsia text-lg" ></i> <span class="float-right "><?= $row_official_view['contact_number']?></span>
