@@ -7,17 +7,18 @@ try{
 
     $official_id = $con->real_escape_string($_REQUEST['official_id']);
 
-    // Fetch official information
+    // --- THIS QUERY IS NOW FIXED ---
     $sql_official_view = "SELECT 
-    official_information.first_name, official_information.middle_name, official_information.last_name, official_information.gender, official_information.age,
-    official_information.address, official_information.contact_number, official_information.official_id, official_information.image, official_information.image_path,
-    official_information.birth_date,  -- ADDED THIS
-    official_status.status, official_status.term_from, official_status.term_to, -- ADDED TERM DATES
-    position.position, position.position_description 
-    FROM official_status 
-    INNER JOIN official_information ON official_status.official_id = official_information.official_id
-    INNER JOIN position ON official_status.position = position.position_id
-    WHERE official_information.official_id = ?";
+        official_information.first_name, official_information.middle_name, official_information.last_name, official_information.gender, official_information.age,
+        official_information.address, official_information.contact_number, official_information.official_id, official_information.image, official_information.image_path,
+        official_information.birth_date,  -- ADDED THIS
+        official_status.status, official_status.term_from, official_status.term_to, -- ADDED TERM DATES
+        position.position, position.position_description 
+        FROM official_status 
+        INNER JOIN official_information ON official_status.official_id = official_information.official_id
+        INNER JOIN position ON official_status.position = position.position_id
+        WHERE official_information.official_id = ?";
+    // --- END OF FIX ---
 
     $stmt_official_view = $con->prepare($sql_official_view) or die ($con->error);
     $stmt_official_view->bind_param('s',$official_id);
@@ -41,19 +42,14 @@ try{
 
   }
 
-
-
-
 }catch(Exception $e){
   echo $e->getMessage();
 }
 
-
 ?>
 
 
-<!-- Modal -->
-<div class="modal fade" id="viewOfficialModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+<div class="modal fade" id="viewOfficialModal" data-backdrop="static" data-keyboard="false"  role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
     <form id="requestForm" method="post">
@@ -69,12 +65,10 @@ try{
 
 
             <div class="card card-widget widget-user-2">
-              <!-- Add the bg color to the header using any of the bg-* classes -->
               <div class="widget-user-header bg-black">
                 <div class="widget-user-image">
                   <?= $image ?>
                 </div>
-                <!-- /.widget-user-image -->
                 <h3 class="widget-user-username text-uppercase font-weight-bold"><?= $row_official_view['first_name'].' '. $middle_name_view.' '.  $row_official_view['last_name']  ?></h3>
                 <h5 class="widget-user-desc "><?= strtoupper($row_official_view['position']) ?></h5>
               </div>
@@ -100,18 +94,17 @@ try{
                       <i class="fa fa-child text-fuchsia text-lg" ></i> <span class="float-right "><?= $row_official_view['age']?></span>
                     </span>
                   </li>
-
+                  
                   <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="BIRTHDAY">
                     <span href="#" class="nav-link" >
-                      <i class="fa fa-birthday-cake text-fuchsia text-lg" ></i> <span class="float-right "><?= date("F d, Y", strtotime($row_official_view['birth_date'])) ?></span>
+                      <i class="fa fa-birthday-cake text-fuchsia text-lg" ></i> <span class="float-right "><?= !empty($row_official_view['birth_date']) ? date("F d, Y", strtotime($row_official_view['birth_date'])) : 'N/A' ?></span>
                     </span>
                   </li>
                   <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="TERM OF SERVICE">
                     <span href="#" class="nav-link" >
-                      <i class="fa fa-calendar-alt text-fuchsia text-lg" ></i> <span class="float-right "><?= date("M Y", strtotime($row_official_view['term_from'])) ?> - <?= date("M Y", strtotime($row_official_view['term_to'])) ?></span>
+                      <i class="fa fa-calendar-alt text-fuchsia text-lg" ></i> <span class="float-right "><?= !empty($row_official_view['term_from']) ? date("M Y", strtotime($row_official_view['term_from'])) : 'N/A' ?> - <?= !empty($row_official_view['term_to']) ? date("M Y", strtotime($row_official_view['term_to'])) : 'N/A' ?></span>
                     </span>
                   </li>
-                  
                   <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="CONTACT NUMBER">
                     <span href="#" class="nav-link" >
                       <i class="fa fa-phone text-fuchsia text-lg" ></i> <span class="float-right "><?= $row_official_view['contact_number']?></span>
@@ -138,11 +131,6 @@ try{
               </div>
             </div>
 
-         
-
-      
-
-
         </div>
       </div>
       <div class="modal-footer">
@@ -155,6 +143,31 @@ try{
     </div>
   </div>
 </div>
+
+<style>
+/* Fixes the select2 search box in the modal */
+.select2-container--bootstrap4.select2-container--disabled .select2-selection, .select2-container--bootstrap4.select2-container--disabled.select2-container--focus .select2-selection{
+  background-color: transparent;
+  background: transparent;
+}
+.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice{
+  border: none;
+}
+.modal-body{
+  height: 80vh;
+  overflow-y: auto;
+}
+.modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: #6c757d; 
+  --webkit-box-shadow: inset 0 0 6px #6c757d; 
+}
+.modal-body::-webkit-scrollbar-thumb:window-inactive {
+  background: #6c757d; 
+}
+</style>
 
 <script>
   $(function () {
