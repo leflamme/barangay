@@ -44,7 +44,11 @@ try{
   $add_barangay = $con->real_escape_string($_POST['add_barangay']);
   $add_house_number = $con->real_escape_string($_POST['add_house_number']);
   $add_street = $con->real_escape_string($_POST['add_street']);
-  // Guardian fields are removed (lines 47-48)
+  
+  // These fields are no longer submitted by the form, so we create blank placeholders
+  $add_fathers_name = '';
+  $add_mothers_name = '';
+
   $add_image = $con->real_escape_string($_FILES['add_image']['name']);
   $add_status = 'ACTIVE';
   $add_approval = 'ACCEPTED';
@@ -97,7 +101,6 @@ $sql_limit_position = "SELECT position_limit, position FROM position WHERE posit
 $stmt_position_limit = $con->prepare($sql_limit_position) or die ($con->error);
 $stmt_position_limit->bind_param('s',$add_position);
 $stmt_position_limit->execute();
-// *** THIS IS THE FIX FOR THE FATAL ERROR ***
 $result_position_limit = $stmt_position_limit->get_result(); 
 $row_position_limit = $result_position_limit->fetch_assoc();
 
@@ -153,7 +156,12 @@ if($add_age_date >= '60'){
    `image_path`
    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
   $stmt = $con->prepare($sql) or die ($con->error);
-  $stmt->bind_param('ssssssssssssssssssssssss', // <-- Reduced to 24 's'
+  
+  // *** THIS IS THE FIX ***
+  // We use the $add_fathers_name and $add_mothers_name variables (which are set to '')
+  // instead of passing '' directly.
+  
+  $stmt->bind_param('ssssssssssssssssssssssss', // 24 's'
     $official_id,
     $add_first_name,
     $add_middle_name,
@@ -174,11 +182,8 @@ if($add_age_date >= '60'){
     $add_address,
     $add_email_address,
     $add_contact_number,
-    // *** THESE ARE THE FIXES FOR THE WARNINGS ***
-    '', // $add_fathers_name removed
-    '', // $add_mothers_name removed
-    // $add_guardian, // Removed
-    // $add_guardian_contact, // Removed
+    $add_fathers_name,    // <-- Use the variable
+    $add_mothers_name,    // <-- Use the variable
     $new_image_name,
     $new_image_path
   );
