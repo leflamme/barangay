@@ -171,10 +171,12 @@ try{
                             $DB_NAME = getenv('MYSQL_DATABASE');
                             $DB_PORT = getenv('MYSQL_PORT');
 
-                            define("DB_USER", $DB_USER);
-                            define("DB_PASSWORD", $DB_PASSWORD);
-                            define("DB_NAME", $DB_NAME);
-                            define("DB_HOST", $DB_HOST);
+                            define("DB_USER", getenv('MYSQL_USER'));
+                            define("DB_PASSWORD", getenv('MYSQL_PASSWORD'));
+                            define("DB_NAME", getenv('MYSQL_DATABASE'));
+                            define("DB_HOST", getenv('MYSQL_HOST'));
+                            define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
+                            
                             define("BACKUP_DIR", '../backup');
 
                             define("BACKUP_FILE", $test); // Script will autodetect if backup file is gzipped based on .gz extension
@@ -249,7 +251,7 @@ try{
   
                             protected function initializeDatabase() {
                             try {
-                              $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName);
+                              $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName, DB_PORT);
                               if (mysqli_connect_errno()) {
                                   throw new Exception('ERROR connecting database: ' . mysqli_connect_error());
                                   die();
@@ -895,19 +897,37 @@ try{
         url: 'backup.php',
         type: 'POST',
         success:function(data){
-          Swal.fire({
-              title: '<strong class="text-success">SUCCESS</strong>',
-              type: 'success',
-              html: '<b>Generate Backup Successfully</b>',
-              width: '400px',
-              showConfirmButton: false,
-              allowOutsideClick: false,
-              timer: 2000,
-            }).then(()=>{
-              $("#backupTable").DataTable().ajax.reload();
-            })
-        
+            // Check if the response contains an error
+            if(data.includes("ERROR") || data.includes("Exception")){
+                 Swal.fire({
+                    title: '<strong class="text-danger">Backup Failed!</strong>',
+                    type: 'error',
+                    html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + data + '</pre>',
+                    confirmButtonColor: '#d33',
+                });
+            } else {
+                // This is the real success
+                Swal.fire({
+                  title: '<strong class="text-success">SUCCESS</strong>',
+                  type: 'success',
+                  html: '<b>Generate Backup Successfully</b>',
+                  width: '400px',
+                  showConfirmButton: false,
+                  allowOutsideClick: false,
+                  timer: 2000,
+                }).then(()=>{
+                  $("#backupTable").DataTable().ajax.reload();
+                })
+            }
         }
+      }).fail(function(xhr, status, error){
+          Swal.fire({
+            title: '<strong class="text-danger">Ooppss..</strong>',
+            type: 'error',
+            html: '<b>AJAX Request Failed!</b><br>' + error,
+            width: '400px',
+            confirmButtonColor: '#6610f2',
+          })
       })
 
     })

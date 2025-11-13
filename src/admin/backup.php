@@ -1,5 +1,12 @@
 <?php 
-include_once '../connection.php';
+/**
+ * This file contains the Backup_Database class wich performs
+ * a partial or complete backup of any given MySQL database
+ * @author Daniel López Azaña <daniloaz@gmail.com>
+ * @version 1.0
+ */
+
+// We DO NOT include connection.php. This script makes its own connection.
 
 /**
  * Get credentials from Railway Environment Variables
@@ -8,108 +15,62 @@ define("DB_USER", getenv('MYSQL_USER'));
 define("DB_PASSWORD", getenv('MYSQL_PASSWORD'));
 define("DB_NAME", getenv('MYSQL_DATABASE'));
 define("DB_HOST", getenv('MYSQL_HOST'));
-define("DB_PORT", getenv('MYSQL_PORT'));
+define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
 
 /**
  * Define Backup behavior
  */
 define("BACKUP_DIR", '../backup'); // This is the folder *inside* the container
 define("TABLES", '*');
-define('IGNORE_TABLES', array()); 
+define('IGNORE_TABLES',array()); // Tables to ignore
 define("CHARSET", 'utf8');
-define("GZIP_BACKUP_FILE", false);
-define("DISABLE_FOREIGN_KEY_CHECKS", true);
-define("BATCH_SIZE", 1000);
+define("GZIP_BACKUP_FILE", false); 
+define("DISABLE_FOREIGN_KEY_CHECKS", true); 
+define("BATCH_SIZE", 1000); 
 
 /**
  * The Backup_Database class
  */
 class Backup_Database {
-    /**
-     * Host where the database is located
-     */
     var $host;
-
-    /**
-     * Username used to connect to database
-     */
     var $username;
-
-    /**
-     * Password used to connect to database
-     */
     var $passwd;
-
-    /**
-     * Database to backup
-     */
     var $dbName;
-
-    /**
-     * Database charset
-     */
     var $charset;
-
-    /**
-     * Database connection
-     */
+    var $port; // <-- ADDED PORT
     var $conn;
-
-    /**
-     * Backup directory where backup files are stored 
-     */
     var $backupDir;
-
-    /**
-     * Output backup file
-     */
     var $backupFile;
-
-    /**
-     * Use gzip compression on backup file
-     */
     var $gzipBackupFile;
-
-    /**
-     * Content of standard output
-     */
     var $output;
-
-    /**
-     * Disable foreign key checks
-     */
     var $disableForeignKeyChecks;
-
-    /**
-     * Batch size, number of rows to process per iteration
-     */
     var $batchSize;
 
-    /**
-     * Constructor initializes database
-     */
-    public function __construct($host, $username, $passwd, $dbName, $charset = 'utf8') {
+    public function __construct($host, $username, $passwd, $dbName, $port, $charset = 'utf8') {
         $this->host                    = $host;
         $this->username                = $username;
         $this->passwd                  = $passwd;
         $this->dbName                  = $dbName;
         $this->charset                 = $charset;
+        $this->port                    = $port; // <-- ADDED PORT
         $this->conn                    = $this->initializeDatabase();
         $this->backupDir               = BACKUP_DIR ? BACKUP_DIR : '.';
         $this->backupFile              = 'BackupFile-'.date("mdY_His", time()).'.sql';
         $this->gzipBackupFile          = defined('GZIP_BACKUP_FILE') ? GZIP_BACKUP_FILE : true;
         $this->disableForeignKeyChecks = defined('DISABLE_FOREIGN_KEY_CHECKS') ? DISABLE_FOREIGN_KEY_CHECKS : true;
-        $this->batchSize               = defined('BATCH_SIZE') ? BATCH_SIZE : 1000; // default 1000 rows
+        $this->batchSize               = defined('BATCH_SIZE') ? BATCH_SIZE : 1000; 
         $this->output                  = '';
-        $bak = $this->backupFile;
-      $sql_backup = "INSERT INTO backup (`path`) VALUES ('$bak')";
-      $result = mysqli_query ($this->conn, $sql_backup);
-
+        
+        // --- THIS QUERY MUST BE AFTER THE FILE IS CREATED ---
+        // $bak = $this->backupFile;
+        // $sql_backup = "INSERT INTO backup (`path`) VALUES ('$bak')";
+        // $result = mysqli_query ($this->conn, $sql_backup);
     }
 
     protected function initializeDatabase() {
         try {
-            $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName);
+            // --- UPDATED TO INCLUDE PORT ---
+            $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName, $this->port);
             if (mysqli_connect_errno()) {
                 throw new Exception('ERROR connecting database: ' . mysqli_connect_error());
                 die();
@@ -132,9 +93,6 @@ class Backup_Database {
      */
     public function backupTables($tables = '*') {
         try {
-            /**
-             * Tables to export
-             */
             if($tables == '*') {
                 $tables = array();
                 $result = mysqli_query($this->conn, 'SHOW TABLES');
@@ -148,43 +106,29 @@ class Backup_Database {
             $sql = 'CREATE DATABASE IF NOT EXISTS `'.$this->dbName.'`'.";\n\n";
             $sql .= 'USE `'.$this->dbName."`;\n\n";
 
-            /**
-             * Disable foreign key checks 
-             */
             if ($this->disableForeignKeyChecks === true) {
                 $sql .= "SET foreign_key_checks = 0;\n\n";
             }
 
-            /**
-             * Iterate tables
-             */
             foreach($tables as $table) {
                 if( in_array($table, IGNORE_TABLES) )
                     continue;
                 $this->obfPrint("Backing up `".$table."` table...".str_repeat('.', 50-strlen($table)), 0, 0);
 
-                /**
-                 * CREATE TABLE
-                 */
                 $sql .= 'DROP TABLE IF EXISTS `'.$table.'`;';
                 $row = mysqli_fetch_row(mysqli_query($this->conn, 'SHOW CREATE TABLE `'.$table.'`'));
                 $sql .= "\n\n".$row[1].";\n\n";
 
-                /**
-                 * INSERT INTO
-                 */
-
                 $row = mysqli_fetch_row(mysqli_query($this->conn, 'SELECT COUNT(*) FROM `'.$table.'`'));
                 $numRows = $row[0];
 
-                // Split table in batches in order to not exhaust system memory 
-                $numBatches = intval($numRows / $this->batchSize) + 1; // Number of while-loop calls to perform
+                $numBatches = intval($numRows / $this->batchSize) + 1; 
 
                 for ($b = 1; $b <= $numBatches; $b++) {
                     
                     $query = 'SELECT * FROM `' . $table . '` LIMIT ' . ($b * $this->batchSize - $this->batchSize) . ',' . $this->batchSize;
                     $result = mysqli_query($this->conn, $query);
-                    $realBatchSize = mysqli_num_rows ($result); // Last batch size can be different from $this->batchSize
+                    $realBatchSize = mysqli_num_rows ($result); 
                     $numFields = mysqli_num_fields($result);
 
                     if ($realBatchSize !== 0) {
@@ -199,11 +143,7 @@ class Backup_Database {
                                         $row[$j] = addslashes($row[$j]);
                                         $row[$j] = str_replace("\n","\\n",$row[$j]);
                                         $row[$j] = str_replace("\r","\\r",$row[$j]);
-                                        $row[$j] = str_replace("\f","\\f",$row[$j]);
-                                        $row[$j] = str_replace("\t","\\t",$row[$j]);
-                                        $row[$j] = str_replace("\v","\\v",$row[$j]);
-                                        $row[$j] = str_replace("\a","\\a",$row[$j]);
-                                        $row[$j] = str_replace("\b","\\b",$row[$j]);
+                                      
                                         if ($row[$j] == 'true' or $row[$j] == 'false' or preg_match('/^-?[0-9]+$/', $row[$j]) or $row[$j] == 'NULL' or $row[$j] == 'null') {
                                             $sql .= $row[$j];
                                         } else {
@@ -233,40 +173,11 @@ class Backup_Database {
                         $sql = '';
                     }
                 }
-
-                /**
-                 * CREATE TRIGGER
-                 */
-
-                // Check if there are some TRIGGERS associated to the table
-                /*$query = "SHOW TRIGGERS LIKE '" . $table . "%'";
-                $result = mysqli_query ($this->conn, $query);
-                if ($result) {
-                    $triggers = array();
-                    while ($trigger = mysqli_fetch_row ($result)) {
-                        $triggers[] = $trigger[0];
-                    }
-                    
-                    // Iterate through triggers of the table
-                    foreach ( $triggers as $trigger ) {
-                        $query= 'SHOW CREATE TRIGGER `' . $trigger . '`';
-                        $result = mysqli_fetch_array (mysqli_query ($this->conn, $query));
-                        $sql.= "\nDROP TRIGGER IF EXISTS `" . $trigger . "`;\n";
-                        $sql.= "DELIMITER $$\n" . $result[2] . "$$\n\nDELIMITER ;\n";
-                    }
-                    $sql.= "\n";
-                    $this->saveFile($sql);
-                    $sql = '';
-                }*/
  
                 $sql.="\n\n";
-
                 $this->obfPrint('OK');
             }
 
-            /**
-             * Re-enable foreign key checks 
-             */
             if ($this->disableForeignKeyChecks === true) {
                 $sql .= "SET foreign_key_checks = 1;\n";
             }
@@ -278,6 +189,16 @@ class Backup_Database {
             } else {
                 $this->obfPrint('Backup file succesfully saved to ' . $this->backupDir.'/'.$this->backupFile, 1, 1);
             }
+            
+            // --- INSERT INTO 'backup' TABLE ---
+            // We do this at the END, only if the file was created successfully.
+            $bak = $this->backupFile;
+            $sql_backup = "INSERT INTO backup (`path`) VALUES (?)";
+            $stmt = mysqli_prepare($this->conn, $sql_backup);
+            mysqli_stmt_bind_param($stmt, 's', $bak);
+            mysqli_stmt_execute($stmt);
+            // --- END INSERT ---
+
         } catch (Exception $e) {
             print_r($e->getMessage());
             return false;
@@ -311,9 +232,6 @@ class Backup_Database {
 
     /*
      * Gzip backup file
-     *
-     * @param integer $level GZIP compression level (default: 9)
-     * @return string New filename (with .gz appended) if success, or false if operation fails
      */
     protected function gzipBackupFile($level = 9) {
         if (!$this->gzipBackupFile) {
@@ -349,7 +267,6 @@ class Backup_Database {
 
     /**
      * Prints message forcing output buffer flush
-     *
      */
     public function obfPrint ($msg = '', $lineBreaksBefore = 0, $lineBreaksAfter = 1) {
         if (!$msg) {
@@ -399,17 +316,10 @@ class Backup_Database {
         flush();
     }
 
-    /**
-     * Returns full execution output
-     *
-     */
     public function getOutput() {
         return $this->output;
     }
-    /**
-     * Returns name of backup file
-     *
-     */
+   
     public function getBackupFile() {
         if ($this->gzipBackupFile) {
             return $this->backupDir.'/'.$this->backupFile.'.gz';
@@ -418,22 +328,10 @@ class Backup_Database {
        
     }
 
-   
-
-
-    /**
-     * Returns backup directory path
-     * $
-     *
-     */
     public function getBackupDir() {
         return $this->backupDir;
     }
 
-    /**
-     * Returns array of changed tables since duration
-     *
-     */
     public function getChangedTables($since = '1 day') {
         $query = "SELECT TABLE_NAME,update_time FROM information_schema.tables WHERE table_schema='" . $this->dbName . "'";
 
@@ -461,40 +359,18 @@ class Backup_Database {
 
 // Report all errors
 error_reporting(E_ALL);
-// Set script max execution time
-
 
 if (php_sapi_name() != "cli") {
     echo '<div style="font-family: monospace;">';
 }
 
-$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, CHARSET);
-// We must also update the internal mysqli connection to use the port
-$backupDatabase->conn->close(); // Close the old connection
-$backupDatabase->conn = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
-
-// Option-1: Backup tables already defined above
+$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT, CHARSET);
 $result = $backupDatabase->backupTables(TABLES) ? 'OK' : 'KO';
-
-// Option-2: Backup changed tables only - uncomment block below
-/*
-$since = '1 day';
-$changed = $backupDatabase->getChangedTables($since);
-if(!$changed){
-  $backupDatabase->obfPrint('No tables modified since last ' . $since . '! Quitting..', 1);
-  die();
-}
-$result = $backupDatabase->backupTables($changed) ? 'OK' : 'KO';
-*/
-
-
 $backupDatabase->obfPrint('Backup result: ' . $result, 1);
 
-// Use $output variable for further processing, for example to send it by email
 $output = $backupDatabase->getOutput();
 
 if (php_sapi_name() != "cli") {
     echo '</div>';
 }
-
-
+?>
