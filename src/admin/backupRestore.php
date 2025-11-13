@@ -166,7 +166,7 @@ try{
                             define("DB_HOST", getenv('MYSQL_HOST'));
                             define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
                             
-                            define("BACKUP_DIR", '../uploads/backup');
+                            define("BACKUP_DIR", '../permanent-data/backup');
                             // --- END OF FIX ---
 
                             define("BACKUP_FILE", $test); // Script will autodetect if backup file is gzipped based on .gz extension
@@ -815,10 +815,8 @@ try{
       autoWidth: false,
       scrollY: '200',
 
-      ajax:{
-        url: 'backupTable.php',
-        type:'POST',
-      },
+      ajax:{ "url": "backupTable.php", "type": "POST" },
+
       drawCallback: function (settings) {
       $('[data-toggle="tooltip"]').tooltip();
     }

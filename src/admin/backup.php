@@ -1,28 +1,20 @@
 <?php 
 /**
- * This file contains the Backup_Database class wich performs
- * a partial or complete backup of any given MySQL database
- * @author Daniel López Azaña <daniloaz@gmail.com>
- * @version 1.0
- */
-
-// This script makes its own connection and does NOT use connection.php
-
-/**
  * Get credentials from Railway Environment Variables
  */
 define("DB_USER", getenv('MYSQL_USER'));
 define("DB_PASSWORD", getenv('MYSQL_PASSWORD'));
 define("DB_NAME", getenv('MYSQL_DATABASE'));
 define("DB_HOST", getenv('MYSQL_HOST'));
-define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
+define("DB_PORT", getenv('MYSQL_PORT')); 
 
 /**
  * Define Backup behavior
+ * NEW: We now save to a subfolder inside the 'permanent-data' volume
  */
-define("BACKUP_DIR", '../uploads/backup'); // This is the folder *inside* the container
+define("BACKUP_DIR", '../permanent-data/backup'); // Resolves to /var/www/html/permanent-data/backup
 define("TABLES", '*');
-define('IGNORE_TABLES',array()); // Tables to ignore
+define('IGNORE_TABLES',array()); 
 define("CHARSET", 'utf8');
 define("GZIP_BACKUP_FILE", false); 
 define("DISABLE_FOREIGN_KEY_CHECKS", true); 
@@ -37,7 +29,7 @@ class Backup_Database {
     var $passwd;
     var $dbName;
     var $charset;
-    var $port; // <-- ADDED PORT
+    var $port; 
     var $conn;
     var $backupDir;
     var $backupFile;
@@ -46,14 +38,13 @@ class Backup_Database {
     var $disableForeignKeyChecks;
     var $batchSize;
 
-    // FIX 1: Added $port to the constructor
     public function __construct($host, $username, $passwd, $dbName, $port, $charset = 'utf8') {
         $this->host                    = $host;
         $this->username                = $username;
         $this->passwd                  = $passwd;
         $this->dbName                  = $dbName;
         $this->charset                 = $charset;
-        $this->port                    = $port; // <-- ADDED PORT
+        $this->port                    = $port; 
         $this->conn                    = $this->initializeDatabase();
         $this->backupDir               = BACKUP_DIR ? BACKUP_DIR : '.';
         $this->backupFile              = 'BackupFile-'.date("mdY_His", time()).'.sql';
@@ -65,10 +56,8 @@ class Backup_Database {
 
     protected function initializeDatabase() {
         try {
-            // FIX 2: Added $this->port to the connection
             $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName, $this->port);
             if (mysqli_connect_errno()) {
-                // Use obfPrint to send a real error message back to the AJAX call
                 $this->obfPrint('ERROR connecting database: ' . mysqli_connect_error());
                 die();
             }
@@ -79,12 +68,14 @@ class Backup_Database {
             $this->obfPrint('ERROR: ' . $e->getMessage());
             die();
         }
-
         return $conn;
     }
 
     public function backupTables($tables = '*') {
         try {
+            // FIX: Check and create the backup directory
+            $this->checkAndCreateDir($this->backupDir);
+
             if($tables == '*') {
                 $tables = array();
                 $result = mysqli_query($this->conn, 'SHOW TABLES');
@@ -125,42 +116,37 @@ class Backup_Database {
 
                     if ($realBatchSize !== 0) {
                         $sql .= 'INSERT INTO `'.$table.'` VALUES ';
-
-                        for ($i = 0; $i < $numFields; $i++) {
-                            $rowCount = 1;
-                            while($row = mysqli_fetch_row($result)) {
-                                $sql.='(';
-                                for($j=0; $j<$numFields; $j++) {
-                                    if (isset($row[$j])) {
-                                        $row[$j] = addslashes($row[$j]);
-                                        $row[$j] = str_replace("\n","\\n",$row[$j]);
-                                        $row[$j] = str_replace("\r","\\r",$row[$j]);
-                                      
-                                        if ($row[$j] == 'true' or $row[$j] == 'false' or preg_match('/^-?[0-9]+$/', $row[$j]) or $row[$j] == 'NULL' or $row[$j] == 'null') {
-                                            $sql .= $row[$j];
-                                        } else {
-                                            $sql .= '"'.$row[$j].'"' ;
-                                        }
+                        $rowCount = 1; // Reset rowCount for each batch
+                        while($row = mysqli_fetch_row($result)) {
+                            $sql.='(';
+                            for($j=0; $j<$numFields; $j++) {
+                                if (isset($row[$j])) {
+                                    $row[$j] = addslashes($row[$j]);
+                                    $row[$j] = str_replace("\n","\\n",$row[$j]);
+                                    $row[$j] = str_replace("\r","\\r",$row[$j]);
+                                    
+                                    if ($row[$j] == 'true' or $row[$j] == 'false' or preg_match('/^-?[0-9]+$/', $row[$j]) or $row[$j] == 'NULL' or $row[$j] == 'null') {
+                                        $sql .= $row[$j];
                                     } else {
-                                        $sql.= 'NULL';
+                                        $sql .= '"'.$row[$j].'"' ;
                                     }
-    
-                                    if ($j < ($numFields-1)) {
-                                        $sql .= ',';
-                                    }
-                                }
-    
-                                if ($rowCount == $realBatchSize) {
-                                    $rowCount = 0;
-                                    $sql.= ");\n"; //close the insert statement
                                 } else {
-                                    $sql.= "),\n"; //close the row
+                                    $sql.= 'NULL';
                                 }
-    
-                                $rowCount++;
+
+                                if ($j < ($numFields-1)) {
+                                    $sql .= ',';
+                                }
                             }
+
+                            if ($rowCount == $realBatchSize) {
+                                $sql.= ");\n"; //close the insert statement
+                            } else {
+                                $sql.= "),\n"; //close the row
+                            }
+
+                            $rowCount++;
                         }
-    
                         $this->saveFile($sql);
                         $sql = '';
                     }
@@ -182,13 +168,11 @@ class Backup_Database {
                 $this->obfPrint('Backup file succesfully saved to ' . $this->backupDir.'/'.$this->backupFile, 1, 1);
             }
             
-            // --- FIX 3: INSERT INTO 'backup' TABLE AT THE END ---
             $bak = $this->backupFile;
             $sql_backup = "INSERT INTO backup (`path`) VALUES (?)";
             $stmt = mysqli_prepare($this->conn, $sql_backup);
             mysqli_stmt_bind_param($stmt, 's', $bak);
             mysqli_stmt_execute($stmt);
-            // --- END FIX ---
 
         } catch (Exception $e) {
             $this->obfPrint('ERROR: ' . $e->getMessage());
@@ -198,12 +182,25 @@ class Backup_Database {
         return true;
     }
 
+    /**
+     * NEW FUNCTION: Check if directory exists and create it if not
+     */
+    protected function checkAndCreateDir($dir) {
+        if (!is_dir($dir)) {
+            $this->obfPrint("Creating directory $dir...", 1, 0);
+            // Use recursive mkdir (0777)
+            if (mkdir($dir, 0777, true)) {
+                $this->obfPrint('OK');
+            } else {
+                throw new Exception("ERROR: Could not create directory $dir. Please check permissions.");
+            }
+        }
+    }
+
     protected function saveFile(&$sql) {
         if (!$sql) return false;
         try {
-            if (!file_exists($this->backupDir)) {
-                mkdir($this->backupDir, 0777, true);
-            }
+            // This function will now work because checkAndCreateDir was called
             file_put_contents($this->backupDir.'/'.$this->backupFile, $sql, FILE_APPEND | LOCK_EX);
         } catch (Exception $e) {
             $this->obfPrint('ERROR: ' . $e->getMessage());
@@ -212,6 +209,7 @@ class Backup_Database {
         return true;
     }
 
+    /* Gzip backup file (omitted for brevity, it's correct) */
     protected function gzipBackupFile($level = 9) {
         if (!$this->gzipBackupFile) {
             return true;
@@ -240,6 +238,7 @@ class Backup_Database {
         return $dest;
     }
 
+    /* obfPrint, getOutput, getBackupFile, getBackupDir, getChangedTables (omitted for brevity, they are correct) */
     public function obfPrint ($msg = '', $lineBreaksBefore = 0, $lineBreaksAfter = 1) {
         if (!$msg) {
             return false;
@@ -274,24 +273,34 @@ class Backup_Database {
         $this->output .= " ";
         flush();
     }
-
     public function getOutput() {
         return $this->output;
     }
-   
     public function getBackupFile() {
         if ($this->gzipBackupFile) {
             return $this->backupDir.'/'.$this->backupFile.'.gz';
         } else
         return $this->backupDir.'/'.$this->backupFile;
     }
-
     public function getBackupDir() {
         return $this->backupDir;
     }
-
     public function getChangedTables($since = '1 day') {
-        // ... (this function is fine) ...
+        $query = "SELECT TABLE_NAME,update_time FROM information_schema.tables WHERE table_schema='" . $this->dbName . "'";
+        $result = mysqli_query($this->conn, $query);
+        while($row=mysqli_fetch_assoc($result)) {
+            $resultset[] = $row;
+            }		
+        if(empty($resultset))
+            return false;
+        $tables = [];
+        for ($i=0; $i < count($resultset); $i++) {
+            if( in_array($resultset[$i]['TABLE_NAME'], IGNORE_TABLES) )
+                continue;
+            if(strtotime('-' . $since) < strtotime($resultset[$i]['update_time']))
+                $tables[] = $resultset[$i]['TABLE_NAME'];
+        }
+        return ($tables) ? $tables : false;
     }
 }
 
@@ -305,7 +314,6 @@ if (php_sapi_name() != "cli") {
     echo '<div style="font-family: monospace;">';
 }
 
-// FIX 4: Pass all 6 arguments to the constructor
 $backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT, CHARSET);
 $result = $backupDatabase->backupTables(TABLES) ? 'OK' : 'KO';
 $backupDatabase->obfPrint('Backup result: ' . $result, 1);
