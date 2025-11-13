@@ -7,6 +7,7 @@ try{
 
     $official_id = $con->real_escape_string($_REQUEST['official_id']);
 
+
     // --- THIS QUERY IS NOW FIXED ---
     $sql_official_view = "SELECT 
         official_information.first_name, official_information.middle_name, official_information.last_name, official_information.gender, official_information.age,
@@ -102,7 +103,7 @@ try{
                   </li>
                   <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="TERM OF SERVICE">
                     <span href="#" class="nav-link" >
-                      <i class="fa fa-calendar-alt text-fuchsia text-lg" ></i> <span class="float-right "><?= !empty($row_official_view['term_from']) ? date("M Y", strtotime($row_official_view['term_from'])) : 'N/A' ?> - <?= !empty($row_official_view['term_to']) ? date("M Y", strtotime($row_official_view['term_to'])) : 'N/A' ?></span>
+                      <i class="fa fa-calendar-alt text-fuchsia text-lg" ></i> <span class_right "><?= !empty($row_official_view['term_from']) ? date("M Y", strtotime($row_official_view['term_from'])) : 'N/A' ?> - <?= !empty($row_official_view['term_to']) ? date("M Y", strtotime($row_official_view['term_to'])) : 'N/A' ?></span>
                     </span>
                   </li>
                   <li class="nav-item" data-toggle="tooltip" data-placement="bottom" title="CONTACT NUMBER">

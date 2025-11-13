@@ -513,14 +513,14 @@ if(isset($_REQUEST['request'])){
                   <div class="col-sm-6">
                     <div class="form-group ">
                       <label >Start</label>
-                      <input type="date" class="form-control" id="edit_term_from" name="edit_term_from" value="<?php echo strftime('%Y-%m-%d',strtotime($row_official['term_from'])); ?>">
+                      <input type="date" class="form-control" id="edit_term_from" name="edit_term_from" value="<?= !empty($row_official['term_from']) ? date('Y-m-d', strtotime($row_official['term_from'])) : '' ?>">
                       <input type="hidden" id="edit_term_from_check" value="false">
                     </div>
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group ">
                       <label >End</label>
-                      <input type="date" class="form-control" id="edit_term_to" name="edit_term_to" value="<?php echo strftime('%Y-%m-%d',strtotime($row_official['term_to'])); ?>">
+                      <input type="date" class="form-control" id="edit_term_to" name="edit_term_to" value="<?= !empty($row_official['term_to']) ? date('Y-m-d', strtotime($row_official['term_to'])) : '' ?>">
                       <input type="hidden" id="edit_term_to_check" value="false">
                     </div>
                   </div>
@@ -539,7 +539,7 @@ if(isset($_REQUEST['request'])){
                   <div class="col-sm-12">
                     <div class="form-group ">
                       <label >Date of Birth</label>
-                      <input type="date" class="form-control" id="edit_birth_date" name="edit_birth_date" value="<?php echo strftime('%Y-%m-%d',strtotime($row_official['birth_date'])); ?>">
+                      <input type="date" class="form-control" id="edit_birth_date" name="edit_birth_date" value="<?= !empty($row_official['birth_date']) ? date('Y-m-d', strtotime($row_official['birth_date'])) : '' ?>">
                       <input type="hidden" id="edit_birth_date_check" value='false'>
                     </div>
                   </div>
@@ -578,10 +578,6 @@ if(isset($_REQUEST['request'])){
                     <input type="hidden" id="edit_single_parent_check" value="false">
                   </div>
                 </div>
-
-
-
-               
               </div>
               </div>
           </div>
@@ -784,7 +780,7 @@ if(isset($_REQUEST['request'])){
 <script src="../assets/plugins/select2/js/select2.full.min.js"></script>
 <script src="../assets/plugins/moment/moment.min.js"></script>
 <script src="../assets/plugins/chart.js/Chart.min.js"></script>
-<script src="../assetsD/plugins/jquery-validation/jquery.validate.min.js"></script>
+<script src="../assets/plugins/jquery-validation/jquery.validate.min.js"></script>
 <script src="../assets/plugins/jquery-validation/additional-methods.min.js"></script>
 <script src="../assets/plugins/inputmask/min/jquery.inputmask.bundle.min.js"></script>
 <script src="../assets/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
@@ -1126,7 +1122,6 @@ if(isset($_REQUEST['request'])){
 
             })
 
-C
             $("#edit_house_number").change(function(){
 
               var newHnumber = $(this).val();
@@ -1170,7 +1165,6 @@ C
                 $("#edit_address_check").val('false');
               }
 
-C
             })
 
             $("#edit_email_address").change(function(){
@@ -1202,66 +1196,8 @@ C
               }
 
             })
-
-            $("#edit_fathers_name").change(function(){
-
-              var newtatay = $(this).val();
-
-              if(!(newtatay == edit_fathers_name )){
-
-              $("#edit_fathers_name_check").val('true');
-
-              }else{
-
-                $("#edit_fathers_name_check").val('false');
-              }
-
-            })
-
-            $("#edit_mothers_name").change(function(){
-
-              var newNanay = $(this).val();
-
-              if(!(newNanay == edit_mothers_name )){
-
-              $("#edit_mothers_name_check").val('true');
-
-              }else{
-
-                $("#edit_mothers_name_check").val('false');
-              }
-
-            })
-
-            $("#edit_guardian").change(function(){
-
-              var newGuardian = $(this).val();
-
-              if(!(newGuardian == edit_guardian )){
-
-              $("#edit_guardian_check").val('true');
-
-              }else{
-
-                $("#edit_guardian_check").val('false');
-              }
-
-              })
-
-              $("#edit_guardian_contact").change(function(){
-
-                var newGcontact = $(this).val();
-
-                if(!(newGcontact == edit_guardian_contact )){
-
-                $("#edit_guardian_contact_check").val('true');
-
-                }else{
-
-                  $("#edit_guardian_contact_check").val('false');
-                }
-
-              })
+            
+            // REMOVED GUARDIAN .change() EVENTS
 
         $.validator.setDefaults({
           submitHandler: function (form) {
@@ -1304,10 +1240,7 @@ C
                 formData.append("edit_address_check",$("#edit_address_check").val())
                 formData.append("edit_email_address_check",$("#edit_email_address_check").val())
                 formData.append("edit_contact_number_check",$("#edit_contact_number_check").val())
-                formData.append("edit_fathers_name_check",$("#edit_fathers_name_check").val())
-                formData.append("edit_mothers_name_check",$("#edit_mothers_name_check").val())
-                formData.append("edit_guardian_check",$("#edit_guardian_check").val())
-                formData.append("edit_guardian_contact_check",$("#edit_guardian_contact_check").val())
+                // REMOVED GUARDIAN formData.append
                 formData.append("edit_pwd_info_check",$("#edit_pwd_info_check").val())
                   $.ajax({
                     url: 'editOfficial.php',
