@@ -6,7 +6,7 @@
  * @version 1.0
  */
 
-// We DO NOT include connection.php. This script makes its own connection.
+// This script makes its own connection and does NOT use connection.php
 
 /**
  * Get credentials from Railway Environment Variables
@@ -46,6 +46,7 @@ class Backup_Database {
     var $disableForeignKeyChecks;
     var $batchSize;
 
+    // FIX 1: Added $port to the constructor
     public function __construct($host, $username, $passwd, $dbName, $port, $charset = 'utf8') {
         $this->host                    = $host;
         $this->username                = $username;
@@ -64,17 +65,18 @@ class Backup_Database {
 
     protected function initializeDatabase() {
         try {
-            // --- UPDATED TO INCLUDE PORT ---
+            // FIX 2: Added $this->port to the connection
             $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName, $this->port);
             if (mysqli_connect_errno()) {
-                throw new Exception('ERROR connecting database: ' . mysqli_connect_error());
+                // Use obfPrint to send a real error message back to the AJAX call
+                $this->obfPrint('ERROR connecting database: ' . mysqli_connect_error());
                 die();
             }
             if (!mysqli_set_charset($conn, $this->charset)) {
                 mysqli_query($conn, 'SET NAMES '.$this->charset);
             }
         } catch (Exception $e) {
-            print_r($e->getMessage());
+            $this->obfPrint('ERROR: ' . $e->getMessage());
             die();
         }
 
@@ -180,7 +182,7 @@ class Backup_Database {
                 $this->obfPrint('Backup file succesfully saved to ' . $this->backupDir.'/'.$this->backupFile, 1, 1);
             }
             
-            // --- **FIX**: INSERT INTO 'backup' TABLE AT THE END ---
+            // --- FIX 3: INSERT INTO 'backup' TABLE AT THE END ---
             $bak = $this->backupFile;
             $sql_backup = "INSERT INTO backup (`path`) VALUES (?)";
             $stmt = mysqli_prepare($this->conn, $sql_backup);
@@ -189,7 +191,7 @@ class Backup_Database {
             // --- END FIX ---
 
         } catch (Exception $e) {
-            print_r($e->getMessage());
+            $this->obfPrint('ERROR: ' . $e->getMessage());
             return false;
         }
 
@@ -204,18 +206,73 @@ class Backup_Database {
             }
             file_put_contents($this->backupDir.'/'.$this->backupFile, $sql, FILE_APPEND | LOCK_EX);
         } catch (Exception $e) {
-            print_r($e->getMessage());
+            $this->obfPrint('ERROR: ' . $e->getMessage());
             return false;
         }
         return true;
     }
 
     protected function gzipBackupFile($level = 9) {
-        // ... (this function is fine) ...
+        if (!$this->gzipBackupFile) {
+            return true;
+        }
+        $source = $this->backupDir . '/' . $this->backupFile;
+        $dest =  $source . '.gz';
+        $this->obfPrint('Gzipping backup file to ' . $dest . '... ', 1, 0);
+        $mode = 'wb' . $level;
+        if ($fpOut = gzopen($dest, $mode)) {
+            if ($fpIn = fopen($source,'rb')) {
+                while (!feof($fpIn)) {
+                    gzwrite($fpOut, fread($fpIn, 1024 * 256));
+                }
+                fclose($fpIn);
+            } else {
+                return false;
+            }
+            gzclose($fpOut);
+            if(!unlink($source)) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        $this->obfPrint('OK');
+        return $dest;
     }
 
     public function obfPrint ($msg = '', $lineBreaksBefore = 0, $lineBreaksAfter = 1) {
-        // ... (this function is fine) ...
+        if (!$msg) {
+            return false;
+        }
+        if ($msg != 'OK' and $msg != 'KO') {
+            $msg = date("Y-m-d H:i:s") . ' - ' . $msg;
+        }
+        $output = '';
+        if (php_sapi_name() != "cli") {
+            $lineBreak = "<br />";
+        } else {
+            $lineBreak = "\n";
+        }
+        if ($lineBreaksBefore > 0) {
+            for ($i = 1; $i <= $lineBreaksBefore; $i++) {
+                $output .= $lineBreak;
+            }                
+        }
+        $output .= $msg;
+        if ($lineBreaksAfter > 0) {
+            for ($i = 1; $i <= $lineBreaksAfter; $i++) {
+                $output .= $lineBreak;
+            }                
+        }
+        $this->output .= str_replace('<br />', '\n', $output);
+        echo $output;
+        if (php_sapi_name() != "cli") {
+            if( ob_get_level() > 0 ) {
+                ob_flush();
+            }
+        }
+        $this->output .= " ";
+        flush();
     }
 
     public function getOutput() {
@@ -223,7 +280,10 @@ class Backup_Database {
     }
    
     public function getBackupFile() {
-        // ... (this function is fine) ...
+        if ($this->gzipBackupFile) {
+            return $this->backupDir.'/'.$this->backupFile.'.gz';
+        } else
+        return $this->backupDir.'/'.$this->backupFile;
     }
 
     public function getBackupDir() {
@@ -245,6 +305,7 @@ if (php_sapi_name() != "cli") {
     echo '<div style="font-family: monospace;">';
 }
 
+// FIX 4: Pass all 6 arguments to the constructor
 $backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT, CHARSET);
 $result = $backupDatabase->backupTables(TABLES) ? 'OK' : 'KO';
 $backupDatabase->obfPrint('Backup result: ' . $result, 1);

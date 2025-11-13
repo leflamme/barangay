@@ -56,27 +56,21 @@ try{
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>Backup & Restore</title>
 
- <!-- Google Fonts DONT FORGET-->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
   <link rel="stylesheet" href="../assets/plugins/jquery-ui/jquery-ui.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-    <!-- DONT FORGET -->
-<link rel="stylesheet" href="../assets/dist/css/admin.css">
+    <link rel="stylesheet" href="../assets/dist/css/admin.css">
 
 <style>
 
@@ -152,7 +146,6 @@ try{
 <body class="hold-transition  sidebar-mini   layout-footer-fixed">
 <div class="wrapper">
 
-   <!-- Preloader -->
    <div class="preloader flex-column justify-content-center align-items-center">
           <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
           <br>
@@ -161,6 +154,8 @@ try{
                           <?php 
 
                           if(isset($_POST['restore'])){
+                            
+                            // --- START OF FIX ---
                             // Get the uploaded file name
                             $test = $_POST['fileRestore'];
 
@@ -170,8 +165,10 @@ try{
                             define("DB_NAME", getenv('MYSQL_DATABASE'));
                             define("DB_HOST", getenv('MYSQL_HOST'));
                             define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
+                            
+                            define("BACKUP_DIR", '../backup');
+                            // --- END OF FIX ---
 
-                            define("BACKUP_DIR", '../backup'); // This is the folder *inside* the container
                             define("BACKUP_FILE", $test); // Script will autodetect if backup file is gzipped based on .gz extension
                             define("CHARSET", 'utf8');
                             define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails
@@ -180,44 +177,14 @@ try{
                             * The Restore_Database class
                             */
                             class Restore_Database {
-                            /**
-                            * Host where the database is located
-                            */
                             var $host;
-  
-                            /**
-                            * Username used to connect to database
-                            */
                             var $username;
-  
-                            /**
-                            * Password used to connect to database
-                            */
                             var $passwd;
-  
-                            /**
-                            * Database to backup
-                            */
                             var $dbName;
-  
-                            /**
-                            * Database charset
-                            */
                             var $charset;
-  
-                            /**
-                            * Database connection
-                            */
                             var $conn;
-  
-                            /**
-                            * Disable foreign key checks
-                            */
                             var $disableForeignKeyChecks;
   
-                            /**
-                            * Constructor initializes database
-                            */
                             function __construct($host, $username, $passwd, $dbName, $charset = 'utf8') {
                             $this->host                    = $host;
                             $this->username                = $username;
@@ -230,13 +197,7 @@ try{
                             $this->backupFile              = defined('BACKUP_FILE') ? BACKUP_FILE : null;
                             }
   
-                            /**
-                            * Destructor re-enables foreign key checks
-                            */
                             function __destructor() {
-                            /**
-                            * Re-enable foreign key checks 
-                            */
                             if ($this->disableForeignKeyChecks === true) {
                               mysqli_query($this->conn, 'SET foreign_key_checks = 1');
                             }
@@ -244,6 +205,7 @@ try{
   
                             protected function initializeDatabase() {
                             try {
+                              // --- FIX: ADDED DB_PORT ---
                               $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName, DB_PORT);
                               if (mysqli_connect_errno()) {
                                   throw new Exception('ERROR connecting database: ' . mysqli_connect_error());
@@ -253,9 +215,6 @@ try{
                                   mysqli_query($conn, 'SET NAMES '.$this->charset);
                               }
   
-                              /**
-                              * Disable foreign key checks 
-                              */
                               if ($this->disableForeignKeyChecks === true) {
                                   mysqli_query($conn, 'SET foreign_key_checks = 0');
                               }
@@ -268,11 +227,6 @@ try{
                             return $conn;
                             }
   
-                            /**
-                            * Backup the whole database or just some tables
-                            * Use '*' for whole database or 'table1 table2 table3...'
-                            * @param string $tables
-                            */
                             public function restoreDb() {
                             try {
                               $sql = '';
@@ -281,9 +235,6 @@ try{
                               $backupDir = $this->backupDir;
                               $backupFile = $this->backupFile;
   
-                              /**
-                              * Gunzip file if gzipped
-                              */
                               $backupFileIsGzipped = substr($backupFile, -3, 3) == '.gz' ? true : false;
                               if ($backupFileIsGzipped) {
                                   if (!$backupFile = $this->gunzipBackupFile()) {
@@ -291,9 +242,6 @@ try{
                                   }
                               }
   
-                              /**
-                              * Read backup file line by line
-                              */
                               $handle = fopen($backupDir . '/' . $backupFile, "r");
                               if ($handle) {
                                   while (($line = fgets($handle)) !== false) {
@@ -341,14 +289,8 @@ try{
                             return true;
                             }
   
-                            /*
-                            * Gunzip backup file
-                            *
-                            * @return string New filename (without .gz appended and without backup directory) if success, or false if operation fails
-                            */
                             protected function gunzipBackupFile() {
-                            // Raising this value may increase performance
-                            $bufferSize = 4096; // read 4kb at a time
+                            $bufferSize = 4096; 
                             $error = false;
   
                             $source = $this->backupDir . '/' . $this->backupFile;
@@ -356,14 +298,12 @@ try{
   
                             $this->obfPrint('Gunzipping backup file ' . $source . '... ', 1, 1);
   
-                            // Remove $dest file if exists
                             if (file_exists($dest)) {
                               if (!unlink($dest)) {
                                   return false;
                               }
                             }
   
-                            // Open gzipped and destination files in binary mode
                             if (!$srcFile = gzopen($this->backupDir . '/' . $this->backupFile, 'rb')) {
                               return false;
                             }
@@ -372,8 +312,6 @@ try{
                             }
   
                             while (!gzeof($srcFile)) {
-                              // Read buffer-size bytes
-                              // Both fwrite and gzread are binary-safe
                               if(!fwrite($dstFile, gzread($srcFile, $bufferSize))) {
                                   return false;
                               }
@@ -382,14 +320,9 @@ try{
                             fclose($dstFile);
                             gzclose($srcFile);
   
-                            // Return backup filename excluding backup directory
                             return str_replace($this->backupDir . '/', '', $dest);
                             }
   
-                            /**
-                            * Prints message forcing output buffer flush
-                            *
-                            */
                             public function obfPrint ($msg = '', $lineBreaksBefore = 0, $lineBreaksAfter = 1) {
                             if (!$msg) {
                               return false;
@@ -432,13 +365,7 @@ try{
                             }
                             }
   
-                            /**
-                            * Instantiate Restore_Database and perform backup
-                            */
-                            // Report all errors
                             error_reporting(E_ALL);
-                            // Set script max execution time
-                      
   
                             if (php_sapi_name() != "cli") {
                             echo '<div style="font-family: monospace;">';
@@ -452,16 +379,7 @@ try{
                             echo '</div>';
                             }
   
-  
-                              
-                            }
-  
-
-
-                         
-
-                        
-
+                          }
                           ?>
 
 </div>
@@ -470,10 +388,8 @@ try{
 
  
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
-    <!-- Left navbar links (COPY LEFT ONLY)  -->
-  <ul class="navbar-nav">
+    <ul class="navbar-nav">
     <li class="nav-item">
       <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
     </li>
@@ -494,11 +410,9 @@ try{
     </li>
   </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-      <!-- profile_dropdown.php (COPY THIS) -->
-<li class="nav-item dropdown">
+      <li class="nav-item dropdown">
   <a class="nav-link" data-toggle="dropdown" href="#">
     <i class="far fa-user"></i>
   </a>
@@ -525,16 +439,10 @@ try{
 </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container (COPY THIS ASIDE TO ASIDE) -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
@@ -645,7 +553,6 @@ try{
             </a>
           </li>
 
-          <!-- DRM Part   (START)   -->
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -671,9 +578,7 @@ try{
                 </li>
               </ul>
           </li>
-        <!-- End of DRM Part -->
-
-          <li class="nav-item">
+        <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
               <p>
@@ -715,31 +620,20 @@ try{
           </li>
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
             
-          </div><!-- /.col -->
-          <div class="col-sm-6">
+          </div><div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               
             </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
+          </div></div></div></div>
     <section class="content">
       <div class="container-fluid">
 
@@ -799,16 +693,9 @@ try{
        
        
           
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
-  <!--Main footer (COPY THIS)-->
-<footer class="main-footer">
+      </div></section>
+    </div>
+  <footer class="main-footer">
   <strong>&copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')) ?></strong>
   <div class="float-right d-none d-sm-inline-block">
   </div>
@@ -818,21 +705,9 @@ try{
     </div>
   </footer>
 </div>
-<!-- ./wrapper -->
-
-
-
-
-
-
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -852,7 +727,7 @@ try{
 <script src="../assets/plugins/moment/moment.min.js"></script>
 <script src="../assets/plugins/chart.js/Chart.min.js"></script>
 <script src="../assets/plugins/jquery-validation/jquery.validate.min.js"></script>
-<script src="../assets/plugins/jquery-validation/additional-methods.min.js"></script>
+<script src="../assets."/plugins/jquery-validation/additional-methods.min.js"></script>
 
 
 <script>
@@ -887,41 +762,41 @@ try{
     $(document).on('click','#generateBackup',function(){
 
       $.ajax({
-      url: 'backup.php',
-      type: 'POST',
-      success:function(data){
-          // Check if the response contains an error
-          if(data.includes("ERROR") || data.includes("Exception")){
-               Swal.fire({
-                  title: '<strong class="text-danger">Backup Failed!</strong>',
-                  type: 'error',
-                  html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + data + '</pre>',
-                  confirmButtonColor: '#d33',
-              });
-          } else {
-              // This is the real success
-              Swal.fire({
-                title: '<strong class="text-success">SUCCESS</strong>',
-                type: 'success',
-                html: '<b>Generate Backup Successfully</b>',
-                width: '400px',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                timer: 2000,
-              }).then(()=>{
-                $("#backupTable").DataTable().ajax.reload();
-              })
-          }
-      }
-    }).fail(function(xhr, status, error){
-        Swal.fire({
-          title: '<strong class="text-danger">Ooppss..</strong>',
-          type: 'error',
-          html: '<b>AJAX Request Failed!</b><br>' + error,
-          width: '400px',
-          confirmButtonColor: '#6610f2',
-        })
-    })
+        url: 'backup.php',
+        type: 'POST',
+        success:function(data){
+            // Check if the response contains an error
+            if(data.includes("ERROR") || data.includes("Exception")){
+                 Swal.fire({
+                    title: '<strong class="text-danger">Backup Failed!</strong>',
+                    type: 'error', // <-- FIX: 'type' instead of 'icon'
+                    html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + data + '</pre>',
+                    confirmButtonColor: '#d33',
+                });
+            } else {
+                // This is the real success
+                Swal.fire({
+                  title: '<strong class="text-success">SUCCESS</strong>',
+                  type: 'success', // <-- FIX: 'type' instead of 'icon'
+                  html: '<b>Generate Backup Successfully</b>',
+                  width: '400px',
+                  showConfirmButton: false,
+                  allowOutsideClick: false,
+                  timer: 2000,
+                }).then(()=>{
+                  $("#backupTable").DataTable().ajax.reload();
+                })
+            }
+        }
+      }).fail(function(xhr, status, error){
+          Swal.fire({
+            title: '<strong class="text-danger">Ooppss..</strong>',
+            type: 'error', // <-- FIX: 'type' instead of 'icon'
+            html: '<b>AJAX Request Failed!</b><br>' + error,
+            width: '400px',
+            confirmButtonColor: '#6610f2',
+          })
+      })
 
     })
 
