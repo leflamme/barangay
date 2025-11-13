@@ -1,5 +1,5 @@
 <?php
-//indexnew.php
+//index.php (new)
 session_start();
 include_once 'connection.php';
 
@@ -657,7 +657,6 @@ footer.main-footer {
   </div>
 </section>
 
-
 <!-- ABOUT SECTION -->
 <section class="about-section">
   <h2>About Barangay Kalusugan</h2>
@@ -736,16 +735,13 @@ footer.main-footer {
   </div>
 </section>
 
-
 <!-- FOOTER -->
 <footer class="main-footer">
   <i class="fas fa-map-marker-alt"></i> <?= '1112 Quezon City' ?>
 </footer>
 
 </div>
-
-
-          
+  
         </div>
       </div>
     </div>
