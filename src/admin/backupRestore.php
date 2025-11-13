@@ -161,19 +161,22 @@ try{
                           <?php 
 
                           if(isset($_POST['restore'])){
+                            // Get the uploaded file name
+                            $test = $_POST['fileRestore'];
 
+                            // Get credentials from Railway Environment Variables
+                            $DB_HOST = getenv('MYSQL_HOST');
+                            $DB_USER = getenv('MYSQL_USER');
+                            $DB_PASSWORD = getenv('MYSQL_PASSWORD');
+                            $DB_NAME = getenv('MYSQL_DATABASE');
+                            $DB_PORT = getenv('MYSQL_PORT');
 
-                           
+                            define("DB_USER", $DB_USER);
+                            define("DB_PASSWORD", $DB_PASSWORD);
+                            define("DB_NAME", $DB_NAME);
+                            define("DB_HOST", $DB_HOST);
+                            define("BACKUP_DIR", '../backup');
 
-                       
-                          $test = $_POST['fileRestore'];
-
-                      
-                            define("DB_USER", 'root');
-                            define("DB_PASSWORD", '');
-                            define("DB_NAME", 'barangay');
-                            define("DB_HOST", 'localhost');
-                            define("BACKUP_DIR", '../backup'); // Comment this line to use same script's directory ('.')
                             define("BACKUP_FILE", $test); // Script will autodetect if backup file is gzipped based on .gz extension
                             define("CHARSET", 'utf8');
                             define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails

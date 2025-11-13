@@ -1,30 +1,10 @@
 <?php 
-/**
- * This file contains the Backup_Database class wich performs
- * a partial or complete backup of any given MySQL database
- * @author Daniel López Azaña <daniloaz@gmail.com>
- * @version 1.0
- */
-include_once '../connection.php';
-/**
- * Define database parameters here
- */
-define("DB_USER", DB_USER);
-define("DB_PASSWORD", DB_PASSWORD);
-define("DB_NAME", DB_NAME);
-define("DB_HOST", DB_HOST);
-define("BACKUP_DIR", '../backup'); // Comment this line to use same script's directory ('.')
-define("TABLES", '*'); // Full backup
-//define("TABLES", 'table1, table2, table3'); // Partial backup
-define('IGNORE_TABLES',array(
-    'tbl_token_auth',
-    'token_auth'
-)); // Tables to ignore
-define("CHARSET", 'utf8');
-define("GZIP_BACKUP_FILE", false); // Set to false if you want plain SQL backup files (not gzipped)
-define("DISABLE_FOREIGN_KEY_CHECKS", true); // Set to true if you are having foreign key constraint fails
-define("BATCH_SIZE", 1000); // Batch size when selecting rows from database in order to not exhaust system memory
-                            // Also number of rows per INSERT statement in backup file
+// Get credentials from Railway Environment Variables
+$DB_HOST = getenv('MYSQL_HOST');
+$DB_USER = getenv('MYSQL_USER');
+$DB_PASSWORD = getenv('MYSQL_PASSWORD');
+$DB_NAME = getenv('MYSQL_DATABASE');
+$DB_PORT = getenv('MYSQL_PORT'); // Railway often uses a custom port
 
 /**
  * The Backup_Database class
@@ -473,7 +453,7 @@ if (php_sapi_name() != "cli") {
     echo '<div style="font-family: monospace;">';
 }
 
-$backupDatabase = new Backup_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, CHARSET);
+$backupDatabase = new Backup_Database($DB_HOST, $DB_USER, $DB_PASSWORD, $DB_NAME, CHARSET);
 
 // Option-1: Backup tables already defined above
 $result = $backupDatabase->backupTables(TABLES) ? 'OK' : 'KO';
