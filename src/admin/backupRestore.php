@@ -166,8 +166,7 @@ try{
                             define("DB_HOST", getenv('MYSQL_HOST'));
                             define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
                             
-                            // Use dirname(__DIR__) to get the parent directory of /admin
-                            define("BACKUP_DIR", dirname(__DIR__) . '/permanent-data/backup');
+                            define("BACKUP_DIR", '/var/www/html/permanent-data/backup');
                             // --- END OF FIX ---
 
                             define("BACKUP_FILE", $test); // Script will autodetect if backup file is gzipped based on .gz extension

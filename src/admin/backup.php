@@ -8,8 +8,7 @@ define("DB_NAME", getenv('MYSQL_DATABASE'));
 define("DB_HOST", getenv('MYSQL_HOST'));
 define("DB_PORT", getenv('MYSQL_PORT')); 
 
-// Use dirname(__DIR__) to get the parent directory of /admin
-define("BACKUP_DIR", dirname(__DIR__) . '/permanent-data/backup');
+define("BACKUP_DIR", '/var/www/html/permanent-data/backup');
 
 define("TABLES", '*');
 define('IGNORE_TABLES',array()); 
@@ -184,16 +183,33 @@ class Backup_Database {
      * NEW FUNCTION: Check if directory exists and create it if not
      */
     protected function checkAndCreateDir($dir) {
-        if (!is_dir($dir)) {
-            $this->obfPrint("Creating directory $dir...", 1, 0);
-            // Use recursive mkdir (0777)
-            if (mkdir($dir, 0777, true)) {
-                $this->obfPrint('OK');
-            } else {
-                throw new Exception("ERROR: Could not create directory $dir. Please check permissions.");
-            }
+    // Check if the base mount path exists
+    $baseDir = dirname($dir); // This will be /var/www/html/permanent-data
+
+    if (!is_dir($baseDir)) {
+        // This is a critical error. The volume itself is missing.
+        throw new Exception("ERROR: Base directory $baseDir does not exist. Is the volume mounted?");
+    }
+
+    // Check if the base directory is writable
+    if (!is_writable($baseDir)) {
+        // This is a permissions error
+        throw new Exception("ERROR: Base directory $baseDir is not writable. Please check permissions.");
+    }
+
+    // Now, check if the backup-specific directory exists
+    if (!is_dir($dir)) {
+        $this->obfPrint("Creating directory $dir...", 1, 0);
+
+        // Try to create the directory
+        if (mkdir($dir, 0777, true)) {
+            $this->obfPrint('OK');
+        } else {
+            // This failure is specific to the 'backup' subfolder
+            throw new Exception("ERROR: Could not create directory $dir. Base folder is writable, but mkdir failed.");
         }
     }
+}
 
     protected function saveFile(&$sql) {
         if (!$sql) return false;
