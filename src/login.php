@@ -425,7 +425,7 @@ body {
               }else if(data == 'admin'){
                 Swal.fire({
                   title: '<strong class="text-success">SUCCESS</strong>',
-                  icon: 'success',
+                  type: 'success',
                   html: '<b>Login Successfully</b>',
                   width: '400px',
                   showConfirmButton:  false,
@@ -435,7 +435,7 @@ body {
               }else if(data == 'secretary'){
                 Swal.fire({
                   title: '<strong class="text-success">SUCCESS</strong>',
-                  icon: 'success',
+                  type: 'success',
                   html: '<b>Login Successfully</b>',
                   width: '400px',
                   showConfirmButton:  false,
