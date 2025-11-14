@@ -12,7 +12,9 @@ define("DB_PORT", getenv('MYSQL_PORT'));
  * Define Backup behavior
  * NEW: We now save to a subfolder inside the 'permanent-data' volume
  */
-define("BACKUP_DIR", '../permanent-data/backup'); // Resolves to /var/www/html/permanent-data/backup
+// Use __DIR__ to create an absolute path from the current file's location
+define("BACKUP_DIR", __DIR__ . '/../permanent-data/backup');
+
 define("TABLES", '*');
 define('IGNORE_TABLES',array()); 
 define("CHARSET", 'utf8');

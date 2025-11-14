@@ -166,7 +166,8 @@ try{
                             define("DB_HOST", getenv('MYSQL_HOST'));
                             define("DB_PORT", getenv('MYSQL_PORT')); // Get the Railway port
                             
-                            define("BACKUP_DIR", '../permanent-data/backup');
+                            // Use __DIR__ to create an absolute path from the current file's location
+                            define("BACKUP_DIR", __DIR__ . '/../permanent-data/backup');
                             // --- END OF FIX ---
 
                             define("BACKUP_FILE", $test); // Script will autodetect if backup file is gzipped based on .gz extension
