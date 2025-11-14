@@ -638,32 +638,58 @@ try{
       <div class="container-fluid">
 
       <div class="row mt-5">
+        <!-- Changed upload backup logic design -->
         <div class="col-sm-6">
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">
-                    <h5>Upload Backup</h5>
-                  </div>
-                </div>
-              <div class="card-body">
-
-                  <button type="button" class="btn btn-flast btn-danger elevation-5 px-3 btn-flat mb-3" id="generateBackup"><i class="fas fa-file-export"></i> Generate Backup</button>
-                    <form action="backupRestore.php" method="post">
-                    <div class="p-5 text-center container elevation-5" style="border: 2px solid gray; border-style: dashed; cursor: pointer;" id="uploadFile">
-                      Click Here to Upload <i class="fas fa-upload"></i> <br>
-                      No <b>File Size</b> Limit
-                      <br>
-
-                      <span id="showValue"></span>
-
-
-                    </div>
-                  <input type="file" class="d-none" id="backup_file" name="fileRestore">
-                  <button type="submit" name="restore" id="restore" class="btn btn-info btn-flat elevation-5 px-3 mt-3 "><i class="fas fa-recycle"></i> Restore</button>
-                  </form>
-              </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <h5>Backup & Restore</h5>
             </div>
         </div>
+        <div class="card-body">
+
+            <button type="button" class="btn btn-flast btn-danger elevation-5 px-3 btn-flat mb-3" id="generateBackup"><i class="fas fa-file-export"></i> Generate Backup</button>
+            
+            <hr>
+
+            <h6>Restore from Generated List</h6>
+            <form action="backupRestore.php" method="post" onsubmit="return confirm('Are you sure you want to restore this backup? This will overwrite all current data.');">
+                <div class="form-group">
+                    <label for="fileRestoreSelect">Select Backup to Restore:</label>
+                    <select name="fileRestore" id="fileRestoreSelect" class="form-control" required>
+                        <option value="" disabled selected>-- Select a backup --</option>
+                        <?php
+                            // Fetch list of backups from DB
+                            $sql_list = "SELECT id, path FROM backup ORDER BY id DESC";
+                            $result_list = $con->query($sql_list);
+                            if ($result_list && $result_list->num_rows > 0) {
+                                while($row_list = $result_list->fetch_assoc()) {
+                                    // The 'value' will be the filename, e.g., "BackupFile-11142025_223000.sql"
+                                    echo '<option value="'.htmlspecialchars($row_list['path']).'">'.htmlspecialchars($row_list['path']).'</option>';
+                                }
+                            } else {
+                                echo '<option value="" disabled>No backups found. Generate one first.</option>';
+                            }
+                        ?>
+                    </select>
+                </div>
+                <button type="submit" name="restore" class="btn btn-info btn-flat elevation-5 px-3 mt-3"><i class="fas fa-recycle"></i> Restore from Selected</button>
+            </form>
+
+            <hr>
+
+            <h6>Restore from Manual Upload</h6>
+            <form action="backupRestore.php" method="post" enctype="multipart/form-data"> 
+                <div class="p-5 text-center container elevation-5" style="border: 2px solid gray; border-style: dashed; cursor: pointer;" id="uploadFile">
+                    Click Here to Upload <i class="fas fa-upload"></i> <br>
+                    <span id="showValue"></span>
+                </div>
+                <input type="file" class="d-none" id="backup_file" name="fileRestore_upload" disabled> <input type="text" class="d-none" id="fileRestore" name="fileRestore"> <button type="submit" name="restore" id="restore" class="btn btn-secondary btn-flat elevation-5 px-3 mt-3 "><i class="fas fa-upload"></i> Restore from Upload</button>
+            </form>
+        </div>
+    </div>
+</div>
+
         <div class="col-sm-6">
           <div class="card">
               <div class="card-header">
@@ -733,31 +759,49 @@ try{
 <script>
   $(document).ready(function(){
 
+    // --- NEW SCRIPT FOR FILE UPLOAD ---
+    // When the user clicks the upload box
+    $("#uploadFile").on('click',function(){
+      $("#backup_file_upload").click(); // Trigger the hidden file input
+    });
 
-    $("#backup_file").change(function(){
-      var backupID = $(this).val().split('.').pop().toLowerCase();
-      var wew = $(this).val();
-      $("#showValue").text(wew);
+    // When the hidden file input changes
+    $("#backup_file_upload").change(function(){
+        // Get the actual file object
+        var file = $(this)[0].files[0];
+        if (file) {
+            var fileName = file.name;
+            var backupID = fileName.split('.').pop().toLowerCase();
+            
+            // Validate for .sql
+            if(jQuery.inArray(backupID, ['sql'])  == -1){
+                Swal.fire({
+                    title: '<strong class="text-danger">ERROR</strong>',
+                    type: 'error',
+                    html: '<b>Invalid File. Only .sql files are allowed.</b>',
+                    width: '400px',
+                    showConfirmButton: true,
+                    allowOutsideClick: false,
+                });
+                $(this).val(''); // Clear the file input
+                $("#showValue").text('');
+                $("#fileRestore").val(''); // Clear the hidden text input
+                return false;
+            }
 
-      if(backupID != ''){
-        if(jQuery.inArray(backupID, ['sql'])  == -1){
-          Swal.fire({
-              title: '<strong class="text-danger">ERROR</strong>',
-              type: 'error',
-              html: '<b>Invalid File</b>',
-              width: '400px',
-              showConfirmButton: true,
-              allowOutsideClick: false,
-            })
-            $("#backup_file").val('');
-            $("#showValue").text('');
-            return false;
+            // Show the file name to the user
+            $("#showValue").text(fileName);
+            // Put the file name into the hidden text input that gets submitted
+            $("#fileRestore").val(fileName); 
         }
-      
-      }
+    });
 
-    })
+    // We must rename the file input for the upload form
+    // Find the original file input and give it a new ID
+    $('input[name="fileRestore"][type="file"]').attr('name', 'fileRestore_upload').attr('id', 'backup_file_upload');
 
+
+    // --- ORIGINAL SCRIPT (No changes needed below) ---
 
     $(document).on('click','#generateBackup',function(){
 
@@ -785,6 +829,8 @@ try{
                   timer: 2000,
                 }).then(()=>{
                   $("#backupTable").DataTable().ajax.reload();
+                  // --- NEW: Reload the page to update the dropdown ---
+                  location.reload(); 
                 })
             }
         }
@@ -800,8 +846,10 @@ try{
 
     })
 
+    // This script is now redundant because of the new one above, but we leave it
+    // in case you had other logic. The new script is more specific.
     $("#uploadFile").on('click',function(){
-      $("#backup_file").click();
+      $("#backup_file_upload").click();
     })
 
 
@@ -857,6 +905,8 @@ try{
                 timer: 2000
               }).then(()=>{
                 $("#backupTable").DataTable().ajax.reload();
+                // --- NEW: Reload the page to update the dropdown ---
+                location.reload(); 
               })
             }
           }).fail(function(){
