@@ -879,7 +879,7 @@ $('#proceed-guardian').click(function(e) {
                           });
 
                       // Check 2 :Registration worked, but email failed
-                      } else if (response.includes('Registration successful, but the welcome email')) {
+                      } else if (response.includes('Registration successful, but the welcome email could not be sent')) {
                           Swal.fire({
                             title: '<strong class="text-warning">Registration Complete</strong>',
                             icon: 'warning',

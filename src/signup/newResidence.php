@@ -32,8 +32,7 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     $mail->SMTPAuth   = true;
     $mail->Username   = $gmail_username;
     $mail->Password   = $gmail_password;
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
-    $mail->Port       = 465;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
     $mail->Port       = 587;
 
     // Sender and Recipient
