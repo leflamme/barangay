@@ -52,9 +52,6 @@ if(isset($_REQUEST['request'])){
   echo $e->getMessage();
 }
 
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -62,38 +59,174 @@ if(isset($_REQUEST['request'])){
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>View/Edit Official</title>
 
  
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
  
- 
+  <style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #ffffff;
+  }
+
+  .wrapper,
+  .content-wrapper,
+  .main-footer,
+  .content,
+  .content-header {
+    background-color: #ffffff !important;
+    color: #050C9C;
+  }
+
+  /* Navbar */
+  .main-header.navbar {
+    background-color: #050C9C !important;
+    border-bottom: none;
+  }
+
+  .navbar .nav-link,
+  .navbar .nav-link:hover {
+    color: #ffffff !important;
+  }
+
+  /* Sidebar */
+  .main-sidebar {
+    background-color: #050C9C !important;
+  }
+
+  .brand-link {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar .nav-link {
+    color: #A7E6FF !important;
+    transition: all 0.3s;
+  }
+
+  .sidebar .nav-link.active,
+  .sidebar .nav-link:hover {
+    background-color: #3572EF !important;
+    color: #ffffff !important;
+  }
+
+  .sidebar .nav-icon {
+    color: #3ABEF9 !important;
+  }
+
+  .dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+
+  .dropdown-item {
+    font-weight: 600;
+    transition: 0.2s ease-in-out;
+  }
+
+  .dropdown-item:hover {
+    background-color: #F5587B;
+    color: white;
+  }
+
+  /* Tabs - form */
+  .tab-content .lead {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .tab-nav-link {
+    background-color: #ffffff !important;
+    color: #003366 !important;
+    border: 1px solid #cccccc !important;
+    font-weight: 600;
+  }
+
+  .tab-nav-link.active {
+    background-color: #003366 !important;
+    color: #ffffff !important;
+  }
+
+  .tab-nav-link:hover {
+    background-color: #f0f0f0 !important;
+    color: #003366 !important;
+  }
+
+  /* Fix dark background issue */
+  .card,
+  .card-body,
+  .card-header,
+  .card-footer {
+    background-color: #ffffff !important;
+    color: #050C9C !important;
+  }
+
+  .form-control {
+    background-color: #ffffff !important;
+    color: #000000 !important; /* input text now black */
+    border: 1px solid #dcdfe3 !important;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Make disabled inputs look better */
+  .form-control:disabled, .form-control[readonly] {
+    background-color: #e9ecef !important;
+  }
+
+  /* Image card on left */
+  .card-indigo.card-outline {
+    border-color: #003366 !important;
+    background-color: #ffffff !important;
+  }
+
+  /* Fix image section text */
+  .box-profile h3 {
+    color: #003366 !important;
+  }
+
+  .btn-success {
+    background-color: #2E8B57 !important;
+    border-color: #2E8B57 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border-radius: 10px !important;
+    padding: 10px 20px;
+  }
+
+  .btn-success:hover {
+    background-color: #256d47 !important;
+    border-color: #256d47 !important;
+  }
+  
+  .btn-flat {
+    border-radius: 10px !important;
+  }
+  
+  </style>
  
 </head>
-<body class="hold-transition dark-mode sidebar-mini   ">
+<body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
-<!-- Preloader -->
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
@@ -115,17 +248,14 @@ if(isset($_REQUEST['request'])){
       </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-      <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="myProfile.php" class="dropdown-item">
-            <!-- Message Start -->
             <div class="media">
               <?php 
                 if($user_image != '' || $user_image != null || !empty($user_image)){
@@ -141,35 +271,29 @@ if(isset($_REQUEST['request'])){
                 </h3>
               </div>
             </div>
-            <!-- Message End -->
-          </a>         
+            </a>         
           <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar Menu -->
+    
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
-            <a href="dashboard.php" class="nav-link">
+            <a href="dashboard.php" class="nav-link ">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
               </p>
             </a>
           </li>
-          <li class="nav-item menu-open">
+          <li class="nav-item menu-open" >
             <a href="#" class="nav-link  bg-indigo">
               <i class="nav-icon fas fa-users-cog"></i>
               <p>
@@ -178,7 +302,6 @@ if(isset($_REQUEST['request'])){
               </p>
             </a>
             <ul class="nav nav-treeview">
-             
               <li class="nav-item">
                 <a href="allOfficial.php" class="nav-link active">
                   <i class="fas fa-circle nav-icon text-red"></i>
@@ -194,7 +317,7 @@ if(isset($_REQUEST['request'])){
             </ul>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link ">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-users"></i>
               <p>
                 Residence
@@ -209,7 +332,7 @@ if(isset($_REQUEST['request'])){
                 </a>
               </li>
               <li class="nav-item">
-                <a href="allResidence.php" class="nav-link ">
+                <a href="allResidence.php" class="nav-link">
                   <i class="fas fa-circle nav-icon text-red"></i>
                   <p>All Residence</p>
                 </a>
@@ -222,7 +345,6 @@ if(isset($_REQUEST['request'])){
               </li>
             </ul>
           </li>
-          
           <li class="nav-item ">
             <a href="requestCertificate.php" class="nav-link">
               <i class="nav-icon fas fa-certificate"></i>
@@ -246,10 +368,8 @@ if(isset($_REQUEST['request'])){
                   <p>Resident</p>
                 </a>
               </li>
-
             </ul>
           </li>
-       
           <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
@@ -266,7 +386,6 @@ if(isset($_REQUEST['request'])){
               </p>
             </a>
           </li>
-         
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
@@ -275,15 +394,11 @@ if(isset($_REQUEST['request'])){
               </p>
             </a>
           </li>
-         
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     
   <div class="content-header">
@@ -291,16 +406,11 @@ if(isset($_REQUEST['request'])){
           <div class="row mb-2">
             <div class="col-sm-6">
             
-            </div><!-- /.col -->
-            <div class="col-sm-6">
+            </div><div class="col-sm-6">
             <a href="#" class="btn bg-black float-lg-right elevation-5 px-3 btn-flat" onclick="history.go(-1)"><i class="fas fa-backward"></i>  BACK</a>
-            </div><!-- /.col -->
-          </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-      </div>
+            </div></div></div></div>
    
 
-    <!-- Main content -->
     <section class="content mt-3">
       <div class="container-fluid">
 
@@ -335,9 +445,43 @@ if(isset($_REQUEST['request'])){
                   <div class="col-sm-12">
                     <input type="hidden" name="official_id" value="<?= $official_id ?>">
                   </div>
-                 
-                  
-                 
+                  <div class="col-sm-12">
+                    <div class="form-group">
+                      <label>Position</label>
+                        <select name="edit_position" id="edit_position" class="form-control form-control-sm text-uppercase">
+                      
+                          <?php 
+                          
+                          $sql_position = "SELECT position_id, position FROM position";
+                          $stmt = $con->prepare($sql_position) or die ($con->error);
+                          $stmt->execute();
+                          $result_position = $stmt->get_result();
+                          while($row_position = $result_position->fetch_assoc()){
+                         
+                            echo ' <option value="'.$row_position['position_id'].'" '.($row_position['position_id'] == $row_official['position'] ? 'selected': '').'>'.$row_position['position'].'</option>';
+                          }
+                          
+                          ?>
+                        
+                        
+                        </select>
+                        <input type="hidden" id="edit_position_check" value="false">
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="form-group ">
+                      <label >Start</label>
+                      <input type="date" class="form-control" id="edit_term_from" name="edit_term_from" value="<?= !empty($row_official['term_from']) ? date('Y-m-d', strtotime($row_official['term_from'])) : '' ?>">
+                      <input type="hidden" id="edit_term_from_check" value="false">
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="form-group ">
+                      <label >End</label>
+                      <input type="date" class="form-control" id="edit_term_to" name="edit_term_to" value="<?= !empty($row_official['term_to']) ? date('Y-m-d', strtotime($row_official['term_to'])) : '' ?>">
+                      <input type="hidden" id="edit_term_to_check" value="false">
+                    </div>
+                  </div>
                   <div class="col-sm-12">
                     <div class="form-group">
                       <label>Voters</label>
@@ -348,12 +492,12 @@ if(isset($_REQUEST['request'])){
                       <input type="hidden" value="false" id="edit_voters_check">
                     </div>
                   </div>
-                 
+                  
 
                   <div class="col-sm-12">
                     <div class="form-group ">
                       <label >Date of Birth</label>
-                      <input type="date" class="form-control" id="edit_birth_date" name="edit_birth_date" value="<?php echo strftime('%Y-%m-%d',strtotime($row_official['birth_date'])); ?>">
+                      <input type="date" class="form-control" id="edit_birth_date" name="edit_birth_date" value="<?= !empty($row_official['birth_date']) ? date('Y-m-d', strtotime($row_official['birth_date'])) : '' ?>">
                       <input type="hidden" id="edit_birth_date_check" value='false'>
                     </div>
                   </div>
@@ -364,32 +508,32 @@ if(isset($_REQUEST['request'])){
                       <input type="hidden" id="edit_birth_place_check" value="false">
                     </div>
                   </div>
-                  <div class="col-sm-12">
-                    <div class="form-group">
-                      <label>Pwd</label>
-                      <select name="edit_pwd" id="edit_pwd" class="form-control">
-                        <option value="NO" <?= $row_official['pwd'] == 'NO'? 'selected': ''; ?>>NO</option>
-                        <option value="YES" <?= $row_official['pwd'] == 'YES'? 'selected': ''; ?>>YES</option>
-                      </select>
-                      <input type="hidden" id="edit_pwd_check" value="false">
-                    </div>
+                </div>
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <label>Pwd</label>
+                    <select name="edit_pwd" id="edit_pwd" class="form-control">
+                      <option value="NO" <?= $row_official['pwd'] == 'NO'? 'selected': ''; ?>>NO</option>
+                      <option value="YES" <?= $row_official['pwd'] == 'YES'? 'selected': ''; ?>>YES</option>
+                    </select>
+                    <input type="hidden" id="edit_pwd_check" value="false">
                   </div>
-                  <div class="col-sm-12" id="pwd_check" style="display: <?= $row_official['pwd'] == 'NO' ?  'none': ''; ?>;" >
-                    <div class="form-group ">
-                      <label >TYPE OF PWD</label>
-                        <input type="text" class="form-control" id="edit_pwd_info" name="edit_pwd_info" value="<?= $row_official['pwd_info'] ?>" <?= $row_official['pwd'] == 'NO' ?  'disabled': ''; ?>>
-                        <input type="hidden" id="edit_pwd_info_check" value="false">
-                    </div>
+                </div>
+                <div class="col-sm-12" id="pwd_check" style="display: <?= $row_official['pwd'] == 'NO' ?  'none': ''; ?>;">
+                  <div class="form-group ">
+                    <label >TYPE OF PWD</label>
+                      <input type="text" class="form-control" id="edit_pwd_info" name="edit_pwd_info" value="<?= $row_official['pwd_info'] ?>" <?= $row_official['pwd'] == 'NO' ?  'disabled': ''; ?>>
+                      <input type="hidden" id="edit_pwd_info_check" value="false">
                   </div>
-                  <div class="col-sm-12">
-                    <div class="form-group">
-                      <label>Single Parent</label>
-                      <select name="edit_single_parent" id="edit_single_parent" class="form-control">
-                        <option value="NO" <?= $row_official['single_parent'] == 'NO'? 'selected': ''; ?>>NO</option>
-                        <option value="YES" <?= $row_official['single_parent'] == 'YES'? 'selected': ''; ?>>YES</option>
-                      </select>
-                      <input type="hidden" id="edit_single_parent_check" value="false">
-                    </div>
+                </div>
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <label>Single Parent</label>
+                    <select name="edit_single_parent" id="edit_single_parent" class="form-control">
+                      <option value="NO" <?= $row_official['single_parent'] == 'NO'? 'selected': ''; ?>>NO</option>
+                      <option value="YES" <?= $row_official['single_parent'] == 'YES'? 'selected': ''; ?>>YES</option>
+                    </select>
+                    <input type="hidden" id="edit_single_parent_check" value="false">
                   </div>
                 </div>
 
@@ -397,23 +541,19 @@ if(isset($_REQUEST['request'])){
 
                
               </div>
-              <!-- /.card-body -->
-            </div>
+              </div>
           </div>
           <div class="col-sm-8">
             <div class="card card-indigo card-tabs h-100">
               <div class="card-header p-0 pt-1">
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                   <li class="nav-item">
-                    <a class="nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info" role="tab" aria-controls="basic-info" aria-selected="true">Basic Info</a>
+                    <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info" role="tab" aria-controls="basic-info" aria-selected="true">Basic Info</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" id="other-info-tab" data-toggle="pill" href="#other-info" role="tab" aria-controls="other-info" aria-selected="false">Other Info</a>
+                    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info" role="tab" aria-controls="other-info" aria-selected="false">Other Info</a>
                   </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="guardian-tab" data-toggle="pill" href="#guardian" role="tab" aria-controls="guardian" aria-selected="false">Guardian</a>
-                  </li>
-                </ul>
+                  </ul>
               </div>
               <div class="card-body">
                 <div class="tab-content" id="custom-tabs-one-tabContent">
@@ -558,50 +698,12 @@ if(isset($_REQUEST['request'])){
      
 
                   </div>
-                  <div class="tab-pane fade" id="guardian" role="tabpanel" aria-labelledby="guardian-tab">
-                   
-                      <p class="lead text-center">Guardian</p>
-                      <div class="row">
-
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Father's Name</label>
-                            <input type="text" class="form-control" id="edit_fathers_name" name="edit_fathers_name" value="<?= $row_official['fathers_name'] ?>">
-                            <input type="hidden" id="edit_fathers_name_check" value="false">
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Mother's Name</label>
-                            <input type="text" class="form-control" id="edit_mothers_name" name="edit_mothers_name" value="<?= $row_official['mothers_name'] ?>">
-                            <input type="hidden" id="edit_mothers_name_check" value="false">
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Guardian</label>
-                            <input type="text" class="form-control" id="edit_guardian" name="edit_guardian" value="<?= $row_official['guardian'] ?>">
-                            <input type="hidden" id="edit_guardian_check" value="false">
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Guardian Contact</label>
-                            <input type="text" class="form-control" maxlength="11" id="edit_guardian_contact" name="edit_guardian_contact" value="<?= $row_official['guardian_contact'] ?>">
-                            <input type="hidden" id="edit_guardian_contact_check" value="false">
-                          </div>
-                        </div>
-
-                      </div>
-                    
                   </div>
-                </div>
               </div>
               <div class="card-footer">
                 <button type="submit"  class="btn btn-success px-4 elevation-3"> <i class="fas fa-edit"></i> UPDATE</button>
               </div> 
-              <!-- /.card -->
-            </div>
+              </div>
 
           </div>
         </div>
@@ -610,15 +712,8 @@ if(isset($_REQUEST['request'])){
 
 
 
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
-  <!-- Main Footer -->
+      </div></section>
+    </div>
   <footer class="main-footer">
     <strong>Copyright &copy; <?php echo date("Y"); ?> - <?php echo date('Y', strtotime('+1 year'));  ?> </strong>
     
@@ -626,18 +721,9 @@ if(isset($_REQUEST['request'])){
     </div>
   </footer>
 </div>
-<!-- ./wrapper -->
-
-
-
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -655,7 +741,7 @@ if(isset($_REQUEST['request'])){
 <script src="../assets/plugins/sweetalert2/js/sweetalert2.all.min.js"></script>
 <script src="../assets/plugins/select2/js/select2.full.min.js"></script>
 <script src="../assets/plugins/moment/moment.min.js"></script>
-<script src="../assets/plugins/chart.js/Chart.min.js"></script>
+<script src="../assetsS/plugins/chart.js/Chart.min.js"></script>
 <script src="../assets/plugins/jquery-validation/jquery.validate.min.js"></script>
 <script src="../assets/plugins/jquery-validation/additional-methods.min.js"></script>
 <script src="../assets/plugins/inputmask/min/jquery.inputmask.bundle.min.js"></script>
@@ -664,7 +750,6 @@ if(isset($_REQUEST['request'])){
   $(document).ready(function(){
     $(function () {
 
-      
       $("#edit_pwd").change(function(){
       var pwd_check = $(this).val();
 
@@ -680,7 +765,9 @@ if(isset($_REQUEST['request'])){
 
             var edit_first_name = $("#edit_first_name").val();
             var edit_last_name = $("#edit_last_name").val();
-   
+            var edit_position = $("#edit_position").val();
+            var edit_term_from = $("#edit_term_from").val();
+            var edit_term_to = $("#edit_term_to").val();
             var edit_voters = $("#edit_voters").val();
             var edit_pwd = $("#edit_pwd").val();
             var edit_birth_date = $("#edit_birth_date").val();
@@ -703,8 +790,6 @@ if(isset($_REQUEST['request'])){
             var edit_guardian = $("#edit_guardian").val();
             var edit_guardian_contact = $("#edit_guardian_contact").val();
             var edit_pwd_info = $("#edit_pwd_info").val();
-            var edit_single_parent = $("#edit_single_parent").val();
-            
             
             
               $("#edit_first_name").change(function(){
@@ -722,36 +807,6 @@ if(isset($_REQUEST['request'])){
 
             })
 
-
-            $("#edit_pwd_info").change(function(){
-
-                var newPwdInfo = $(this).val();
-
-                if(!(newPwdInfo == edit_pwd_info )){
-
-                $("#edit_pwd_info_check").val('true');
-
-                }else{
-
-                  $("#edit_pwd_info_check").val('false');
-                }
-
-              })
-
-              $("#edit_single_parent").change(function(){
-
-                var newSingleParent = $(this).val();
-
-                if(!(newSingleParent == edit_single_parent )){
-
-                $("#edit_single_parent_check").val('true');
-
-                }else{
-
-                  $("#edit_single_parent_check").val('false');
-                }
-
-              })
           
             
             $("#edit_last_name").change(function(){
@@ -769,11 +824,50 @@ if(isset($_REQUEST['request'])){
 
           })
 
-       
+          $("#edit_position").change(function(){
 
-       
+            var newPosition = $(this).val();
 
-    
+            if(!(newPosition == edit_position )){
+
+            $("#edit_position_check").val('true');
+
+            }else{
+
+              $("#edit_position_check").val('false');
+            }
+
+          })
+
+          $("#edit_term_from").change(function(){
+
+          var newTerm = $(this).val();
+
+          if(!(newTerm == edit_term_from )){
+
+          $("#edit_term_from_check").val('true');
+
+          }else{
+
+            $("#edit_term_from_check").val('false');
+          }
+
+        })
+
+        $("#edit_term_to").change(function(){
+
+            var newTo = $(this).val();
+
+            if(!(newTo == edit_term_to )){
+
+            $("#edit_term_to_check").val('true');
+
+            }else{
+
+              $("#edit_term_to_check").val('false');
+            }
+
+          })
 
           $("#edit_voters").change(function(){
 
@@ -802,6 +896,21 @@ if(isset($_REQUEST['request'])){
 
               $("#edit_pwd_check").val('false');
             }
+
+          })
+
+          $("#edit_pwd_info").change(function(){
+
+          var newPwdInfo = $(this).val();
+
+          if(!(newPwdInfo == edit_pwd_info )){
+
+          $("#edit_pwd_info_check").val('true');
+
+          }else{
+
+            $("#edit_pwd_info_check").val('false');
+          }
 
           })
 
@@ -1033,6 +1142,7 @@ if(isset($_REQUEST['request'])){
                 $("#edit_email_address_check").val('false');
               }
 
+M
             })
 
             $("#edit_contact_number").change(function(){
@@ -1049,66 +1159,8 @@ if(isset($_REQUEST['request'])){
               }
 
             })
-
-            $("#edit_fathers_name").change(function(){
-
-              var newtatay = $(this).val();
-
-              if(!(newtatay == edit_fathers_name )){
-
-              $("#edit_fathers_name_check").val('true');
-
-              }else{
-
-                $("#edit_fathers_name_check").val('false');
-              }
-
-            })
-
-            $("#edit_mothers_name").change(function(){
-
-              var newNanay = $(this).val();
-
-              if(!(newNanay == edit_mothers_name )){
-
-              $("#edit_mothers_name_check").val('true');
-
-              }else{
-
-                $("#edit_mothers_name_check").val('false');
-              }
-
-            })
-
-            $("#edit_guardian").change(function(){
-
-              var newGuardian = $(this).val();
-
-              if(!(newGuardian == edit_guardian )){
-
-              $("#edit_guardian_check").val('true');
-
-              }else{
-
-                $("#edit_guardian_check").val('false');
-              }
-
-              })
-
-              $("#edit_guardian_contact").change(function(){
-
-                var newGcontact = $(this).val();
-
-                if(!(newGcontact == edit_guardian_contact )){
-
-                $("#edit_guardian_contact_check").val('true');
-
-                }else{
-
-                  $("#edit_guardian_contact_check").val('false');
-                }
-
-              })
+            
+            // REMOVED GUARDIAN .change() EVENTS
 
         $.validator.setDefaults({
           submitHandler: function (form) {
@@ -1130,8 +1182,9 @@ if(isset($_REQUEST['request'])){
             
                 formData.append("edit_first_name_check",$("#edit_first_name_check").val())
                 formData.append("edit_last_name_check",$("#edit_last_name_check").val())
-    
-         
+                formData.append("edit_position_check",$("#edit_position_check").val())
+                formData.append("edit_term_from_check",$("#edit_term_from_check").val())
+                formData.append("edit_term_to_check",$("#edit_term_to_check").val())
                 formData.append("edit_voters_check",$("#edit_voters_check").val())
                 formData.append("edit_pwd_check",$("#edit_pwd_check").val())
                 formData.append("edit_birth_date_check",$("#edit_birth_date_check").val())
@@ -1150,13 +1203,8 @@ if(isset($_REQUEST['request'])){
                 formData.append("edit_address_check",$("#edit_address_check").val())
                 formData.append("edit_email_address_check",$("#edit_email_address_check").val())
                 formData.append("edit_contact_number_check",$("#edit_contact_number_check").val())
-                formData.append("edit_fathers_name_check",$("#edit_fathers_name_check").val())
-                formData.append("edit_mothers_name_check",$("#edit_mothers_name_check").val())
-                formData.append("edit_guardian_check",$("#edit_guardian_check").val())
-                formData.append("edit_guardian_contact_check",$("#edit_guardian_contact_check").val())
+                // REMOVED GUARDIAN formData.append
                 formData.append("edit_pwd_info_check",$("#edit_pwd_info_check").val())
-                formData.append("edit_single_parent_check",$("#edit_single_parent_check").val())
-
                   $.ajax({
                     url: 'editOfficial.php',
                     type: 'POST',
@@ -1164,7 +1212,19 @@ if(isset($_REQUEST['request'])){
                     processData: false,
                     contentType: false,
                     success:function(data){
-                  
+                      if(data == 'error'){
+
+                          Swal.fire({
+                            title: '<strong class="text-danger">ERROR</strong>',
+                            type: 'error',
+                            html: '<b>Position Limited<b>',
+                            width: '400px',
+                            confirmButtonColor: '#6610f2',
+                            allowOutsideClick: false,
+                          });
+
+
+                      }else{
                         Swal.fire({
                           title: '<strong class="text-success">SUCCESS</strong>',
                           type: 'success',
@@ -1178,7 +1238,7 @@ if(isset($_REQUEST['request'])){
                           window.location.reload();
                         })
 
-                      
+                      }
                     }
                   }).fail(function(){
                     Swal.fire({
@@ -1230,7 +1290,7 @@ if(isset($_REQUEST['request'])){
           },
           edit_pwd_info:{
             required: true,
-        
+          
           },
         },
         messages: {
