@@ -35,7 +35,7 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
       }
     }
     $body .= "</ul>";
-    $body .= "<p>You may now log in using your registered username and password.</p>";
+    $body .= "<p>You may now log in using your registered username and password you created during registration.</p>";
 
     // Build the Resend API data
     $postData = [
