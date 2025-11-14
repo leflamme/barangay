@@ -245,6 +245,9 @@ $stmt_residence_status->close();
     'Username'         => $add_username,
   ];
 
+  echo 'success';
+  /*
+  
   // Call the function to send the email
   $emailSent = sendBarangayWelcomeEmail($email, $firstName . ' ' . $lastName, $resident_data_for_email);
 
@@ -256,6 +259,8 @@ $stmt_residence_status->close();
     // Your JS doesn't handle this, but it's better than a false 'success'
     echo 'Registration successful, but the welcome email could not be sent.'; 
   }
+  
+  */
 }catch(Exception $e){
   echo $e->getMessage();
 }
