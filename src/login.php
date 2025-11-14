@@ -445,7 +445,7 @@ body {
               }else if(data == 'resident'){
                 Swal.fire({
                   title: '<strong class="text-success">SUCCESS</strong>',
-                  icon: 'success',
+                  type: 'success',
                   html: '<b>Login Successfully</b>',
                   width: '400px',
                   showConfirmButton:  false,
