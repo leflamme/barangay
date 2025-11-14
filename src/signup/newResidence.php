@@ -204,7 +204,7 @@ $stmt->bind_param('ssssssssssssssssssssssssssss',  // 28 's' characters
   $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
   $add_contact_number, $add_email_address, $add_address, $add_birth_date, $add_birth_place,
   $add_municipality, $add_zip, $add_barangay, $add_house_number, $add_street,
-  $fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name,
+  $add_fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name, // [!code focus]
   $new_image_path, $alias, $add_occupation // Add the new occupation variable here
 );
 
@@ -252,6 +252,17 @@ $stmt_residence_status->close();
   // Send the final success signal back to the AJAX handler
   echo 'success';
 
+  // Call the function to send the email
+  $emailSent = sendBarangayWelcomeEmail($email, $firstName . ' ' . $lastName, $resident_data_for_email);
+
+  if ($emailSent) {
+    // Send the final success signal back to the AJAX handler
+    echo 'success';
+  } else {
+    // Email failed, but registration worked. Send a specific message.
+    // Your JS doesn't handle this, but it's better than a false 'success'
+    echo 'Registration successful, but the welcome email could not be sent.'; 
+  }
 }catch(Exception $e){
   echo $e->getMessage();
 }
