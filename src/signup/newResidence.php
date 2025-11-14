@@ -247,13 +247,6 @@ $stmt_residence_status->close();
   ];
 
   // Call the function to send the email
-  // This runs ONLY if the database queries above were successful.
-  sendBarangayWelcomeEmail($email, $firstName . '' . $lastName, $resident_data_for_email);
-
-  // Send the final success signal back to the AJAX handler
-  echo 'success';
-
-  // Call the function to send the email
   $emailSent = sendBarangayWelcomeEmail($email, $firstName . ' ' . $lastName, $resident_data_for_email);
 
   if ($emailSent) {
