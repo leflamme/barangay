@@ -867,7 +867,7 @@ $('#proceed-guardian').click(function(e) {
                           // This is the ONLY success case
                           Swal.fire({
                               title: '<strong class="text-success">SUCCESS</strong>',
-                              type: 'success',
+                              icon: 'success',
                               html: '<b>Registered Successfully</b><br>You will now be redirected.',
                               width: '400px',
                               allowOutsideClick: false,
