@@ -63,9 +63,9 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     $mail->send();
     return true;
 
-    } catch (Exception $e) {
+    } catch (\Throwable $t) { // <-- Catch all errors, not just exceptions
       // Log the error (optional but recommended)
-      error_log("Barangay Mailer Error: " . $mail->ErrorInfo);
+      error_log("Barangay Mailer Error: " . $t->getMessage()); // <-- Log the actual error
       return false;
     }
 }
@@ -244,9 +244,6 @@ $stmt_residence_status->close();
     'Address'          => $add_address,
     'Username'         => $add_username,
   ];
-
-  echo 'success';
-  /*
   
   // Call the function to send the email
   $emailSent = sendBarangayWelcomeEmail($email, $firstName . ' ' . $lastName, $resident_data_for_email);
@@ -259,9 +256,7 @@ $stmt_residence_status->close();
     // Your JS doesn't handle this, but it's better than a false 'success'
     echo 'Registration successful, but the welcome email could not be sent.'; 
   }
-  
-  */
-}catch(Exception $e){
-  echo $e->getMessage();
+}catch(\Throwable $t){ // <-- Catch  all errors here too
+  echo $t->getMessage(); // <-- This will now show the fatal error
 }
 ?>
