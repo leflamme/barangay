@@ -18,15 +18,14 @@ try{
         exit;
     }
 
+    // --- START OF FIX ---
     // 2. Fix the SQL Query:
-    // - Use LEFT JOIN to find matches even if one table is missing data.
-    // - Search in both complainant and status tables.
-    // - Use GROUP BY to avoid duplicate blotter records.
+    // Use MAX() on the LEFT JOIN columns to satisfy `only_full_group_by`
     $sql_blooter_check = "SELECT 
                             br.*, 
                             br.blotter_id AS gago,
-                            bc.complainant_id,
-                            bs.person_id
+                            MAX(bc.complainant_id) AS complainant_id,
+                            MAX(bs.person_id) AS person_id
                         FROM blotter_record br
                         LEFT JOIN blotter_complainant bc ON br.blotter_id = bc.blotter_main
                         LEFT JOIN blotter_status bs ON br.blotter_id = bs.blotter_main
@@ -34,6 +33,7 @@ try{
                             bc.complainant_id = ? OR bs.person_id = ?
                         GROUP BY br.blotter_id
                         ORDER BY br.date_reported DESC";
+    // --- END OF FIX ---
     
     $query_blotter_check = $con->prepare($sql_blooter_check);
     if (!$query_blotter_check) {
@@ -98,9 +98,7 @@ try{
     $json_data['data'] = $data;
 
 } catch(Exception $e) {
-    // 3. Fix the Catch Block:
     // If there's an error, add it to the JSON response.
-    // This is valid JSON and DataTables will show it.
     $json_data['error'] = $e->getMessage();
 }
 
