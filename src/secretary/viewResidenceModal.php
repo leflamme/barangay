@@ -11,8 +11,6 @@ try{
     $residence_view = $stmt_view_residence->get_result();
     $row_view_residence = $residence_view->fetch_assoc();
 
-
-
     $sql_barangay_information = "SELECT * FROM `barangay_information`";
     $stmt_barangay_information = $con->prepare($sql_barangay_information) or die ($con->error);
     $stmt_barangay_information->execute();
@@ -22,11 +20,9 @@ try{
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
 ?>
 
 <style>
- 
 .modal-body{
     height: 80vh;
     overflow-y: auto;
@@ -124,17 +120,10 @@ fieldset {
           <tbody>
             <tr>
               <td class="text-center">
-                <?php 
-                
-                if($row_barangay_information['image_path'] != '' || $row_barangay_information['image_path'] != null || !empty($row_barangay_information['image_path'])){
-                    echo '<img alt="barangay_logo" src="'.$row_barangay_information['image_path'].'" class="img-circle"  id="barangay_logo">';
-                }else{
-                  echo '<img alt="barangay_logo" src="../assets/logo/blank.png" class="img-circle"  id="barangay_logo">';
-                }
-                
-                ?>
-                
+                <!-- Barangay Logo -->
+                <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="barangay_logo">
               </td>
+              
               <td class="text-center">
                 <div style="font-size:10pt;">
                   Application for Authority proof that you are a resident of this barangay<br>
@@ -147,8 +136,9 @@ fieldset {
                 </div>
               </td>
               <td  class="text-center">
-                <?php 
                 
+                <?php 
+                // Display Residence Image
                 if($row_view_residence['image'] != '' || $row_view_residence['image'] != null || !empty($row_view_residence['image'])){
                   echo '<img src="'.$row_view_residence['image_path'].'" style="cursor: pointer" alt="residence_image" class="img-thumbnail" width="120" id="display_edit_image_residence">
                           <input type="file" id="edit_image_residence" name="edit_image_residence" style="display: none;">';
@@ -157,6 +147,7 @@ fieldset {
                         <input type="file" id="edit_image_residence" name="edit_image_residence" style="display: none;">';
                 }
                 echo '<br>';
+                // Display Residence Status
                 if($row_view_residence['status'] == 'ACTIVE'){
                   echo '<span class="badge bg-success text-md mt-1">'.$row_view_residence['status'].'</span>
                   ';

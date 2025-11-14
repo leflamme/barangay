@@ -14,27 +14,24 @@ try{
     $first_name_user = $row_user['first_name'];
     $last_name_user = $row_user['last_name'];
     $user_type = $row_user['user_type'];
-    $user_image = $row_user['image'];
-  
+    $user_image = $row_user['image']; 
   
     $sql = "SELECT * FROM `barangay_information`";
-  $query = $con->prepare($sql) or die ($con->error);
-  $query->execute();
-  $result = $query->get_result();
-  while($row = $result->fetch_assoc()){
+    $query = $con->prepare($sql) or die ($con->error);
+    $query->execute();
+    $result = $query->get_result();
+    while($row = $result->fetch_assoc()){
       $barangay = $row['barangay'];
       $zone = $row['zone'];
       $district = $row['district'];
       $image = $row['image'];
       $image_path = $row['image_path'];
       $id = $row['id'];
-  }
-  
-  
-  }else{
-   echo '<script>
-          window.location.href = "../login.php";
-        </script>';
+    }
+  } else {
+  echo '<script>
+    window.location.href = "../login.php";
+  </script>';
   }
   
   }catch(Exception $e){

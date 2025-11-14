@@ -14,18 +14,15 @@ if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['us
   $last_name_user = $row_user['last_name'];
   $user_type = $row_user['user_type'];
   $user_image = $row_user['image'];
-}else{
- echo '<script>
-        window.location.href = "../login.php";
-      </script>';
+} else {
+  echo '<script>
+    window.location.href = "../login.php";
+  </script>';
 }
 
 try{
-
   if(isset($_REQUEST['status_residence']) && isset($_REQUEST['data_status'])){
-
     $status_residence_id = $con->real_escape_string(trim($_REQUEST['status_residence']));
-
     
     $sql_check_status = "SELECT status FROM residence_status WHERE residence_id = ?";
     $stmt_check_status = $con->prepare($sql_check_status) or die ($con->error);
@@ -36,10 +33,8 @@ try{
 
     if($row_check_status['status'] == 'ACTIVE'){
       $data_status = 'INACTIVE';
-      
-    }else{
+    } else {
       $data_status = 'ACTIVE';
-     
     }
     
     $sql_update_status = "UPDATE residence_status SET `status` = ? WHERE residence_id = ?";
@@ -47,24 +42,17 @@ try{
     $stmt_update_status->bind_param('ss',$data_status,$status_residence_id);
     $stmt_update_status->execute();
     $stmt_update_status->close();
-
    
-  $date_activity = $now = date("j-n-Y g:i A");  
-  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '. 'UPDATED RESIDENT  STATUS -'.' ' .$status_residence_id.' |' .' '. ' FROM '.$row_check_status['status'].' TO '. $data_status;
-  $status_activity_log = 'update';
-  $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
-  $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
-  $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
-  $stmt_activity_log->execute();
-  $stmt_activity_log->close();
-  
-
+    $date_activity = $now = date("j-n-Y g:i A");  
+    $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '. 'UPDATED RESIDENT  STATUS -'.' ' .$status_residence_id.' |' .' '. ' FROM '.$row_check_status['status'].' TO '. $data_status;
+    $status_activity_log = 'update';
+    $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
+    $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
+    $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
+    $stmt_activity_log->execute();
+    $stmt_activity_log->close();
   }
-
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
-
 ?>
