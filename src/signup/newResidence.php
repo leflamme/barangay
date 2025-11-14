@@ -1,57 +1,33 @@
 <?php 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 // Load Composer Autoloader 
 require __DIR__ . '/../vendor/autoload.php';
 // Load the database connection
 require __DIR__ . '/../connection.php';
-// Import PHPmailer Classes
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
-  $mail = new PHPMailer(true); 
-   
-  /* For Debugging Purposes
-  $mail->SMTPDebug = 2; // Shows client/server conversation
-  $mail->Debugoutput = 'error_log'; // Sends this output to your Railway logs
-  */
+    // Get the API key you set in Railway's environment variables
+    $apiKey = getenv('RESEND_API_KEY');
+    
+    // Get your Barangay name (it's already set as an env variable)
+    $barangay_name = getenv('BARANGAY_NAME');
+    
+    // IMPORTANT: Get the email you verified with Resend
+    // You cannot send from 'brgykalusugan814@gmail.com' anymore.
+    // You must send from a domain you own or the default Resend domain.
+    // For testing, Resend gives you a sandbox domain like: "onboarding@resend.dev"
+    // Replace 'onboarding@resend.dev' with your verified sender email.
+    $sender_email = 'onboarding@resend.dev'; 
 
-  // --- OLD (Hard-Coded) ---
-  // $gmail_username = 'brgykalusugan814@gmail.com'; 
-  // $gmail_password = 'sphx awcj lmlv upgc'; 
-  // $barangay_name = 'BARANGAY KALUSUGAN'; 
+    if (empty($apiKey)) {
+        error_log("Barangay Mailer Error: RESEND_API_KEY is not set.");
+        return false;
+    }
 
-  $gmail_username = getenv('GMAIL_USER');
-  $gmail_password = getenv('GMAIL_PASS');
-  $barangay_name = getenv('BARANGAY_NAME');
-  // ---------------------------------------------------
-
-  try {     
-    $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = $gmail_username;
-    $mail->Password   = $gmail_password;
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
-    $mail->Port       = 587;
-
-    // Sender and Recipient
-    $mail->setFrom($gmail_username, $barangay_name . ' Admin');
-    $mail->addAddress($recipientEmail, $recipientName);
-
-    // Content
-    $mail->isHTML(true);
-    $mail->Subject = "✅ Welcome! Your Registration to {$barangay_name} System is Complete";
-        
     // Build the email body
     $body = "<h2>Mabuhay, {$recipientName}!</h2>";
     $body .= "<p>Your registration is successful. Welcome!</p>";
     $body .= "<h3>Summary of Details:</h3>";
-        
-    // This dynamically lists the resident's data
     $body .= "<ul style='list-style-type: none; padding: 0;'>";
     foreach ($userData as $key => $value) {
       if (!empty($value)) {
@@ -59,17 +35,44 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
       }
     }
     $body .= "</ul>";
-        
     $body .= "<p>You may now log in using your registered username and password.</p>";
-    $mail->Body    = $body;
 
-    $mail->send();
-    return true;
+    // Build the Resend API data
+    $postData = [
+        'from'    => $barangay_name . ' Admin <' . $sender_email . '>',
+        'to'      => [$recipientEmail],
+        'subject' => "✅ Welcome! Your Registration to {$barangay_name} System is Complete",
+        'html'    => $body
+    ];
 
-    } catch (\Throwable $t) { // <-- Catch all errors, not just exceptions
-      // Log the error (optional but recommended)
-      error_log("Barangay Mailer Error: " . $t->getMessage()); // <-- Log the actual error
-      return false;
+    $ch = curl_init('https://api.resend.com/emails');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $apiKey
+    ]);
+    
+    // For debugging in Railway logs
+    // curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    if (curl_errno($ch)) {
+        error_log('Resend cURL error: ' . curl_error($ch));
+        curl_close($ch);
+        return false;
+    }
+    
+    curl_close($ch);
+
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return true; // Success!
+    } else {
+        error_log("Resend API Error: HTTP {$httpCode} - Response: {$response}");
+        return false;
     }
 }
 
