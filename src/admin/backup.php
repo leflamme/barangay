@@ -8,12 +8,8 @@ define("DB_NAME", getenv('MYSQL_DATABASE'));
 define("DB_HOST", getenv('MYSQL_HOST'));
 define("DB_PORT", getenv('MYSQL_PORT')); 
 
-/**
- * Define Backup behavior
- * NEW: We now save to a subfolder inside the 'permanent-data' volume
- */
-// Use __DIR__ to create an absolute path from the current file's location
-define("BACKUP_DIR", __DIR__ . '/../permanent-data/backup');
+// Use dirname(__DIR__) to get the parent directory of /admin
+define("BACKUP_DIR", dirname(__DIR__) . '/permanent-data/backup');
 
 define("TABLES", '*');
 define('IGNORE_TABLES',array()); 
