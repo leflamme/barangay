@@ -123,7 +123,7 @@ fieldset {
                 <!-- Barangay Logo -->
                 <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="barangay_logo">
               </td>
-              
+
               <td class="text-center">
                 <div style="font-size:10pt;">
                   Application for Authority proof that you are a resident of this barangay<br>
@@ -208,7 +208,7 @@ fieldset {
          DATE OF BIRTH
           <br>
           
-          <input type="date" class="editInfo  form-control form-control-sm" value="<?php echo strftime('%Y-%m-%d',strtotime($row_view_residence['birth_date'])); ?>" name="edit_birth_date" id="edit_birth_date"/>
+          <input type="date" class="editInfo  form-control form-control-sm" value="<?= !empty($row_view_residence['birth_date']) ? date('Y-m-d', strtotime($row_view_residence['birth_date'])) : '' ?>" name="edit_birth_date" id="edit_birth_date"/>
           <input type="hidden" id="edit_birth_date_check" value='false'>
       </td>
       <td>
