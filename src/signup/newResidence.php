@@ -1,9 +1,12 @@
 <?php 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 // Load Composer Autoloader 
 require __DIR__ . '/../vendor/autoload.php';
 // Load the database connection
-require '../connection.php';
+require __DIR__ . '/../connection.php';
 // Import PHPmailer Classes
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
