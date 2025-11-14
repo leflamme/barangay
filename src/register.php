@@ -863,6 +863,7 @@ $('#proceed-guardian').click(function(e) {
                       // Trim whitespace from the response
                       var response = data.trim(); 
 
+                      // Check 1: Perfect Success
                       if (response == 'success') {
                           // This is the ONLY success case
                           Swal.fire({
@@ -877,6 +878,20 @@ $('#proceed-guardian').click(function(e) {
                               window.location.href = 'login.php';
                           });
 
+                      // Check 2 :Registration worked, but email failed
+                      } else if (response.includes('Registration successful, but the welcome email')) {
+                          Swal.fire({
+                            title: '<strong class="text-warning">Registration Complete</strong>',
+                            icon: 'warning',
+                            html: '<b>Your account is active.</b><br>The welcome email could not be sent.<br>You will now be redirected.',
+                            width: '400px',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            timer: 3500, // Longer timer to read the warning
+                          }).then(() => {
+                            window.location.href = 'login.php';
+                          });
+                          
                       } else if (response == 'errorPassword') {
                           Swal.fire({
                               title: '<strong class="text-danger">ERROR</strong>',

@@ -34,6 +34,7 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     $mail->Password   = $gmail_password;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
     $mail->Port       = 465;
+    $mail->Port       = 587;
 
     // Sender and Recipient
     $mail->setFrom($gmail_username, $barangay_name . ' Admin');
