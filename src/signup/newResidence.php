@@ -13,11 +13,10 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     $barangay_name = getenv('BARANGAY_NAME');
     
     // IMPORTANT: Get the email you verified with Resend
-    // You cannot send from 'brgykalusugan814@gmail.com' anymore.
     // You must send from a domain you own or the default Resend domain.
     // For testing, Resend gives you a sandbox domain like: "onboarding@resend.dev"
-    // Replace 'onboarding@resend.dev' with your verified sender email.
-    $sender_email = 'onboarding@resend.dev'; 
+    // Replace 'no-reply@qc-brgy-kalusugan.online' with your verified sender email.
+    $sender_email = 'no-reply@qc-brgy-kalusugan.online';
 
     if (empty($apiKey)) {
         error_log("Barangay Mailer Error: RESEND_API_KEY is not set.");
