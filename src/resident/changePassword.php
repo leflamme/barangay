@@ -161,59 +161,39 @@ try{
   <nav class="main-header navbar navbar-expand navbar-dark">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
-      <li class="nav-item">
-        <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;">
-        <h5 class="nav-link text-white" ><?= $barangay ?></h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" >-</h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" ><?= $zone ?></h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" >-</h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" ><?= $district ?></h5>
-      </li>
+      <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
+      <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;"><h5 class="nav-link text-white"><?= $barangay ?></h5>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($zone) ?></h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
     </ul>
 
-     <!-- Right navbar links -->
-     <ul class="navbar-nav ml-auto">
-
-<!-- Messages Dropdown Menu -->
-<li class="nav-item dropdown">
-  <a class="nav-link" data-toggle="dropdown" href="#">
-    <i class="far fa-user"></i>
-  </a>
-  <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-    <a href="#" class="dropdown-item">
-      <!-- Message Start -->
-      <div class="media">
-        <?php 
-          if($row_resident['image_path'] != '' || $row_resident['image_path'] != null || !empty($row_resident['image_path'])){
-            echo '<img src="'.$row_resident['image_path'].'" class="img-size-50 mr-3 img-circle alt="User Image">';
-          }else{
-            echo '<img src="../assets/dist/img/blank_image.png" class="img-size-50 mr-3 img-circle alt="User Image">';
-          }
-        ?>
-      
-        <div class="media-body">
-          <h3 class="dropdown-item-title py-3">
-            <?= ucfirst($row_resident['first_name']) .' '. ucfirst($row_resident['last_name']) ?>
-          </h3>
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Messages Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <a href="myProfile.php" class="dropdown-item">
+            <!-- Message Start -->
+            <div class="media">
+              <?php if (!empty($user_image)) : ?>
+                <img src="<?= '../assets/dist/img/' . htmlspecialchars($user_image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
+              <?php else: ?>
+                <img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">
+              <?php endif; ?>
+              <div class="media-body">
+                <h3 class="dropdown-item-title py-3"><?= htmlspecialchars(ucfirst($first_name_user) . ' ' . ucfirst($last_name_user)) ?></h3>
+              </div>
+            </div>
+            <!-- Message End -->
+          </a>         
+          <div class="dropdown-divider"></div>
+          <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
-      </div>
-      <!-- Message End -->
-    </a>         
-    <div class="dropdown-divider"></div>
-    <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
-  </div>
-</li>
-</ul>
+      </li>
+    </ul>
   </nav>
   <!-- /.navbar -->
 
@@ -224,55 +204,17 @@ try{
 
     <!-- Sidebar -->
     <div class="sidebar">
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-                    <li class="nav-item">
-                        <a href="dashboard.php" class="nav-link">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="myProfile.php" class="nav-link">
-                            <i class="nav-icon fas fa-user"></i>
-                            <p>My Profile</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="personalInformation.php" class="nav-link">
-                            <i class="nav-icon fas fa-address-book"></i>
-                            <p>Personal Information</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="myRecord.php" class="nav-link">
-                            <i class="nav-icon fas fa-server"></i>
-                            <p>Blotter Record</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                      <a href="drrmPlan.php" class="nav-link">
-                        <i class="fas fa-clipboard-list nav-icon text-red"></i>
-                        <p>Emergency Plan</p>
-                      </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="changePassword.php" class="nav-link active">
-                            <i class="nav-icon fas fa-lock"></i>
-                            <p>Change Password</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="certificate.php" class="nav-link">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Certificate</p>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+          <li class="nav-item"><a href="personalInformation.php" class="nav-link active"><i class="nav-icon fas fa-address-book"></i><p>Personal Information</p></a></li>
+          <li class="nav-item"><a href="drrmPlan.php" class="nav-link"><i class="fas fa-clipboard-list nav-icon text-red"></i><p>Emergency Plan</p></a></li>
+          <li class="nav-item"><a href="myRecord.php" class="nav-link"><i class="nav-icon fas fa-server"></i><p>Blotter Record</p></a></li>
+          <li class="nav-item"><a href="certificate.php" class="nav-link"><i class="nav-icon fas fa-file-alt"></i><p>Certificate</p></a></li>
+          <li class="nav-item"><a href="changePassword.php" class="nav-link"><i class="nav-icon fas fa-lock"></i><p>Change Password</p></a></li>       
+        </ul>
+      </nav>
+    </div>
     <!-- /.sidebar -->
   </aside>
 

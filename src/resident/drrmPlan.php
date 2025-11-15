@@ -168,24 +168,12 @@ try {
   <nav class="main-header navbar navbar-expand navbar-dark">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
-      <li class="nav-item">
-        <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;">
-        <h5 class="nav-link text-white" ><?= $barangay ?></h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" >-</h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" ><?= $zone ?></h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" >-</h5>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <h5 class="nav-link text-white" ><?= $district ?></h5>
-      </li>
+      <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
+      <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;"><h5 class="nav-link text-white"><?= $barangay ?></h5>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($zone) ?></h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
     </ul>
 
     <!-- Right navbar links -->

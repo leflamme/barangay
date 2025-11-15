@@ -125,9 +125,7 @@ body, .wrapper, .content-wrapper {
 <!-- Navbar -->
 <nav class="main-header navbar navbar-expand navbar-dark">
   <ul class="navbar-nav">
-    <li class="nav-item">
-      <h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5>
-    </li>
+    <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
     <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;"><h5 class="nav-link text-white"><?= $barangay ?></h5>
     <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
     <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($zone) ?></h5></li>
@@ -158,14 +156,16 @@ body, .wrapper, .content-wrapper {
   </ul>
 </nav>
 
-<!-- Sidebar -->
+<!-- Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
+  <!-- Barangay Logo -->
   <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle elevation-5 img-bordered-sm" style="width:70%; margin:10px auto; display:block;">
+  
+  <!-- Sidebar -->
   <div class="sidebar">
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item"><a href="dashboard.php" class="nav-link active"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
-        <li class="nav-item"><a href="myProfile.php" class="nav-link"><i class="nav-icon fas fa-user"></i><p>My Profile</p></a></li>
         <li class="nav-item"><a href="personalInformation.php" class="nav-link"><i class="nav-icon fas fa-id-card"></i><p>Personal Information</p></a></li>
         <li class="nav-item"><a href="myRecord.php" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Blotter Record</p></a></li>
         <li class="nav-item"><a href="drrmPlan.php" class="nav-link"><i class="fas fa-clipboard-list nav-icon text-red"></i><p>Emergency Plan</p></a></li>
