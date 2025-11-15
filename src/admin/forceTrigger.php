@@ -168,23 +168,30 @@ try{
         }
 
         // 2. Call the AI Model (Flask API)
-        $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
-        
-        // --- START NEW CODE ---
-        // Create a new array that nests the simulated data under the key 'data'
-        $data_for_json = [
-            'data' => $simulated_data
-        ];
-        // --- END NEW CODE ---
+      // ...
+      $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
 
-        $ch = curl_init($flask_api_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
+      // --- START NEW CODE (Attempt 6) ---
+      // Build the "split" orientation JSON for Pandas
+      // This is the most unambiguous format.
+      $columns = array_keys($simulated_data);
+      $values = array_values($simulated_data);
 
-        // Encode the NEW nested array.
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
-        
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+      $data_for_json = [
+          'columns' => $columns,
+          'index'   => [0],        // We are sending one row, at index 0
+          'data'    => [ $values ] // The data is a list of lists of values
+      ];
+      // --- END NEW CODE ---
+
+      $ch = curl_init($flask_api_url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_POST, true);
+
+      // Encode the NEW split-oriented array
+      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
+
+      curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
