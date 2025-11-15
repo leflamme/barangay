@@ -263,13 +263,13 @@ $sql = "SELECT * FROM `barangay_information`";
       <!-- Right navbar links -->
       <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto " >
           <li class="nav-item">
-            <a href="/index" class="nav-link text-white rightBar" >HOME</a>
+            <a href="index.php" class="nav-link text-white rightBar" >HOME</a>
           </li>
           <li class="nav-item">
-            <a href="/register" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
+            <a href="register.php" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
           </li>
           <li class="nav-item">
-            <a href="/login" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a>
+            <a href="login.php" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a>
           </li>
       </ul>
     </div>
