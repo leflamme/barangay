@@ -37,6 +37,30 @@ try{
         $id = $row['id'];
     }
 
+    // --- NEW LOGIC TO CHECK EDIT STATUS ---
+    $edit_status = 'LOCKED'; // Default state
+    $is_editable = false;
+    
+    $sql_check_request = "SELECT * FROM `edit_requests` WHERE `user_id` = ? AND `status` IN ('PENDING', 'APPROVED') ORDER BY `request_date` DESC LIMIT 1";
+    $stmt_check = $con->prepare($sql_check_request);
+    $stmt_check->bind_param('s', $user_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if($result_check->num_rows > 0) {
+        $request = $result_check->fetch_assoc();
+        if ($request['status'] == 'APPROVED') {
+            $edit_status = 'APPROVED';
+            $is_editable = true;
+        } else {
+            $edit_status = 'PENDING';
+        }
+    }
+    // We use this to set readonly/disabled in the HTML
+    $edit_attr = $is_editable ? '' : 'readonly';
+    $disable_attr = $is_editable ? '' : 'disabled';
+    // --- END NEW LOGIC ---
+
 
   }else{
    echo '<script>
@@ -56,23 +80,17 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>User's Personal Information</title>
-  <!-- Website Icon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
  
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
@@ -205,14 +223,11 @@ try{
 <body class="hold-transition sidebar-mini layout-fixed  layout-footer-fixed">
 <div class="wrapper">
 
-  <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
       <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;"><h5 class="nav-link text-white"><?= $barangay ?></h5>
@@ -222,14 +237,11 @@ try{
       <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
     </ul>
 
-     <!-- Right navbar links -->
      <ul class="navbar-nav ml-auto">
-      <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-          <a href="userProfile.php" class="dropdown-item">
-            <!-- Message Start -->
+          <a href="myProfile.php" class="dropdown-item">
             <div class="media">
               <?php if (!empty($user_image)) : ?>
                 <img src="<?= '../assets/dist/img/' . htmlspecialchars($user_image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
@@ -240,22 +252,16 @@ try{
                 <h3 class="dropdown-item-title py-3"><?= htmlspecialchars(ucfirst($first_name_user) . ' ' . ucfirst($last_name_user)) ?></h3>
               </div>
             </div>
-            <!-- Message End -->
-          </a>         
+            </a>         
           <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Barangay Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
@@ -270,32 +276,22 @@ try{
     </div>
   </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
             
-          </div><!-- /.col -->
-          <div class="col-sm-6">
+          </div><div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               
             </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
+          </div></div></div></div>
     <section class="content">
       <div class="container-fluid">
         <form id="editResidenceForm" method="post" enctype="multipart/form-data">
 
           <div class="card card-widget widget-user">
-              <!-- Add the bg color to the header using any of the bg-* classes -->
               <div class="widget-user-header bg-dark pl-5">
                 <h3 class="widget-user-username"><?= $row_resident['first_name'] ?> <?= $row_resident['last_name'] ?></h3>
                 <h5 class="widget-user-desc"><?= ucfirst($user_type) ?> of <?= $barangay ?></h5>
@@ -309,8 +305,7 @@ try{
                   echo '<img src="../assets/dist/img/blank_image.png" class="img-circle elevation-2" alt="User Image" id="display_edit_image_residence">';
                 }
               ?>
-
-                    <input type="file" name="edit_image_residence" id="edit_image_residence" style="display: none;">
+                    <input type="file" name="edit_image_residence" id="edit_image_residence" style="display: none;" <?= $disable_attr ?>>
 
               
               </div>
@@ -324,130 +319,131 @@ try{
                       <td colspan="3">
                         <div class="d-flex justify-content-between">
                           <div> FIRST NAME<br>
-                            <input type="text"  
-  class="editInfo form-control form-control-sm" value="<?= $row_resident['first_name'] ?>" id="edit_first_name" name="edit_first_name" size="30"<?= !empty($row_resident['first_name']) ? 'readonly' : '' ?>>
-
+                            <input type="text" class="editInfo form-control form-control-sm" value="<?= $row_resident['first_name'] ?>" id="edit_first_name" name="edit_first_name" size="30" <?= $edit_attr ?>> 
                           </div>
                           <div>MIDDLE NAME<br>
-                          <input type="text"  
-  class="editInfo form-control form-control-sm"  value="<?= $row_resident['middle_name'] ?>" id="edit_middle_name" name="edit_middle_name" size="30"<?= !empty($row_resident['middle_name']) ? 'readonly' : '' ?>>
+                          <input type="text"  class="editInfo  form-control form-control-sm " value="<?= $row_resident['middle_name'] ?>" id="edit_middle_name" name="edit_middle_name" size="20" <?= $edit_attr ?>> 
                           </div>
                           <div>      
                             LAST NAME<br>
-                            <input type="text"   class="editInfo form-control form-control-sm"  value="<?= $row_resident['last_name'] ?>" id="edit_last_name" name="edit_last_name" size="30"<?= !empty($row_resident['last_name']) ? 'readonly' : '' ?>>
+                            <input type="text"  class="editInfo  form-control form-control-sm"  value="<?= $row_resident['last_name'] ?>" id="edit_last_name" name="edit_last_name" size="20" <?= $edit_attr ?>> 
                           </div>
                           <div>      
                             SUFFIX<br>
-                            <input type="text"   class="editInfo form-control form-control-sm"  value="<?= $row_resident['suffix'] ?>" id="edit_suffix" name="edit_suffix" size="30"<?= !empty($row_resident['suffix']) ? 'readonly' : '' ?>>
+                            <input type="text"  class="editInfo  form-control form-control-sm" value="<?= $row_resident['suffix'] ?>" id="edit_suffix" name="edit_suffix" size="5" <?= $edit_attr ?>>  
                           </div>
                         </div>
                       </td>
                     <td>
-                    VOTERS
+                     VOTERS
                       <br>
-                      <select name="edit_voters" id="edit_voters" class="form-control"
-                      <?= !empty($row_resident['voters']) ? 'disabled' : '' ?>>
-                      <option value="Yes" <?= $row_resident['voters'] == 'Yes'? 'selected': '' ?>>Yes</option><option value="No" <?= $row_resident['voters'] == 'No'? 'selected': '' ?>>No</option>
+                      <select name="edit_voters" id="edit_voters" class="form-control" <?= $disable_attr ?>>
+                        <option value="YES" <?= $row_resident['voters'] == 'YES'? 'selected': '' ?>>YES</option>
+                        <option value="NO" <?= $row_resident['voters'] == 'NO'? 'selected': '' ?>>NO</option>
                       </select>
-
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      DATE OF BIRTH
-                        <br>
-                        
-                        <input type="date" class="editInfo  form-control form-control-sm" value="<?= !empty($row_resident['birth_date']) ? date('Y-m-d', strtotime($row_resident['birth_date'])) : '' ?>" name="edit_birth_date" id="edit_birth_date"/>
-                                  
+                         DATE OF BIRTH
+                          <br>
+                          <input type="date" class="editInfo  form-control form-control-sm" value="<?= !empty($row_resident['birth_date']) ? date('Y-m-d', strtotime($row_resident['birth_date'])) : '' ?>" name="edit_birth_date" id="edit_birth_date" <?= $edit_attr ?>/>
                     </td>
                     <td>
                       PLACE OF BIRTH
                         <br>
-                      
-                  <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['birth_place'] ?>" id="edit_birth_place" name="edit_birth_place" size="30"<?= !empty($row_resident['birth_place']) ? 'readonly' : '' ?>>
+                      <input type="text" class="editInfo  form-control form-control-sm" value=" <?= $row_resident['birth_place'] ?>"  name="edit_birth_place" id="edit_birth_place" <?= $edit_attr ?> > 
                     </td>
                     <td >
                       AGE
                         <br>
-                    
                       <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_resident['age'] ?>"  name="edit_age" id="edit_age" disabled> 
                     </td>
                     <td >
+                      SINGLE PARENT
+                        <br>
+                        <select name="edit_single_parent" id="edit_single_parent" class="form-control" <?= $disable_attr ?>>
+                          <option value="YES" <?= $row_resident['single_parent'] == 'YES'? 'selected': '' ?>>YES</option>
+                          <option value="NO" <?= $row_resident['single_parent'] == 'NO'? 'selected': '' ?>>NO</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                  <td >
                       PWD
                         <br>
-                        <select name="edit_pwd" id="edit_pwd" class="form-control"
-                        <?= !empty($row_resident['pwd']) ? 'disabled' : '' ?>>
+                        <select name="edit_pwd" id="edit_pwd" class="form-control" <?= $disable_attr ?>>
                           <option value="YES" <?= $row_resident['pwd'] == 'YES'? 'selected': '' ?>>YES</option>
                           <option value="NO" <?= $row_resident['pwd'] == 'NO'? 'selected': '' ?>>NO</option>
                         </select>
                     </td>
-                  </tr>
-                  <tr>
+                  <td >
+                      TYPE OF PWD
+                        <br>
+                        <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_resident['pwd_info'] ?>"  name="edit_pwd_info" id="edit_pwd_info" <?= $disable_attr ?>> 
+                    </td>
                     <td>
                       GENDER
                       <br>
-                      <select name="edit_gender" id="edit_gender" class="form-control"
-                      <?= !empty($row_resident['gender']) ? 'disabled' : '' ?>>
-                      <option value="Male" <?= $row_resident['gender'] == 'Male'? 'selected': '' ?>>Male</option>
-                      <option value="Female" <?= $row_resident['gender'] == 'Female'? 'selected': '' ?>>Female</option>
+                      <select name="edit_gender" id="edit_gender" class="form-control" <?= $disable_attr ?>>
+                        <option value="Male" <?= $row_resident['gender'] == 'Male'? 'selected': '' ?>>Male</option>
+                        <option value="Female" <?= $row_resident['gender'] == 'Female'? 'selected': '' ?>>Female</option>
                       </select>
-
                     </td>
                     <td>
                       CIVIL STATUS
                       <br>
-                     <select name="edit_civil_status" id="edit_civil_status" class="form-control"
-                      <?= !empty($row_resident['civil_status']) ? 'disabled' : '' ?>>
-                      <option value="Single" <?= $row_resident['civil_status'] == 'Single'? 'selected': '' ?>>Single</option>
-                      <option value="Married" <?= $row_resident['civil_status'] == 'Married'? 'selected': '' ?>>Married</option>
-                      <option value="Widowed" <?= $row_resident['civil_status'] == 'Widowed'? 'selected': '' ?>>Widowed</option>
+                     <select name="edit_civil_status" id="edit_civil_status" class="form-control" <?= $disable_attr ?>>
+                        <option value="Single" <?= $row_resident['civil_status'] == 'Single'? 'selected': '' ?>>Single</option>
+                        <option value="Married" <?= $row_resident['civil_status'] == 'Married'? 'selected': '' ?>>Married</option>
+                        <option value="Widowed" <?= $row_resident['civil_status'] == 'Widowed'? 'selected': '' ?>>Widowed</option>
                       </select>
                     </td>
-                    <td >
-                      RELIGION
-                      <br>
-<input type="text"   class="editInfo form-control form-control-sm"  value="<?= $row_resident['religion'] ?>" id="edit_religion" name="edit_religion" size="30"<?= !empty($row_resident['religion']) ? 'readonly' : '' ?>>                    </td> 
-                    <td>
-                      NATIONALITY
-                      <br>
-<input type="text"   class="editInfo form-control form-control-sm"  value="<?= $row_resident['nationality'] ?>" id="edit_nationality" name="edit_nationality" size="30"<?= !empty($row_resident['nationality']) ? 'readonly' : '' ?>>                    </td>     
                   </tr>
 
                   <tr>
-                    <td>
-                    MUNICIPALITY
+                  <td >
+                      RELIGION
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['municipality'] ?>"  id="edit_municipality"  name="edit_municipality"  size="30"  <?= !empty($row_resident['municipality']) ? 'readonly' : '' ?>>
+                      <input type="text"   class="editInfo form-control form-control-sm"  value="<?= $row_resident['religion'] ?>" id="edit_religion" name="edit_religion" size="30" <?= $edit_attr ?>>
+                    </td> 
+                  <td>
+                      NATIONALITY
+                      <br>
+                      <input type="text"   class="editInfo form-control form-control-sm"  value="<?= $row_resident['nationality'] ?>" id="edit_nationality" name="edit_nationality" size="30" <?= $edit_attr ?>>
+                    </td> 
+                    <td>
+                     MUNICIPALITY
+                      <br>
+                     <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['municipality'] ?>"  id="edit_municipality"  name="edit_municipality"  size="30"  <?= $edit_attr ?>>
                     </td>
                     <td>
                       ZIP
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['zip'] ?>"  id="edit_zip"  name="edit_zip"  size="30"  <?= !empty($row_resident['zip']) ? 'readonly' : '' ?>>
-                    </td>
-                    <td colspan="2">
-                      BARANGAY
-                      <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['barangay'] ?>"  id="edit_barangay"  name="edit_barangay"  size="30"  <?= !empty($row_resident['barangay']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['zip'] ?>"  id="edit_zip"  name="edit_zip"  size="30"  <?= $edit_attr ?>>
                     </td>
                   </tr>
 
                   <tr>
+                  <td>
+                      BARANGAY
+                      <br>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['barangay'] ?>"  id="edit_barangay"  name="edit_barangay"  size="30"  <?= $edit_attr ?>>
+                    </td>
                     <td>
                       HOUSE NUMBER
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['house_number'] ?>"  id="edit_house_number"  name="edit_house_number"  size="30"  <?= !empty($row_resident['house_number']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['house_number'] ?>"  id="edit_house_number"  name="edit_house_number"  size="30"  <?= $edit_attr ?>>
                     </td>
                     <td>
                       STREET
                       <br>
-<input type="text"  
-  class="editInfo form-control form-control-sm"  value="<?= $row_resident['street'] ?>"  id="edit_street"  name="edit_street"  size="30"  <?= !empty($row_resident['street']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['street'] ?>"  id="edit_street"  name="edit_street"  size="30"  <?= $edit_attr ?>>
                     </td>
                     <td colspan="2">
                       ADDRESS
                       <br>
-<input type="text"  
-  class="editInfo form-control form-control-sm"  value="<?= $row_resident['address'] ?>"  id="edit_address"  name="edit_address"  size="30"  <?= !empty($row_resident['address']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['address'] ?>"  id="edit_address"  name="edit_address"  size="30"  <?= $edit_attr ?>>
                     </td>      
                   </tr>
 
@@ -455,13 +451,12 @@ try{
                     <td colspan="2">
                       EMAIL ADDRESS
                       <br>
-<input type="text"  
-  class="editInfo form-control form-control-sm"  value="<?= $row_resident['email_address'] ?>"  id="edit_email_address"  name="edit_email_address"  size="30" <?= !empty($row_resident['email_address']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['email_address'] ?>"  id="edit_email_address"  name="edit_email_address"  size="30" <?= $edit_attr ?>>
                     </td>
                     <td colspan="2">
                       CONTACT NUMBER
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['contact_number'] ?>"  id="edit_contact_number"  name="edit_contact_number"  size="30"  <?= !empty($row_resident['contact_number']) ? 'readonly' : '' ?>>
+                      <input type="text"  maxlength="11" class="editInfo form-control form-control-sm"  value="<?= $row_resident['contact_number'] ?>"  id="edit_contact_number"  name="edit_contact_number"  size="30"  <?= $edit_attr ?>>
                     </td>         
                   </tr>
 
@@ -469,12 +464,12 @@ try{
                     <td colspan="2">
                       FATHER'S NAME
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['fathers_name'] ?>"  id="edit_fathers_name"  name="edit_fathers_name"  size="30"  <?= !empty($row_resident['fathers_name']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['fathers_name'] ?>"  id="edit_fathers_name"  name="edit_fathers_name"  size="30"  <?= $edit_attr ?>>
                     </td>
                     <td colspan="2">
                       MOTHER'S NAME
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['mothers_name'] ?>"  id="edit_mothers_name"  name="edit_mothers_name"  size="30"  <?= !empty($row_resident['mothers_name']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['mothers_name'] ?>"  id="edit_mothers_name"  name="edit_mothers_name"  size="30"  <?= $edit_attr ?>>
                     </td>         
                   </tr>
 
@@ -482,64 +477,67 @@ try{
                     <td colspan="2">
                       GUARDIAN
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['guardian'] ?>"  id="edit_guardian"  name="edit_guardian"  size="30"  <?= !empty($row_resident['guardian']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['guardian'] ?>"  id="edit_guardian"  name="edit_guardian"  size="30"  <?= $edit_attr ?>>
                     </td>
                     <td colspan="2">
                       GUARDIAN CONTACT
                       <br>
-<input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['guardian_contact'] ?>"  id="edit_guardian_contact"  name="edit_guardian_contact"  size="30"  <?= !empty($row_resident['guardian_contact']) ? 'readonly' : '' ?>>
+                      <input type="text"  class="editInfo form-control form-control-sm"  maxlength="11" value="<?= $row_resident['guardian_contact'] ?>"  id="edit_guardian_contact"  name="edit_guardian_contact"  size="30"  <?= $edit_attr ?>>
                     </td>         
                   </tr>
                 
                 </tbody>
               </table>
-                <button type="submit" class="btn btn-success elevation-5 px-3"><i class="fas fa-edit"></i>  UPDATE</button>
+              
+              <div class="button-container text-right">
+                  <?php if ($edit_status == 'APPROVED'): ?>
+                      <button type="submit" class="btn btn-success elevation-5 px-3"><i class="fas fa-edit"></i> UPDATE</button>
+                  
+                  <?php elseif ($edit_status == 'PENDING'): ?>
+                      <button type="button" class="btn btn-warning elevation-5 px-3" disabled><i class="fas fa-clock"></i> Request Pending</button>
+                  
+                  <?php else: // $edit_status == 'LOCKED' ?>
+                      <button type="button" class="btn btn-primary elevation-5 px-3" id="requestEditButton"><i class="fas fa-lock-open"></i> Request Access to Edit</button>
+                  <?php endif; ?>
+              </div>
+
             </div>
-
-        </div>
-
-
-
-
-
-          
-      
-
-
-
-
-        
+          </div>
         </form>  
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
+      </div></section>
+    </div>
+  <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Update</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          I hereby declare that all information given is true and up to date.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          <button type="button" class="btn btn-success" id="confirmUpdate">Yes</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <!-- /.content-wrapper -->
 
-  <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">
-    <!-- Control sidebar content goes here -->
-  </aside>
-  <!-- /.control-sidebar -->
-
-   <!-- Main Footer -->
-   <footer class="main-footer">
+    </aside>
+  <footer class="main-footer">
     <strong>Copyright &copy; <?php echo date("Y"); ?> - <?php echo date('Y', strtotime('+1 year'));  ?> </strong>
     
     <div class="float-right d-none d-sm-inline-block">
     </div>
   </footer>
 </div>
-<!-- ./wrapper -->
-
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -565,25 +563,56 @@ try{
 <script>
   $(document).ready(function(){
 
+    // --- NEW: REQUEST EDIT ACCESS BUTTON ---
+    $('#requestEditButton').on('click', function() {
+        $.ajax({
+            url: 'requestEditAccess.php',
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if(response.success) {
+                    Swal.fire({
+                        title: 'Request Submitted!',
+                        text: 'Your request to edit has been sent to the admin. You will be notified upon approval.',
+                        type: 'success', // Use 'type' for SweetAlert2
+                        confirmButtonColor: '#050C9C'
+                    }).then(() => {
+                        window.location.reload(); // Reload to show the "Pending" button
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.message || 'Could not submit request.',
+                        type: 'error',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    title: 'AJAX Error',
+                    text: 'Something went wrong with the request.',
+                    type: 'error',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    });
 
 
     $(function () {
         $.validator.setDefaults({
           submitHandler: function (form) {
-            Swal.fire({
-              title: '<strong class="text-warning">Are you sure?</strong>',
-              html: "<b>You want edit your Information?</b>",
-              type: 'info',
-              showCancelButton: true,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#d33',
-              confirmButtonText: 'Yes, edit it!',
-              allowOutsideClick: false,
-              width: '400px',
-            }).then((result) => {
-              if (result.value) {
-                  $.ajax({
-                    url: 'editResidence.php',
+            // Show your custom confirmation modal
+            $('#confirmationModal').modal('show');
+            
+            // Handle the 'Yes' button click
+            $('#confirmUpdate').off('click').on('click', function() {
+                $('#confirmationModal').modal('hide');
+
+                // Proceed with AJAX submission
+                $.ajax({
+                    url: 'editResidence.php', // Make sure this file exists and is correct
                     type: 'POST',
                     data: new FormData(form),
                     processData: false,
@@ -612,9 +641,7 @@ try{
                       confirmButtonColor: '#6610f2',
                     })
                 })
-              }
-            })
-            
+            });
           }
         });
       $('#editResidenceForm').validate({
@@ -667,16 +694,13 @@ try{
     })
 
 
+    // Only allow clicking the image if the form is editable
+    if(<?= $is_editable ? 'true' : 'false' ?>) {
+        $('#display_edit_image_residence').on('click',function(){
+          $("#edit_image_residence").click();
+        })
+    }
 
-
-
-
-
-
-
-    $('#display_edit_image_residence').on('click',function(){
-      $("#edit_image_residence").click();
-    })
     $("#edit_image_residence").change(function(){
         editDsiplayImage(this);
       })
