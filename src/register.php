@@ -478,7 +478,7 @@ $sql = "SELECT * FROM `barangay_information`";
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
-                      <label>Email Address</label>
+                      <label>Email Address <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_email_address" name="add_email_address" >
                     </div>
                   </div>
@@ -769,6 +769,10 @@ $('#proceed-guardian').click(function(e) {
             required: true,
             minlength: 11
           },
+          add_email_address: {
+            required: true,
+            email: true
+          },
           add_voters: {
             required: true,
           },
@@ -805,7 +809,11 @@ $('#proceed-guardian').click(function(e) {
             required: "This Field is required",
             minlength: "Input Exact Contact Number"
           },
-            add_birth_date: {
+          add_email_address: {
+            required: "This Field is required",
+            email: "Please enter a valid email address"
+          },
+          add_birth_date: {
             required: "This Field is required",
           },
           add_gender: {
