@@ -5,18 +5,16 @@ require __DIR__ . '/../vendor/autoload.php';
 // Load the database connection
 require __DIR__ . '/../connection.php';
 
+// Import Twilio
+use Twilio\Rest\Client;
+
+/**
+ * Your Resend Email Function (Unchanged)
+ */
 function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
-    // Get the API key you set in Railway's environment variables
     $apiKey = getenv('RESEND_API_KEY');
-    
-    // Get your Barangay name (it's already set as an env variable)
     $barangay_name = getenv('BARANGAY_NAME');
-    
-    // IMPORTANT: Get the email you verified with Resend
-    // You must send from a domain you own or the default Resend domain.
-    // For testing, Resend gives you a sandbox domain like: "onboarding@resend.dev"
-    // Replace 'no-reply@qc-brgy-kalusugan.online' with your verified sender email.
-    $sender_email = 'no-reply@qc-brgy-kalusugan.online';
+    $sender_email = 'no-reply@qc-brgy-kalusugan.online'; // Your verified sender email
 
     if (empty($apiKey)) {
         error_log("Barangay Mailer Error: RESEND_API_KEY is not set.");
@@ -36,7 +34,6 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     $body .= "</ul>";
     $body .= "<p>You may now log in using your registered username and password you created during registration.</p>";
 
-    // Build the Resend API data
     $postData = [
         'from'    => $barangay_name . ' Admin <' . $sender_email . '>',
         'to'      => [$recipientEmail],
@@ -53,9 +50,6 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
         'Authorization: Bearer ' . $apiKey
     ]);
     
-    // For debugging in Railway logs
-    // curl_setopt($ch, CURLOPT_VERBOSE, true);
-
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     
@@ -75,19 +69,57 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     }
 }
 
+/**
+ * NEW: Twilio SMS Function
+ */
+function sendWelcomeSMS($recipientPhone, $firstName) {
+    // Get credentials from Railway
+    $sid = getenv('TWILIO_SID');
+    $token = getenv('TWILIO_TOKEN');
+    $twilio_number = getenv('TWILIO_PHONE_NUMBER');
+    $barangay_name = getenv('BARANGAY_NAME');
+
+    // Stop if credentials are not set
+    if(empty($sid) || empty($token) || empty($twilio_number)) {
+        error_log("Twilio SMS Error: Credentials are not set.");
+        return false;
+    }
+
+    // Format phone number to E.164
+    if (substr($recipientPhone, 0, 1) == '0') {
+        $recipientPhone = '+63' . substr($recipientPhone, 1);
+    } elseif (substr($recipientPhone, 0, 2) == '63') {
+         $recipientPhone = '+' . $recipientPhone;
+    }
+
+    try {
+        $client = new Client($sid, $token);
+        $client->messages->create(
+            $recipientPhone, // The 'To' number
+            [
+                'from' => $twilio_number, // Your Twilio 'From' number
+                'body' => "Welcome to {$barangay_name}, {$firstName}! Your registration is successful. You can now log in to the portal."
+            ]
+        );
+        return true;
+    } catch (Exception $e) {
+        // Log the error but don't crash the whole registration
+        error_log("Twilio SMS Error: " . $e->getMessage());
+        return false; 
+    }
+}
+
+
+// --- MAIN SCRIPT ---
 try{  
 date_default_timezone_set('Asia/Manila');
 $date = new DateTime();
 
 // NEW ID GENERATOR
 $number = mt_rand(100000, 999999) . $date->format("mdHis");
-
 $date_added = date("m/d/Y h:i A");
 $archive = 'NO';
 
-
-date_default_timezone_set('Asia/Manila');
-$date = new DateTime();
 
 if(isset($_POST['add_pwd_info'])){
   $add_pwd_check = $con->real_escape_string($_POST['add_pwd_info']);
@@ -95,13 +127,11 @@ if(isset($_POST['add_pwd_info'])){
   $add_pwd_check = '';
 }
 $add_single_parent = $con->real_escape_string($_POST['add_single_parent']);
-
 $add_pwd = $con->real_escape_string($_POST['add_pwd']);
 $add_voters = $con->real_escape_string($_POST['add_voters']);
 $add_first_name = $con->real_escape_string($_POST['add_first_name']);
 $add_middle_name = $con->real_escape_string($_POST['add_middle_name']);
 $add_last_name = $con->real_escape_string($_POST['add_last_name']);
-
 $add_suffix = $con->real_escape_string($_POST['add_suffix']);
 $add_gender = $con->real_escape_string($_POST['add_gender']);
 $add_civil_status = $con->real_escape_string($_POST['add_civil_status']);
@@ -123,11 +153,7 @@ $add_guardian = $con->real_escape_string($_POST['add_guardian']);
 $add_guardian_contact = $con->real_escape_string($_POST['add_guardian_contact']);
 $add_image = $con->real_escape_string($_FILES['add_image_residence']['name']);
 $add_status = 'ACTIVE';
-
 $user_type = 'resident';
-
-$password = $date->format("mdYHisv");
-
 
 $add_username = $con->real_escape_string($_POST['add_username']);
 $add_password = $con->real_escape_string($_POST['add_password']);
@@ -149,20 +175,30 @@ if($count_username > 0){
 }
 
 
-
-
-if(isset($add_image)){
-  if($add_image != '' || $add_image != null || !empty($add_image)){
+// --- FIXED IMAGE UPLOAD PATH ---
+$new_image_name = '';
+$new_image_path = '';
+if(isset($add_image) && !empty($add_image)){
     $type = explode('.', $add_image);
     $type = $type[count($type) -1];
     $new_image_name = uniqid(rand()) .'.'. $type;
-    $new_image_path = '../assets/dist/img/' . $new_image_name;
-    move_uploaded_file($_FILES['add_image_residence']['tmp_name'],$new_image_path);
-  }else{
-    $new_image_name = '';
-    $new_image_path = '';
-  }
+    
+    // --- THIS IS THE CORRECT PERMANENT VOLUME PATH ---
+    $upload_dir = '../permanent-data/images/';
+    $new_image_path = $upload_dir . $new_image_name;
+
+    // Create the directory if it doesn't exist
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    if (!move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $new_image_path)) {
+        // Handle file move error
+        $new_image_name = '';
+        $new_image_path = '';
+    }
 }
+// --- END IMAGE FIX ---
 
 
 $sql_add_user = "INSERT INTO `users`(`id`, `first_name`, `middle_name`, `last_name`, `username`, `password`, `user_type`,`contact_number`, `image`,`image_path`) VALUES (?,?,?,?,?,?,?,?,?,?)";
@@ -170,7 +206,6 @@ $stmt_user = $con->prepare($sql_add_user) or die ($con->error);
 $stmt_user->bind_param('ssssssssss',$number,$add_first_name,$add_middle_name,$add_last_name,$add_username,$add_password,$user_type,$add_contact_number,$new_image_name,$new_image_path);
 $stmt_user->execute();
 $stmt_user->close();
-
 
 
 $today = date("Y/m/d");
@@ -209,8 +244,8 @@ $stmt->bind_param('ssssssssssssssssssssssssssss',  // 28 's' characters
   $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
   $add_contact_number, $add_email_address, $add_address, $add_birth_date, $add_birth_place,
   $add_municipality, $add_zip, $add_barangay, $add_house_number, $add_street,
-  $add_fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name, // [!code focus]
-  $new_image_path, $alias, $add_occupation // Add the new occupation variable here
+  $add_fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name,
+  $new_image_path, $alias, $add_occupation
 );
 
 $stmt->execute();
@@ -225,13 +260,9 @@ $stmt_residence_status->close();
   $date_activity = $now = date("j-n-Y g:i A");  
   $admin = strtoupper('RESIDENT').':' .' '. 'REGISTER RESIDENT -'.' ' .$number.' |' .'  '.$add_first_name .' '. $add_last_name .' '. $add_suffix;
   $status_activity_log = 'create';
-  // $alias = 'RESIDENT'; // <-- DELETE THIS LINE
 
-  // REMOVE `alias` from the query
   $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
-
-  // REMOVE 's' and $alias
   $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
   $stmt_activity_log->execute();
   $stmt_activity_log->close();
@@ -251,16 +282,19 @@ $stmt_residence_status->close();
   ];
   
   // Call the function to send the email
-  $emailSent = sendBarangayWelcomeEmail($email, $firstName . ' ' . $lastName, $resident_data_for_email);
-
-  if ($emailSent) {
-    // Send the final success signal back to the AJAX handler
-    echo 'success';
-  } else {
-    // Email failed, but registration worked. Send a specific message.
-    // Your JS doesn't handle this, but it's better than a false 'success'
-    echo 'Registration successful, but the welcome email could not be sent.'; 
+  if (!empty($email)) {
+    sendBarangayWelcomeEmail($email, $firstName . ' ' . $lastName, $resident_data_for_email);
   }
+  
+  // --- NEW: CALL THE SMS FUNCTION ---
+  if (!empty($add_contact_number)) {
+      // Send to the phone number they registered with
+      sendWelcomeSMS($add_contact_number, $firstName);
+  }
+
+  // Send the final success signal back to the AJAX handler
+  echo 'success';
+
 }catch(\Throwable $t){ // <-- Catch  all errors here too
   echo $t->getMessage(); // <-- This will now show the fatal error
 }
