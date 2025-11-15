@@ -365,7 +365,7 @@ try{
                         <select name="edit_single_parent" id="edit_single_parent" class="form-control" <?= $disable_attr ?>>
                           <option value="YES" <?= $row_resident['single_parent'] == 'YES'? 'selected': '' ?>>YES</option>
                           <option value="NO" <?= $row_resident['single_parent'] == 'NO'? 'selected': '' ?>>NO</option>
-                      </select>
+                        </select>
                     </td>
                   </tr>
                   <tr>
