@@ -161,7 +161,7 @@ try{
                 </div>
               </td>
               <td  class="text-center">
-              <img alt="Quezon City Logo" src="../assets/logo/qclogo.png" class="img-circle"  id="maynila">
+              <img alt="Quezon City Logo" src="../assets/logo/qclogo.png"  id="maynila">
                
                 <br>
                
