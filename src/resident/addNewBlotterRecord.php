@@ -59,12 +59,12 @@ try{
     date_default_timezone_set('Asia/Manila');
     $date_main = new DateTime();
     $asd = hexdec(uniqid());
-    $blotter_id_main = rand($date_main->format("mdYHisv"),$asd);
+    $blotter_id_main = uniqid('blt_', true); // Creates a unique ID like 'blt_67391a9b216ea4.13034633'
 
     // --- START FIX 1: Insert the logged-in resident as the complainant ---
     date_default_timezone_set('Asia/Manila');
     $date = new DateTime();
-    $blotter_id = rand($date->format("mdYHIsv"),2);
+    $blotter_id = uniqid('cmp_', true); // Creates a unique ID
     
     // Use $user_id from the session (line 8) as the complainant
     $sql_blotter_complainant = "INSERT INTO `blotter_complainant`(`id`,`blotter_main`,`complainant_id`) VALUES (?,?,?)";
@@ -91,7 +91,7 @@ try{
 
     date_default_timezone_set('Asia/Manila');
     $date = new DateTime();
-    $blotter_id = rand($date->format("mdYHIsv"),3);
+    $blotter_id = uniqid('sta_', true); // Creates a unique ID
 
     $sql_blotter_status = "INSERT INTO `blotter_status`(`blotter_id`,`blotter_main`,`person_id`) VALUES (?,?,?)";
     $query_blotter_status = $con->prepare($sql_blotter_status) or die ($con->error);
