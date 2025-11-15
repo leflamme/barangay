@@ -412,7 +412,7 @@ try{
                       DATE OF BIRTH
                         <br>
                         
-                        <input type="date" class="editInfo  form-control form-control-sm" value="<?php echo strftime('%Y-%m-%d',strtotime($row_resident['birth_date'])); ?>" name="edit_birth_date" id="edit_birth_date"/>
+                        <input type="date" class="editInfo  form-control form-control-sm" value="<?= !empty($row_resident['birth_date']) ? date('Y-m-d', strtotime($row_resident['birth_date'])) : '' ?>" name="edit_birth_date" id="edit_birth_date"/>
                                   
                     </td>
                     <td>
