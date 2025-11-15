@@ -46,6 +46,8 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Residents List</title>
+  <!-- Website Logo -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
   <!-- Website Icon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">

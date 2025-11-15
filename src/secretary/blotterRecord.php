@@ -16,8 +16,6 @@ try{
     $user_type = $row_user['user_type'];
     $user_image = $row_user['image'];
 
-
-
     $sql = "SELECT * FROM `barangay_information`";
     $query = $con->prepare($sql) or die ($con->error);
     $query->execute();
@@ -31,8 +29,6 @@ try{
         $id = $row['id'];
     }
 
-   
-
   }else{
    echo '<script>
           window.location.href = "../login.php";
@@ -43,9 +39,6 @@ try{
   echo $e->getMessage();
 }
 
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -53,7 +46,9 @@ try{
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>List: Blotter Records</title>
+  <!-- Website Logo -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
  <!-- Google Fonts DONT FORGET-->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
