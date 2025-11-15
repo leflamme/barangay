@@ -792,7 +792,7 @@ div.dataTables_scrollHead table.dataTable thead th {
                   Swal.fire({
                     title: '<strong class="text-success">Success</strong>',
                     type: 'success',
-                    html: '<b>Archive Resident has Successfully<b>',
+                    html: '<b>Resident has been successfully archived<b>',
                     width: '400px',
                     showConfirmButton: false,
                     allowOutsideClick: false,
