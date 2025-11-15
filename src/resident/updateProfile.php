@@ -20,6 +20,11 @@ try {
 
     $new_image_name = '';
     $new_image_path = '';
+    $update_image_sql = '';
+    $update_image_params_users = [];
+    $update_image_params_res = [];
+    $types_users = '';
+    $types_res = '';
 
     // Handle file upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -36,40 +41,30 @@ try {
             mkdir($upload_dir, 0777, true);
         }
 
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $new_image_path)) {
-            // Handle file move error
-            $new_image_name = '';
-            $new_image_path = '';
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $new_image_path)) {
+            // If upload is successful, prepare to update image fields
+            $update_image_sql_users = ', `image` = ?, `image_path` = ?';
+            $update_image_sql_res = ', `image` = ?, `image_path` = ?';
+            $types_users = 'ss';
+            $types_res = 'ss';
+            $update_image_params_users = [$new_image_name, $new_image_path];
+            $update_image_params_res = [$new_image_name, $new_image_path];
         }
     }
 
     // --- 1. UPDATE `users` TABLE ---
-    if (!empty($new_image_name)) {
-        // If a new image is uploaded, update all fields
-        $sql_users = "UPDATE `users` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ?, `image` = ?, `image_path` = ? WHERE `id` = ?";
-        $stmt_users = $con->prepare($sql_users);
-        $stmt_users->bind_param('sssssss', $first_name, $middle_name, $last_name, $contact_number, $new_image_name, $new_image_path, $user_id);
-    } else {
-        // If no new image, update only text fields
-        $sql_users = "UPDATE `users` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ? WHERE `id` = ?";
-        $stmt_users = $con->prepare($sql_users);
-        $stmt_users->bind_param('sssss', $first_name, $middle_name, $last_name, $contact_number, $user_id);
-    }
+    $sql_users = "UPDATE `users` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ? $update_image_sql_users WHERE `id` = ?";
+    $stmt_users = $con->prepare($sql_users);
+    $all_params_users = array_merge([$first_name, $middle_name, $last_name, $contact_number], $update_image_params_users, [$user_id]);
+    $stmt_users->bind_param('ssss' . $types_users . 's', ...$all_params_users);
     $stmt_users->execute();
     $stmt_users->close();
 
     // --- 2. UPDATE `residence_information` TABLE ---
-    if (!empty($new_image_name)) {
-        // If a new image is uploaded, update all fields
-        $sql_res = "UPDATE `residence_information` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ?, `email_address` = ?, `image` = ?, `image_path` = ? WHERE `residence_id` = ?";
-        $stmt_res = $con->prepare($sql_res);
-        $stmt_res->bind_param('ssssssss', $first_name, $middle_name, $last_name, $contact_number, $email, $new_image_name, $new_image_path, $user_id);
-    } else {
-        // If no new image, update only text fields
-        $sql_res = "UPDATE `residence_information` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ?, `email_address` = ? WHERE `residence_id` = ?";
-        $stmt_res = $con->prepare($sql_res);
-        $stmt_res->bind_param('ssssss', $first_name, $middle_name, $last_name, $contact_number, $email, $user_id);
-    }
+    $sql_res = "UPDATE `residence_information` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ?, `email_address` = ? $update_image_sql_res WHERE `residence_id` = ?";
+    $stmt_res = $con->prepare($sql_res);
+    $all_params_res = array_merge([$first_name, $middle_name, $last_name, $contact_number, $email], $update_image_params_res, [$user_id]);
+    $stmt_res->bind_param('sssss' . $types_res . 's', ...$all_params_res);
     $stmt_res->execute();
     $stmt_res->close();
 

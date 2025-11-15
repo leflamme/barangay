@@ -39,10 +39,10 @@ try {
         $email = $row_resident['email_address'];
         
         // --- FIXED IMAGE PATH ---
-        // Point to the new permanent volume folder
-        $image = $row_resident['image_path'] ? $row_resident['image_path'] : '../assets/dist/img/image.png';
-        if ($row_resident['image_path'] && !str_starts_with($row_resident['image_path'], '../permanent-data/images/')) {
-            $image = '../permanent-data/images/' . $row_resident['image'];
+        $image_to_display = '../assets/dist/img/image.png'; // Default
+        if (!empty($row_user['image'])) {
+             // Use the filename from 'users' table and build the permanent path
+            $image_to_display = '../permanent-data/images/' . htmlspecialchars($row_user['image']);
         }
         // --- END FIX ---
         
@@ -195,6 +195,9 @@ try {
             background-color: #e9ecef !important;
             opacity: 1;
         }
+        .card-primary .card-header {
+            background-color: #050C9C;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed">
@@ -220,7 +223,7 @@ try {
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <a href="myProfile.php" class="dropdown-item">
                         <div class="media">
-                            <img src="<?= htmlspecialchars($image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
+                            <img src="<?= htmlspecialchars($image_to_display) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
                             <div class="media-body">
                                 <h3 class="dropdown-item-title py-3"><?= htmlspecialchars(ucfirst($first_name) . ' ' . ucfirst($last_name)) ?></h3>
                             </div>
@@ -272,7 +275,7 @@ try {
                                 <div class="card-body">
                                     <div class="text-center">
                                         <div class="profile-image-container">
-                                            <img src="<?= $image ?>" id="profileImage" class="profile-image" alt="Profile Image" <?= $is_editable ? 'style="cursor: pointer;"' : 'style="cursor: not-allowed;"' ?>>
+                                            <img src="<?= $image_to_display ?>" id="profileImage" class="profile-image" alt="Profile Image" <?= $is_editable ? 'style="cursor: pointer;"' : 'style="cursor: not-allowed;"' ?>>
                                             <input type="file" id="imageUpload" name="image" class="file-input" <?= $is_editable ? '' : 'disabled' ?>>
                                         </div>
                                     </div>
@@ -383,7 +386,7 @@ $(document).ready(function() {
                     Swal.fire({
                         title: 'Request Submitted!',
                         text: 'Your request to edit has been sent to the admin. You will be notified upon approval.',
-                        type: 'success', 
+                        type: 'success', // Use 'type' for SweetAlert2
                         confirmButtonColor: '#050C9C'
                     }).then(() => {
                         window.location.reload(); // Reload to show the "Pending" button
