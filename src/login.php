@@ -343,7 +343,7 @@ body {
         </div>
 
         <div class="login-footer">
-          <a href="forgot.php">Forgot Password?</a>
+          <a href="/forgot">Forgot Password?</a>
         </div>
         <button type="submit" class="btn btn-login">Log In</button>
       </form>
