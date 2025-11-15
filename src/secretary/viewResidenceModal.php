@@ -196,9 +196,10 @@ fieldset {
       <td>
        VOTERS
         <br>
-        <select name="edit_voters" id="edit_voters" class="form-control">
-          <option value="NO" <?= $row_view_residence['voters'] == 'NO'? 'selected': '' ?>>NO</option>
+        <select name="edit_voters" id="edit_voters" class="form-control"
+        <?= !empty($row_view_residence['voters']) ? 'disabled' : '' ?>>
           <option value="YES" <?= $row_view_residence['voters'] == 'YES'? 'selected': '' ?>>YES</option>
+          <option value="NO" <?= $row_view_residence['voters'] == 'NO'? 'selected': '' ?>>NO</option>
         </select>
         <input type="hidden" value="false" id="edit_voters_check">
       </td>
@@ -230,7 +231,7 @@ fieldset {
           <select name="edit_single_parent" id="edit_single_parent" class="form-control">
             <option value="YES" <?= $row_view_residence['single_parent'] == 'YES'? 'selected': '' ?>>YES</option>
             <option value="NO" <?= $row_view_residence['single_parent'] == 'NO'? 'selected': '' ?>>NO</option>
-        </select>
+          </select>
         <input type="hidden" id="edit_single_parent_check" value="false">
       </td>
    

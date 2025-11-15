@@ -765,8 +765,6 @@ div.dataTables_scrollHead table.dataTable thead th {
     editStatus();
     viewResidence();
     deleteResidence();
-   
-
 
     function deleteResidence(){
       $(document).on('click','.deleteResidence',function(){
