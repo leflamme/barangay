@@ -1,8 +1,21 @@
 <?php 
 session_start();
 include_once '../connection.php';
+
+// Set header to output JSON
+header('Content-Type: application/json');
+
+// --- Set MySQLi to throw exceptions instead of using "or die" ---
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
  
-  if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'resident'){
+try{
+    if(!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'resident'){
+        // Send a 401 Unauthorized error and stop
+      http_response_code(401); 
+      echo json_encode(['status' => 'error', 'message' => 'Authentication failed. Please log in again.']);
+      exit; // Stop script
+    }
+
     $user_id = $_SESSION['user_id'];
     $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
     $stmt_user = $con->prepare($sql_user) or die ($con->error);
@@ -14,15 +27,6 @@ include_once '../connection.php';
     $last_name_user = $row_user['last_name'];
     $user_type = $row_user['user_type'];
     $user_image = $row_user['image'];
-  
-  }else{
-   echo '<script>
-          window.location.href = "../login.php";
-        </script>';
-  }
-
-
-try{
 
   if(!empty($_POST['complainant_residence'])){
     $complainant_resident = $_POST['complainant_residence'];
@@ -44,7 +48,7 @@ try{
 
   $complainant_not_residence = $con->real_escape_string($_POST['complainant_not_residence']);
   $complainant_statement = $con->real_escape_string($_POST['complainant_statement']);
-  $respodent = $con->real_escape_string($_POST['respodent']);
+  $respondent = $con->real_escape_string($_POST['respodent']);
   $person_statement = $con->real_escape_string($_POST['person_statement']);
   $person_involevd_not_resident = $con->real_escape_string($_POST['person_involevd_not_resident']);
   $location_incident = $con->real_escape_string($_POST['location_incident']);
@@ -75,7 +79,7 @@ try{
 
     // Log this complainant (the user)
     $date_activity = $now = date("j-n-Y g:i A");  
-    $admin = strtoupper('RESIDENT').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '. 'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Complainant - ' . $first_name_user .' '. $last_name_user .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $complainant_statement .' | Respondent - ' . $respodent;
+    $admin = strtoupper('RESIDENT').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '. 'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Complainant - ' . $first_name_user .' '. $last_name_user .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $complainant_statement .' | Respondent - ' . $respondent;
     $status_activity_log = 'create'; // <-- FIX 3: Changed to 'create'
     $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
     $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
@@ -113,7 +117,7 @@ try{
         $last_name_resident_complainant = $row_resident_complainant['last_name'];
 
         $date_activity = $now = date("j-n-Y g:i A");  
-        $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Person Involved - ' . $first_name_resident_complainant .' '. $last_name_resident_complainant .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $complainant_statement .' | Respondent - ' . $respodent;
+        $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Person Involved - ' . $first_name_resident_complainant .' '. $last_name_resident_complainant .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $complainant_statement .' | Respondent - ' . $respondent;
         $status_activity_log = 'create';
         $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
         $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
@@ -144,7 +148,7 @@ try{
     $blotter_id_main,
     $complainant_not_residence,
     $complainant_statement,
-    $respodent,
+    $respondent,
     $person_involevd_not_resident,
     $date_of_incident,
     $date_reported,
@@ -159,7 +163,7 @@ try{
   $query_blotter->close();
 
   $date_activity = $now = date("j-n-Y g:i A");  
-  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Person Not Resident - ' . $person_involevd_not_resident  .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $person_statement .' | Respondent - ' . $respodent;
+  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Person Not Resident - ' . $person_involevd_not_resident  .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $person_statement .' | Respondent - ' . $respondent;
   $status_activity_log = 'create';
   $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
@@ -168,7 +172,7 @@ try{
   $stmt_activity_log->close();
 
   $date_activity = $now = date("j-n-Y g:i A");  
-  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Complainant Not Resident - ' . $complainant_not_residence  .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $complainant_statement .' | Respondent - ' . $respodent;
+  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'ADDED BLOTTER RECORD  - '.' ' .$blotter_id_main.' | Complainant Not Resident - ' . $complainant_not_residence  .' | Incident - ' . $incident .' | Date Incident '. $date_of_incident .' | Location Incident '. $location_incident .' | Complainant Statement - '. $complainant_statement .' | Respondent - ' . $respondent;
   $status_activity_log = 'create';
   $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
@@ -176,9 +180,16 @@ try{
   $stmt_activity_log->execute();
   $stmt_activity_log->close();
 
-
+  // --- If ALL queries are successful ---
+    echo json_encode(['status' => 'success', 'message' => 'Blotter record added successfully.']);
 }catch(Exception $e){
-  echo $e->getMessage();
+  // --- If ANY query fails ---
+    http_response_code(500); // Internal Server Error
+    echo json_encode([
+        'status' => 'error', 
+        'message' => $e->getMessage(), // Send the actual SQL error
+        'line' => $e->getLine() // Helpful for debugging
+    ]);
 }
 
 

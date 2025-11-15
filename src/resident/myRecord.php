@@ -538,7 +538,7 @@ try{
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Respondent</label>
-                        <input name="respodent" id="respodent"  class=" form-control">
+                        <input name="respondent" id="respondent"  class=" form-control">
                     </div>
                   </div>
                   <div class="col-sm-12">
@@ -701,134 +701,154 @@ try{
     // --- START: JS from blotterRecord.php (FOR NEW RECORD MODAL) ---
 
     // Form validation and submit
-    $(function () {
-        $.validator.setDefaults({
-          submitHandler: function (form) {
-     
-          var complainant = $("#complainant_residence").val();
-          var complainant_not_residence = $("#complainant_not_residence").val();
-          var complainant_statement = $("#complainant_statement").val();
-          var person_statement = $("#person_statement").val();
-          var person_involed = $("#person_involed").val();
-          var person_involevd_not_resident = $("#person_involevd_not_resident").val();
-          
-            if(complainant == '' && complainant_not_residence == ''){
-              Swal.fire({
-                title: '<strong class="text-danger">Ooppss..</strong>',
-                type: 'error',
-                html: '<b>Complainant is Required<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
-              return false;
-            }
-            
-            if(complainant_statement == ''){
-              Swal.fire({
-                title: '<strong class="text-danger">Ooppss..</strong>',
-                type: 'error',
-                html: '<b>Complainant is Statement Required<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
-              return false;
-            }
+    $('#addNewRecordForm').validate({
+      ignore: "",
+      rules: {
+        date_reported: {
+          required: true,
+        },
+        incident: {
+          required: true,
+        },
+        date_of_incident: {
+          required: true,
+        },
+      },
+      messages: {
+        date_reported: {
+          required: "Please provide a Date Reported is Required",
+        },
+        incident: {
+          required: "Incident is Required",
+        },
+        date_of_incident: {
+          required: "Date Incident is Required",
+        },
+      },
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+        element.closest('.form-group-sm').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+      },
+      
+      // --- THIS IS WHAT RUNS ONCE VALIDATION PASSES ---
+      submitHandler: function (form) { 
+ 
+        // Your manual checks
+        var complainant = $("#complainant_residence").val();
+        var complainant_not_residence = $("#complainant_not_residence").val();
+        var complainant_statement = $("#complainant_statement").val();
+        var person_statement = $("#person_statement").val();
+        var person_involed = $("#person_involed").val();
+        var person_involevd_not_resident = $("#person_involevd_not_resident").val();
+        
+        if(complainant == '' && complainant_not_residence == ''){
+          Swal.fire({
+            title: '<strong class="text-danger">Ooppss..</strong>',
+            type: 'error',
+            html: '<b>Complainant is Required<b>',
+            width: '400px',
+            confirmButtonColor: '#6610f2',
+          })
+          return false;
+        }
+        
+        if(complainant_statement == ''){
+          Swal.fire({
+            title: '<strong class="text-danger">Ooppss..</strong>',
+            type: 'error',
+            html: '<b>Complainant is Statement Required<b>',
+            width: '400px',
+            confirmButtonColor: '#6610f2',
+          })
+          return false;
+        }
 
-            if(person_involed == '' && person_involevd_not_resident == ''){
+        if(person_involed == '' && person_involevd_not_resident == ''){
+          Swal.fire({
+            title: '<strong class="text-danger">Ooppss..</strong>',
+            type: 'error',
+            html: '<b>Person Involved is Required<b>',
+            width: '400px',
+            confirmButtonColor: '#6610f2',
+          })
+          return false;
+        }
+
+        if(person_statement == ''){
+          Swal.fire({
+            title: '<strong class="text-danger">Ooppss..</strong>',
+            type: 'error',
+            html: '<b>Person Involved Statement is Required<b>',
+            width: '400px',
+            confirmButtonColor: '#6610f2',
+          })
+          return false;
+        }
+
+        // Your AJAX call
+        $.ajax({
+          url: 'addNewBlotterRecord.php',
+          type: 'POST',
+          data: $(form).serialize(),
+          dataType: 'json', 
+          cache: false,
+          success: function(response) { 
+            // The 'response' variable is now the parsed JSON object
+            if (response.status == 'success') {
               Swal.fire({
-                title: '<strong class="text-danger">Ooppss..</strong>',
-                type: 'error',
-                html: '<b>Person Involved is Required<b>',
+                title: '<strong class="text-success">SUCCESS</strong>',
+                type: 'success',
+                html: '<b>Added Record Blotter has Successfully<b>',
                 width: '400px',
                 confirmButtonColor: '#6610f2',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                timer: 2000,
+              }).then(() => {
+                $("#addNewRecordForm")[0].reset();
+                $('#myRecordTable').DataTable().ajax.reload();
+                $("#blotterRecordModal").modal('hide');
+                $("#complainant_residence").val([]).trigger("change")
+                $("#person_involed").val([]).trigger("change")
               })
-              return false;
-            }
-
-            if(person_statement == ''){
+            } else {
+              // This will now show the error from the 'else' in the PHP session check
               Swal.fire({
-                title: '<strong class="text-danger">Ooppss..</strong>',
-                type: 'error',
-                html: '<b>Person Involved Statement is Required<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
-              return false;
-            }
-
-            $.ajax({
-              url: 'addNewBlotterRecord.php', // This file must exist in the resident folder
-              type: 'POST',
-              data: $(form).serialize(),
-              cache: false,
-              success:function(){
-                Swal.fire({
-                  title: '<strong class="text-success">SUCCESS</strong>',
-                  type: 'success',
-                  html: '<b>Added Record Blotter has Successfully<b>',
+                  title: '<strong class="text-danger">Submission Error</strong>',
+                  type: 'error',
+                  html: '<b>' + (response.message || 'An unknown error occurred.') + '<b>',
                   width: '400px',
                   confirmButtonColor: '#6610f2',
-                  allowOutsideClick: false,
-                  showConfirmButton: false,
-                  timer: 2000,
-                }).then(()=>{
-                  $("#addNewRecordForm")[0].reset();
-                  $('#myRecordTable').DataTable().ajax.reload(); // MODIFIED
-                  $("#blotterRecordModal").modal('hide');
-                  $("#complainant_residence").val([]).trigger("change")
-                  $("#person_involed").val([]).trigger("change")
                 })
-              }
-            }).fail(function(){
-              Swal.fire({
-                title: '<strong class="text-danger">Ooppss..</strong>',
-                type: 'error',
-                html: '<b>Something went wrong with ajax !<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
+            }
+          },
+          fail: function(jqXHR, textStatus, errorThrown) {
+            // This will catch the 500/401 errors from the PHP 'catch' block
+            var errorMsg = 'Something went wrong with the request!';
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+              errorMsg = jqXHR.responseJSON.message; // Get the error from our PHP script
+            }
+
+            Swal.fire({
+              title: '<strong class="text-danger">Ooppss..</strong>',
+              type: 'error',
+              html: '<b>' + errorMsg + '<b>',
+              width: '400px',
+              confirmButtonColor: '#6610f2',
             })
           }
         });
+      } // --- End of submitHandler ---
 
-      $('#addNewRecordForm').validate({
-        ignore: "",
-        rules: {
-          date_reported: {
-            required: true,
-          },
-          incident: {
-            required: true,
-          },
-          date_of_incident: {
-            required: true,
-          },
-        },
-        messages: {
-          date_reported: {
-            required: "Please provide a Date Reported is Required",
-          },
-          incident: {
-            required: "Incident is Required",
-          },
-          date_of_incident: {
-            required: "Date Incident is Required",
-          },
-        },
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-          element.closest('.form-group-sm').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-        }
-      });
-    });
+    }); // --- End of .validate() ---
 
     // Reset form on modal open
     $("#addRecord").on('click',function(){
