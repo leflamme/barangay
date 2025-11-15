@@ -53,16 +53,22 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blotter Record</title>
+  <!-- Website Icon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
+  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
+  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
@@ -375,11 +381,13 @@ try{
 
 <div class="wrapper">
 
+  <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble" src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <nav class="main-header navbar navbar-expand navbar-dark">
+  <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-dark">
       <ul class="navbar-nav">
         <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
         <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;"><h5 class="nav-link text-white"><?= $barangay ?></h5>
@@ -389,6 +397,7 @@ try{
         <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
       </ul>
 
+    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
@@ -411,9 +420,14 @@ try{
       </li>
     </ul>
   </nav>
+  <!-- /.navbar -->
+
+  <!-- Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
+    <!-- Barangay Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
+    <!-- Sidebar -->
     <div class="sidebar">
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
@@ -427,7 +441,15 @@ try{
       </nav>
     </div>
   </aside>
+  <!-- /.sidebar -->
+  
+  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper"  style="background-color: transparent">
+    <!-- Content Header (Page header) -->
+  
+    <!-- /.content-header -->
+
+    <!-- Main content -->
     <div class="content  " >
 
     <div class="container-fluid pt-5">
@@ -438,7 +460,7 @@ try{
                 <h4>Record List</h4>
               </div>
               <div class="card-tools">
-                <button type="button" class="btn btn-primary" id="addRecord" data-toggle="modal" data-target="#blotterRecordModal">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reportBlotterModal">
                   <i class="fas fa-plus"></i> Report Blotter
                 </button>
                 <button type="button" class="btn btn-secondary" id="refreshRecords">
@@ -468,195 +490,127 @@ try{
           </div>
         </div>
           
-      </div></div>
+      </div><!--/. container-fluid -->
+     
     </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+ 
+  <!-- Main Footer -->
   <footer class="main-footer">
     <strong>Copyright &copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')); ?></strong>
   </footer>
 
 </div>
-<div class="modal hide fade" id="blotterRecordModal" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+<!-- ./wrapper -->
+
+<!-- Report Blotter Modal -->
+<div class="modal fade report-modal" id="reportBlotterModal" tabindex="-1" role="dialog" aria-labelledby="reportBlotterModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-        <form id="addNewRecordForm" method="post">
-
-      <div class="modal-body">
-        <div class="container-fluid">
-
-          <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-group form-group-sm">
-                        <label>Complainant Resident</label>
-                      <select name="complainant_residence[]" multiple="multiple" id="complainant_residence" class="select2bs4"  style="width: 100%;">
-                        <option value="" ></option>
-                        <?php 
-                          $sql_residence_id = "SELECT
-                          residence_information.residence_id,
-                          residence_information.first_name, 
-                          residence_information.middle_name,
-                          residence_information.last_name,
-                          residence_information.image,   
-                          residence_information.image_path
-                          FROM residence_information
-                          INNER JOIN residence_status ON residence_information.residence_id = residence_status.residence_id WHERE archive = 'NO'
-                         ORDER BY last_name ASC ";
-                          $query_residence_id = $con->query($sql_residence_id) or die ($con->error);
-                          while($row_residence_id = $query_residence_id->fetch_assoc()){
-                            if($row_residence_id['middle_name'] != ''){
-                              $middle_name = $row_residence_id['middle_name'][0].'.'.' '; 
-                            }else{
-                              $middle_name = $row_residence_id['middle_name'].' '; 
-                            }
-                            ?>
-                              <option value="<?= $row_residence_id['residence_id'] ?>" <?php 
-                              if($row_residence_id['image_path'] != '' || $row_residence_id['image_path'] != null || !empty($row_residence_id['image_path'])){
-                                  echo 'data-image="'.$row_residence_id['image_path'].'"';
-                              }else{
-                                echo 'data-image="../assets/dist/img/blank_image.png"';
-                              }
-                             
-                            ?> >
-                            <?= $row_residence_id['last_name'] .' '. $row_residence_id['first_name'] .' '.  $middle_name  ?></option>
-                            <?php
-                          }   
-                        ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 ">
-                    <div class="form-group form-group-sm">
-                      <label>Complainant Not Resident</label>
-                      <textarea name="complainant_not_residence" id="complainant_not_residence" cols="57"  class="form-control"></textarea>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 ">
-                    <div class="form-group form-group-sm">
-                      <label>Complainant Statement</label>
-                      <textarea name="complainant_statement" id="complainant_statement" cols="57" rows="3" class="form-control"></textarea>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 ">
-                    <div class="form-group form-group-sm">
-                      <label>Respondent</label>
-                        <input name="respodent" id="respodent"  class=" form-control">
-                    </div>
-                  </div>
-                  <div class="col-sm-12">
-                    <div class="form-group form-group-sm">
-                        <label>Person Involved Resident</label>
-                      <select name="person_involed[]" multiple="multiple" id="person_involed" class="select2bs4"  style="width: 100%;">
-            
-                  
-                      <option value="" ></option>
-                        <?php 
-                          $sql_person_add = "SELECT
-                          residence_information.residence_id,
-                          residence_information.first_name, 
-                          residence_information.middle_name,
-                          residence_information.last_name,
-                          residence_information.image,   
-                          residence_information.image_path
-                          FROM residence_information
-                          INNER JOIN residence_status ON residence_information.residence_id = residence_status.residence_id WHERE archive = 'NO'
-                         ORDER BY last_name ASC ";
-                          $query_person_add = $con->query($sql_person_add) or die ($con->error);
-                          while($row_person_add = $query_person_add->fetch_assoc()){
-                            if($row_person_add['middle_name'] != ''){
-                              $middle_name_add = $row_person_add['middle_name'][0].'.'.' '; 
-                            }else{
-                              $middle_name_add = $row_person_add['middle_name'].' '; 
-                            }
-                            ?>
-                              <option value="<?= $row_person_add['residence_id'] ?>" <?php 
-                              if($row_person_add['image_path'] != '' || $row_person_add['image_path'] != null || !empty($row_person_add['image_path'])){
-                                  echo 'data-image="'.$row_person_add['image_path'].'"';
-                              }else{
-                                echo 'data-image="../assets/dist/img/blank_image.png"';
-                              }
-                             
-                            ?> >
-                            <?= $row_person_add['last_name'] .' '. $row_person_add['first_name'] .' '.  $middle_name_add  ?></option>
-                            <?php
-                          }   
-                        ?>
-
-
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 ">
-                    <div class="form-group form-group-sm">
-                      <label>Person Involved Not Resident</label>
-                      <textarea name="person_involevd_not_resident" id="person_involevd_not_resident" cols="57"  class="form-control"></textarea>
-                    </div>
-                  </div> 
-                  <div class="col-sm-12 ">
-                    <div class="form-group form-group-sm">
-                      <label>Person Involved Statement</label>
-                      <textarea name="person_statement" id="person_statement" cols="57" rows="3" class="form-control"></textarea>
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group form-group-sm">
-                      <label>Location of Incident</label>
-                        <input name="location_incident" id="location_incident"  class=" form-control">
-                    </div>
-                  </div>   
-                  <div class="col-sm-6">
-                    <div class="form-group form-group-sm">
-                      <label>Date of Incident</label>
-                        <input type="datetime-local" name="date_of_incident" id="date_of_incident"  class=" form-control">
-                    </div>
-                  </div>  
-                  <div class="col-sm-6">
-                    <div class="form-group form-group-sm">
-                      <label>Incident</label>
-                        <input name="incident" id="incident"  class=" form-control">
-                    </div>
-                  </div>   
-                  <div class="col-sm-6">
-                    <div class="form-group form-group-sm">
-                      <label>Status</label>
-                        <select name="status" id="status" class="form-control">
-                          <option value="NEW">NEW</option>
-                          <option value="ONGOING">ONGOING</option>
-                        </select>
-                    </div>
-                  </div> 
-                  <div class="col-sm-6">
-                    <div class="form-group form-group-sm">
-                      <label>Date Reported</label>
-                        <input  type="datetime-local" name="date_reported" id="date_reported"  class=" form-control">
-                    </div>
-                  </div>   
-                  <div class="col-sm-6">
-                    <div class="form-group form-group-sm">
-                      <label>Remarks</label>
-                        <select name="remarks" id="remarks" class="form-control">
-                          <option value="OPEN">OPEN</option>
-                          <option value="CLOSED">CLOSED</option>
-                        </select>
-                    </div>
-                  </div>    
-                  
-         
-
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportBlotterModalLabel">Report Blotter</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="reportBlotterForm" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="personName">Name of Person Being Reported <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="personName" name="personName" required placeholder="Enter full name">
           </div>
-
+          
+          <div class="form-group">
+            <label for="location">Location of Incident <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="location" name="location" required placeholder="Where did the incident happen?">
+          </div>
+          
+          <div class="form-group">
+            <label for="incidentDate">Date and Time of Incident <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" id="incidentDate" name="incidentDate" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="reason">Reason for Reporting <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="Briefly describe what happened (e.g., loitering, noise disturbance, etc.)"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="justification">Justification of the Report <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="justification" name="justification" rows="4" required placeholder="Provide details and justification for your report"></textarea>
+          </div>
+          
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn bg-black elevation-5 px-3" data-dismiss="modal"><i class="fas fa-times"></i> CLOSE</button>
-        <button type="submit" class="btn btn-primary elevation-5 px-3 btn-flat"><i class="fa fa-book-dead"></i> NEW RECORD</button>
-      </div>
-      
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Report</button>
+        </div>
       </form>
     </div>
   </div>
 </div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade report-modal" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>I hereby declare that the information provided in this report is true, correct, and up to date to the best of my knowledge.</p>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="truthDeclaration" required>
+          <label class="form-check-label" for="truthDeclaration">
+            I confirm that the information is true and correct
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmReport">Confirm Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade report-modal" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="successModalLabel">Report Submitted Successfully</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <i class="fas fa-check-circle text-success" style="font-size: 48px; margin-bottom: 15px;"></i>
+          <p>Your blotter report has been successfully submitted.</p>
+          <p>You will be notified once your report has been processed.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -675,10 +629,7 @@ try{
 <script src="../assets/plugins/select2/js/select2.full.min.js"></script>
 <script src="../assets/plugins/moment/moment.min.js"></script>
 <script src="../assets/plugins/chart.js/Chart.min.js"></script>
-<script src="../assets/plugins/jquery-validation/jquery.validate.min.js"></script>
-<script src="../assets/plugins/jquery-validation/additional-methods.min.js"></script>
 
-<div id="show_residence"></div>
 <div id="show_records"></div>
 
 <script>
@@ -689,317 +640,169 @@ try{
       $('#myRecordTable').DataTable().ajax.reload();
     });
 
-    // Handle stacking modals
-    $(document).on('show.bs.modal', '.modal', function () {
-        var zIndex = 1040 + (10 * $('.modal:visible').length);
-        $(this).css('z-index', zIndex);
-        setTimeout(function() {
-            $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
-        }, 0);
+    // Handle form submission
+$('#reportBlotterForm').on('submit', function(e) {
+  e.preventDefault();
+  
+  // Validate required fields
+  let isValid = true;
+  const requiredFields = ['personName', 'location', 'incidentDate', 'reason', 'justification'];
+  
+  requiredFields.forEach(field => {
+    const element = $(`#${field}`);
+    if (!element.val().trim()) {
+      isValid = false;
+      element.addClass('is-invalid');
+    } else {
+      element.removeClass('is-invalid');
+    }
+  });
+  
+  if (!isValid) {
+    Swal.fire({
+      title: 'Incomplete Form',
+      text: 'Please fill in all required fields.',
+      icon: 'warning',
+      confirmButtonColor: '#050C9C'
     });
+    return;
+  }
+  
+  // Validate date is not in the future
+  const incidentDate = new Date($('#incidentDate').val());
+  const now = new Date();
+  if (incidentDate > now) {
+    Swal.fire({
+      title: 'Invalid Date',
+      text: 'Incident date cannot be in the future.',
+      icon: 'warning',
+      confirmButtonColor: '#050C9C'
+    });
+    return;
+  }
+  
+  // Show confirmation modal
+  $('#reportBlotterModal').modal('hide');
+  $('#confirmationModal').modal('show');
+});
 
-    // --- START: JS from blotterRecord.php (FOR NEW RECORD MODAL) ---
-
-    // Form validation and submit
-    $('#addNewRecordForm').validate({
-      ignore: "",
-      rules: {
-        date_reported: {
-          required: true,
-        },
-        incident: {
-          required: true,
-        },
-        date_of_incident: {
-          required: true,
-        },
-      },
-      messages: {
-        date_reported: {
-          required: "Please provide a Date Reported is Required",
-        },
-        incident: {
-          required: "Incident is Required",
-        },
-        date_of_incident: {
-          required: "Date Incident is Required",
-        },
-      },
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-        error.addClass('invalid-feedback');
-        element.closest('.form-group').append(error);
-        element.closest('.form-group-sm').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-        $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-        $(element).removeClass('is-invalid');
-      },
-      
-      // --- THIS IS WHAT RUNS ONCE VALIDATION PASSES ---
-      submitHandler: function (form) { 
- 
-        // Your manual checks
-        var complainant = $("#complainant_residence").val();
-        var complainant_not_residence = $("#complainant_not_residence").val();
-        var complainant_statement = $("#complainant_statement").val();
-        var person_statement = $("#person_statement").val();
-        var person_involed = $("#person_involed").val();
-        var person_involevd_not_resident = $("#person_involevd_not_resident").val();
-        
-        if(complainant == '' && complainant_not_residence == ''){
+// Handle confirmation
+$('#confirmReport').on('click', function() {
+  if (!$('#truthDeclaration').is(':checked')) {
+    Swal.fire({
+      title: 'Declaration Required',
+      text: 'You must confirm that the information is true and correct.',
+      icon: 'warning',
+      confirmButtonColor: '#050C9C'
+    });
+    return;
+  }
+  
+  $('#confirmationModal').modal('hide');
+  
+  Swal.fire({
+    title: 'Submitting Report...',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+  
+  const formData = new FormData($('#reportBlotterForm')[0]);
+  
+  $.ajax({
+    url: 'submitReport.php',
+    type: 'POST',
+    data: formData, // Fixed AJAX call for missing data property
+    processData: false,
+    contentType: false,
+    success: function(response) {
+      Swal.close();
+      try {
+        const result = JSON.parse(response);
+        if (result.success) {
+          // Refresh the DataTable
+          $('#myRecordTable').DataTable().ajax.reload(null, false);
+          
+          $('#successModal').modal('show');
+          $('#reportBlotterForm')[0].reset();
+          $('#fileName').text('No file chosen');
+          $('#truthDeclaration').prop('checked', false);
+          $('#confirmReport').prop('disabled', true);
+        } else {
           Swal.fire({
-            title: '<strong class="text-danger">Ooppss..</strong>',
-            type: 'error',
-            html: '<b>Complainant is Required<b>',
-            width: '400px',
-            confirmButtonColor: '#6610f2',
-          })
-          return false;
+            title: 'Submission Failed',
+            text: result.message || 'An error occurred while submitting your report.',
+            icon: 'error',
+            confirmButtonColor: '#050C9C'
+          });
         }
-        
-        if(complainant_statement == ''){
-          Swal.fire({
-            title: '<strong class="text-danger">Ooppss..</strong>',
-            type: 'error',
-            html: '<b>Complainant is Statement Required<b>',
-            width: '400px',
-            confirmButtonColor: '#6610f2',
-          })
-          return false;
-        }
-
-        if(person_involed == '' && person_involevd_not_resident == ''){
-          Swal.fire({
-            title: '<strong class="text-danger">Ooppss..</strong>',
-            type: 'error',
-            html: '<b>Person Involved is Required<b>',
-            width: '400px',
-            confirmButtonColor: '#6610f2',
-          })
-          return false;
-        }
-
-        if(person_statement == ''){
-          Swal.fire({
-            title: '<strong class="text-danger">Ooppss..</strong>',
-            type: 'error',
-            html: '<b>Person Involved Statement is Required<b>',
-            width: '400px',
-            confirmButtonColor: '#6610f2',
-          })
-          return false;
-        }
-
-        // Your AJAX call
-        $.ajax({
-          url: 'addNewBlotterRecord.php',
-          type: 'POST',
-          data: $(form).serialize(),
-          dataType: 'json', 
-          cache: false,
-          success: function(response) { 
-            // The 'response' variable is now the parsed JSON object
-            if (response.status == 'success') {
-              Swal.fire({
-                title: '<strong class="text-success">SUCCESS</strong>',
-                type: 'success',
-                html: '<b>Added Record Blotter has Successfully<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                timer: 2000,
-              }).then(() => {
-                $("#addNewRecordForm")[0].reset();
-                $('#myRecordTable').DataTable().ajax.reload();
-                $("#blotterRecordModal").modal('hide');
-                $("#complainant_residence").val([]).trigger("change")
-                $("#person_involed").val([]).trigger("change")
-              })
-            } else {
-              // This will now show the error from the 'else' in the PHP session check
-              Swal.fire({
-                  title: '<strong class="text-danger">Submission Error</strong>',
-                  type: 'error',
-                  html: '<b>' + (response.message || 'An unknown error occurred.') + '<b>',
-                  width: '400px',
-                  confirmButtonColor: '#6610f2',
-                })
-            }
-          },
-          fail: function(jqXHR, textStatus, errorThrown) {
-            // This will catch the 500/401 errors from the PHP 'catch' block
-            var errorMsg = 'Something went wrong with the request!';
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-              errorMsg = jqXHR.responseJSON.message; // Get the error from our PHP script
-            }
-
-            Swal.fire({
-              title: '<strong class="text-danger">Ooppss..</strong>',
-              type: 'error',
-              html: '<b>' + errorMsg + '<b>',
-              width: '400px',
-              confirmButtonColor: '#6610f2',
-            })
-          }
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        Swal.fire({
+          title: 'Submission Failed',
+          text: 'Received invalid response from server.',
+          icon: 'error',
+          confirmButtonColor: '#050C9C'
         });
-      } // --- End of submitHandler ---
-
-    }); // --- End of .validate() ---
-
-    // Reset form on modal open
-    $("#addRecord").on('click',function(){
-      $("#addNewRecordForm")[0].reset();
-      $(".select2-selection__choice").css('display', 'none')
-    });
-
-    // Select2 Initializer
-    function formatState (opt) {
-        if (!opt.id) {
-            return opt.text.toUpperCase();
-        } 
-        var optimage = $(opt.element).attr('data-image'); 
-        if(!optimage){
-          return opt.text.toUpperCase();
-        } else {                    
-            var $opt = $(
-              '<span><img class="img-circle  pb-1" src="' + optimage + '" width="20px" /> ' + opt.text.toUpperCase() + '</span>'
-            );
-            return $opt;
-        }
-    };
-
-    $('#complainant_residence').select2({
-      templateResult: formatState,
-      templateSelection: formatState,
-      theme: 'bootstrap4',
-      dropdownParent: $('#blotterRecordModal'), // Fix for select2 in modal
-      language: {
-          noResults: function (params) {
-            return "No Record";
-          }
-        },
-    });
-
-    $('#person_involed').select2({
-      templateResult: formatState,
-      templateSelection: formatState,
-      theme: 'bootstrap4',
-      dropdownParent: $('#blotterRecordModal'), // Fix for select2 in modal
-      language: {
-          noResults: function (params) {
-            return "No Record";
-          }
-        },
-    });
-
-    // Show person info on select
-    $("#complainant_residence, #person_involed").on('select2:select', function(e){
-      var residence_id = e.params.data.id;
-      $("#show_residence").html('');
-      if(residence_id != ''){
-        $.ajax({
-          url: 'showResidenceInfo.php', // This file must exist in the resident folder
-          type: 'POST',
-          data:{
-            residence_id:residence_id,
-          },
-          cache: false,
-          success:function(data){
-            $("#show_residence").html(data);
-            $("#viewResidenceModal").modal('show');
-          }
-      }).fail(function(){
-          Swal.fire({
-            title: '<strong class="text-danger">Ooppss..</strong>',
-            type: 'error',
-            html: '<b>Something went wrong with ajax !<b>',
-            width: '400px',
-            confirmButtonColor: '#6610f2',
-          })
-      })
       }
-    });
-
-    // Filter person involved list based on complainant
-    $(document).on('change', '#complainant_residence',function(){
-      var subject = [];
-        subject.push($(this).val());
-      var selected_values = subject.join(",");
-       console.log(selected_values);
-
-      $.ajax({
-        url: 'showPerson.php', // This file must exist in the resident folder
-            type: 'POST',
-            data:  {
-              selected_values:selected_values
-            },
-          cache: false,
-          success:function(data){
-            $("#person_involed").html(data);
-          }
-      }).fail(function(){
-          Swal.fire({
-            title: '<strong class="text-danger">Ooppss..</strong>',
-            type: 'error',
-            html: '<b>Something went wrong with ajax !<b>',
-            width: '400px',
-            confirmButtonColor: '#6610f2',
-          })
-      })
-    });
-
-    // --- END: JS from blotterRecord.php ---
-
-
-    // --- START: JS for resident's existing functions ---
-
-    // Load main table
-    blotterPersonTable();
-
-    function blotterPersonTable(){
-      var edit_residence_id = $("#edit_residence_id").val();
-      var blotterPersonTable = $("#myRecordTable").DataTable({
-        processing: true,
-        serverSide: true,
-        responsive: true,
-        order: [[7, 'desc']], // Order by Date Reported (column index 7) descending
-        searching: false,
-        info: false,
-        paging: false,
-        lengthChange: false,
-        autoWidth: false,
-        columnDefs: [
-          {
-            targets: '_all',
-            orderable: false,
-          },
-          {
-            targets: 0,
-            className: 'd-none',
-          }
-        ],
-        ajax: {
-          url: 'myRecordTable.php',
-          type: 'POST',
-          data: {
-            edit_residence_id: edit_residence_id
-          }
-        },
-        fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-          if (aData[0] == "1") {
-            $('td', nRow).css('background-color', '#20c997');
-          } else {
-            $('td', nRow).css('background-color', '#000');
-          }
-        }
+    },
+    error: function(xhr, status, error) {
+      Swal.close();
+      console.error('AJAX error:', error);
+      Swal.fire({
+        title: 'Submission Failed',
+        text: 'An error occurred while submitting your report. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#050C9C'
       });
     }
+  });
+});
 
-    // View record details
+    blotterPersonTable()
+
+    function blotterPersonTable(){
+  var edit_residence_id = $("#edit_residence_id").val();
+  var blotterPersonTable = $("#myRecordTable").DataTable({
+    processing: true,
+    serverSide: true,
+    responsive: true,
+    order: [[7, 'desc']], // Order by Date Reported (column index 7) descending
+    searching: false,
+    info: false,
+    paging: false,
+    lengthChange: false,
+    autoWidth: false,
+    columnDefs: [
+      {
+        targets: '_all',
+        orderable: false,
+      },
+      {
+        targets: 0,
+        className: 'd-none',
+      }
+    ],
+    ajax: {
+      url: 'myRecordTable.php',
+      type: 'POST',
+      data: {
+        edit_residence_id: edit_residence_id
+      }
+    },
+    fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+      if (aData[0] == "1") {
+        $('td', nRow).css('background-color', '#20c997');
+      } else {
+        $('td', nRow).css('background-color', '#000');
+      }
+    }
+  });
+}
+
     $(document).on('click','.viewRecords', function(){
       var record_id = $(this).attr('id');
       $("#show_records").html('');
@@ -1007,7 +810,7 @@ try{
       $.ajax({
         url: 'viewRecordsModal.php',
         type: 'POST',
-        data: {
+        data: {  // Fixed: added 'data' property
           record_id: record_id,
         },
         cache: false,
@@ -1024,10 +827,7 @@ try{
           confirmButtonColor: '#6610f2',
         })
       })
-    });
-
-    // --- END: JS for resident's existing functions ---
-
+    })
   });
 </script>
 </body>
