@@ -526,13 +526,13 @@ try{
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Complainant Not Resident</label>
-                      <textarea name="complainant_not_residence" id="complainant_not_residence" cols="57"  class="bg-transparent text-white form-control"></textarea>
+                      <textarea name="complainant_not_residence" id="complainant_not_residence" cols="57"  class="form-control"></textarea>
                     </div>
                   </div>
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Complainant Statement</label>
-                      <textarea name="complainant_statement" id="complainant_statement" cols="57" rows="3" class="bg-transparent text-white form-control"></textarea>
+                      <textarea name="complainant_statement" id="complainant_statement" cols="57" rows="3" class="form-control"></textarea>
                     </div>
                   </div>
                   <div class="col-sm-12 ">
@@ -587,13 +587,13 @@ try{
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Person Involved Not Resident</label>
-                      <textarea name="person_involevd_not_resident" id="person_involevd_not_resident" cols="57"  class="bg-transparent text-white form-control"></textarea>
+                      <textarea name="person_involevd_not_resident" id="person_involevd_not_resident" cols="57"  class="form-control"></textarea>
                     </div>
                   </div> 
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Person Involved Statement</label>
-                      <textarea name="person_statement" id="person_statement" cols="57" rows="3" class="bg-transparent text-white form-control"></textarea>
+                      <textarea name="person_statement" id="person_statement" cols="57" rows="3" class="form-control"></textarea>
                     </div>
                   </div>
                   <div class="col-sm-6">

@@ -60,7 +60,7 @@ fieldset {
     legend {
       font-size: 1.2em !important;
       font-weight: bold !important;
-      color: #fff;
+      color: #000;
       text-align: left !important;
       width:auto;
       padding:0 10px;
@@ -68,7 +68,7 @@ fieldset {
     }
     .editInfo {
     background-color:rgba(0, 0, 0, 0);
-    color:#fff;
+    color:#000;
     border: none;
     outline:none;
     width: 100%;
@@ -464,11 +464,6 @@ $(document).ready(function(){
         fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
           if ( aData[0] == "1" )  {
           $('td', nRow).css('background-color', '#20c997');
-        
-        }else {
-          $('td', nRow).css('background-color', '#000');
-          }
-          
       }
 
   
