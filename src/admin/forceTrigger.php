@@ -121,7 +121,6 @@ try{
 
     // --- FORM SUBMISSION LOGIC ---
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
-        die("THIS IS A TEST FROM THE NEW FILE."); // <-- ADD THIS LINE
         $trigger_type = $_POST['trigger'];
         $simulated_data = [];
         $local_flood_history = $flood_history; // Get history from query above
