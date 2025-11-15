@@ -339,7 +339,7 @@ try{
                       <br>
                       <select name="edit_voters" id="edit_voters" class="form-control" <?= $disable_attr ?>>
                         <option value="YES" <?= $row_resident['voters'] == 'YES'? 'selected': '' ?>>YES</option>
-                        <option value="NO" <?= $row_resident['voters'] == 'NO'? 'selected': '' ?>>NO</option>
+                        <option value="NO" <?= $row_resident['voters'] != 'YES'? 'selected': '' ?>>NO</option>
                       </select>
                     </td>
                   </tr>
