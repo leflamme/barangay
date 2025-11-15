@@ -20,11 +20,13 @@ try {
 
     $new_image_name = '';
     $new_image_path = '';
-    $update_image_sql = '';
-    $update_image_params_users = [];
-    $update_image_params_res = [];
+    $update_image_sql_users = '';
+    $update_image_sql_res = '';
     $types_users = '';
     $types_res = '';
+    $update_image_params_users = [];
+    $update_image_params_res = [];
+
 
     // Handle file upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
