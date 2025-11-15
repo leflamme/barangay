@@ -173,8 +173,12 @@ try{
         $ch = curl_init($flask_api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($simulated_data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
+        // Encode the data as a URL-encoded string (e.g., key1=value1&key2=value2)
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($simulated_data));
+        
+        // REMOVE the JSON HTTP HEADER. cURL will add the correct form-data header.
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -397,7 +401,7 @@ try{
                         </div>
                         <div class="col-md-3">
                             <button type="submit" name="trigger" value="red" class="btn btn-lg btn-block btn-danger">
-                                <i classFas fa-poo-storm"></i> Red Alert (Evacuate)
+                                <i class="fas fa-poo-storm"></i> Red Alert (Evacuate)
                             </button>
                         </div>
                     </div>
