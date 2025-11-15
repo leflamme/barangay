@@ -1,0 +1,24 @@
+# Turn on the rewrite engine
+RewriteEngine On
+RewriteBase /
+
+# --- Your Specific Aliases ---
+# This rule turns "user-dashboard" into "resident/dashboard.php"
+RewriteRule ^user-dashboard$ resident/dashboard.php [L]
+
+# This rule turns "forgetpass" into "forget.php"
+RewriteRule ^forgetpass$ forget.php [L]
+
+# (Optional) A rule for your admin dashboard
+RewriteRule ^admin-dashboard$ admin/dashboard.php [L]
+
+
+# --- General Rule: Remove .php from all other files ---
+
+# 1. If the request is NOT a real file
+RewriteCond %{REQUEST_FILENAME} !-f
+# 2. If the request is NOT a real directory
+RewriteCond %{REQUEST_FILENAME} !-d
+# 3. Then, try to internally rewrite it to a .php file
+#    (e.g., /login will be rewritten to /login.php)
+RewriteRule ^([^\.]+)$ $1.php [L]
