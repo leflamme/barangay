@@ -106,7 +106,7 @@ try{
         $zone = $row_brgy['zone'];
         $district = $row_brgy['district'];
 
-        // --- NEW: GET FLOOD HISTORY ---
+        // --- GET FLOOD HISTORY ---
         $sql_info = "SELECT flood_history FROM barangay_information LIMIT 1";
         $stmt_info = $con->prepare($sql_info);
         $stmt_info->execute();
@@ -123,15 +123,16 @@ try{
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger_type = $_POST['trigger'];
         $simulated_data = [];
+        $local_flood_history = $flood_history; // Get history from query above
 
         // 1. Create Simulated Weather Data based on button pressed
-        //    **THIS BLOCK IS NOW FIXED**
+        //    **THIS BLOCK SENDS THE 5 CORRECT FEATURES**
         switch ($trigger_type) {
             case 'red':
                 $simulated_data = [
                     'rainfall_category' => 'heavy',
                     'rainfall_amount_mm' => 35.0,
-                    'flood_history' => $flood_history,
+                    'flood_history' => $local_flood_history,
                     'location_type' => 'urban', // Added dummy data
                     'past_response' => 'evacuated' // Added dummy data
                 ];
@@ -140,7 +141,7 @@ try{
                 $simulated_data = [
                     'rainfall_category' => 'moderate',
                     'rainfall_amount_mm' => 20.0,
-                    'flood_history' => $flood_history,
+                    'flood_history' => $local_flood_history,
                     'location_type' => 'urban', 
                     'past_response' => 'warned'
                 ];
@@ -149,7 +150,7 @@ try{
                 $simulated_data = [
                     'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 10.0,
-                    'flood_history' => $flood_history,
+                    'flood_history' => $local_flood_history,
                     'location_type' => 'urban',
                     'past_response' => 'monitored'
                 ];
@@ -159,7 +160,7 @@ try{
                 $simulated_data = [
                     'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 0.0,
-                    'flood_history' => $flood_history,
+                    'flood_history' => $local_flood_history,
                     'location_type' => 'urban',
                     'past_response' => 'none'
                 ];
@@ -167,7 +168,7 @@ try{
         }
 
         // 2. Call the AI Model (Flask API)
-        //    **THIS URL IS NOW FIXED**
+        //    **THIS URL IS NOW FIXED with an UNDERSCORE**
         $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
         $ch = curl_init($flask_api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
