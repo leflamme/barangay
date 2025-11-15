@@ -397,7 +397,7 @@ try{
                         </div>
                         <div class="col-md-3">
                             <button type="submit" name="trigger" value="red" class="btn btn-lg btn-block btn-danger">
-                                <i class="fas fa-poo-storm"></i> Red Alert (Evacuate)
+                                <i classFas fa-poo-storm"></i> Red Alert (Evacuate)
                             </button>
                         </div>
                     </div>
