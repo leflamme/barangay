@@ -5,13 +5,48 @@ RewriteBase /
 # --- Your Specific Aliases ---
 # This rule turns "user-dashboard" into "resident/dashboard.php"
 RewriteRule ^user-dashboard$ resident/dashboard.php [L]
+RewriteRule ^user-profile$ resident/myProfile.php [L]
+RewriteRule ^change-password$ resident/changePassword.php [L]
+RewriteRule ^evacuation-plan$ resident/drrmPlan.php [L]
+RewriteRule ^certificate$ resident/certificate.php [L]
+RewriteRule ^personal-info$ resident/personalInformation.php [L]
+RewriteRule ^blotter-record$ resident/myRecord.php [L]
 
-# This rule turns "forgetpass" into "forget.php"
-RewriteRule ^forgetpass$ forget.php [L]
-
-# (Optional) A rule for your admin dashboard
+# A rule for your admin pages
 RewriteRule ^admin-dashboard$ admin/dashboard.php [L]
+RewriteRule ^backup-restore$ admin/backupRestore.php [L]
+RewriteRule ^add-official$ admin/newOfficial.php [L]
+RewriteRule ^list-of-officials$ admin/allOfficial.php [L]
+RewriteRule ^official-end-term$ admin/officialEndTerm.php [L]
+RewriteRule ^add-resident$ admin/newResidence.php [L]
+RewriteRule ^list-of-residents$ admin/allResidence.php [L]
+RewriteRule ^resident-end-term$ admin/archiveResidence.php [L]
+RewriteRule ^certificate-request-list$ admin/requestCertificate.php [L]
+RewriteRule ^resident-user-list$ admin/usersResident.php [L]
+RewriteRule ^official-user-list$ admin/usersAdministrator.php [L]
+RewriteRule ^barangay-officials-position$ admin/position.php [L]
+RewriteRule ^household-list$ admin/drrmHousehold.php [L]
+RewriteRule ^evacuation-member-list$ admin/drrmEvacuation.php [L]
+RewriteRule ^blotter-log-list$ admin/blotterRecord.php [L]
+RewriteRule ^barangay-residents$ admin/report.php [L]
+RewriteRule ^settings$ admin/settings.php [L]
+RewriteRule ^system-logs$ admin/systemLog.php [L]
+RewriteRule ^backup-and-restore$ admin/backupRestore.php [L]
 
+# A rule for secretary pages
+RewriteRule ^secretary-dashboard$ secretary/dashboard.php [L]
+RewriteRule ^sec-list-officials$ secretary/allOfficial.php [L]
+RewriteRule ^sec-list-of-end-term$ secretary/officialEndTerm.php [L]
+RewriteRule ^sec-add-resident$ secretary/newResidence.php [L]
+RewriteRule ^sec-list-of-residents$ secretary/allResidence.php [L]
+RewriteRule ^sec-archived-residents$ secretary/archiveResidence.php [L]
+RewriteRule ^sec-list-of-cert-requests$ secretary/requestCertificate.php [L]
+RewriteRule ^sec-resident-users$ secretary/usersResident.php [L]
+RewriteRule ^sec-household-list$ secretary/drrmHousehold.php [L]
+RewriteRule ^sec-evacuation-member-list$ secretary/drrmEvacuation.php [L]
+RewriteRule ^sec-blotter-log-list$ secretary/blotterRecord.php [L]
+RewriteRule ^sec-reports$ secretary/report.php [L]
+RewriteRule ^sec-system-logs$ secretary/systemLog.php [L]
 
 # --- General Rule: Remove .php from all other files ---
 

@@ -58,6 +58,8 @@ try {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resident Dashboard</title>
+<!-- Website Icon -->
+<link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -137,7 +139,7 @@ body, .wrapper, .content-wrapper {
     <li class="nav-item dropdown">
       <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
       <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-        <a href="myProfile.php" class="dropdown-item">
+        <a href="/user-profile" class="dropdown-item">
           <div class="media">
             <?php if (!empty($user_image)) : ?>
               <img src="<?= '../assets/dist/img/' . htmlspecialchars($user_image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
@@ -165,12 +167,12 @@ body, .wrapper, .content-wrapper {
   <div class="sidebar">
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-        <li class="nav-item"><a href="dashboard.php" class="nav-link active"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
-        <li class="nav-item"><a href="personalInformation.php" class="nav-link"><i class="nav-icon fas fa-id-card"></i><p>Personal Information</p></a></li>
-        <li class="nav-item"><a href="myRecord.php" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Blotter Record</p></a></li>
-        <li class="nav-item"><a href="drrmPlan.php" class="nav-link"><i class="fas fa-clipboard-list nav-icon text-red"></i><p>Emergency Plan</p></a></li>
-        <li class="nav-item"><a href="changePassword.php" class="nav-link"><i class="nav-icon fas fa-lock"></i><p>Change Password</p></a></li>
-        <li class="nav-item"><a href="certificate.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Certificate</p></a></li>
+        <li class="nav-item"><a href="/user-dashboard" class="nav-link active"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+        <li class="nav-item"><a href="/personal-info" class="nav-link"><i class="nav-icon fas fa-id-card"></i><p>Personal Information</p></a></li>
+        <li class="nav-item"><a href="/blotter-record" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Blotter Record</p></a></li>
+        <li class="nav-item"><a href="/evacuation-plan" class="nav-link"><i class="fas fa-clipboard-list nav-icon text-red"></i><p>Emergency Plan</p></a></li>
+        <li class="nav-item"><a href="/change-password" class="nav-link"><i class="nav-icon fas fa-lock"></i><p>Change Password</p></a></li>
+        <li class="nav-item"><a href="/certificate" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Certificate</p></a></li>
       </ul>
     </nav>
   </div>
