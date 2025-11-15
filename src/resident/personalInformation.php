@@ -377,8 +377,8 @@ try{
                         <br>
                         <select name="edit_pwd" id="edit_pwd" class="form-control"
                         <?= !empty($row_resident['pwd']) ? 'disabled' : '' ?>>
-                        <option value="Yes" <?= $row_resident['pwd'] == 'Yes'? 'selected': '' ?>>Yes</option>
-                        <option value="No" <?= $row_resident['pwd'] == 'Yes'? 'selected': '' ?>>No</option>
+                          <option value="YES" <?= $row_resident['pwd'] == 'YES'? 'selected': '' ?>>YES</option>
+                          <option value="NO" <?= $row_resident['pwd'] == 'NO'? 'selected': '' ?>>NO</option>
                         </select>
                     </td>
                   </tr>
