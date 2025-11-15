@@ -181,25 +181,18 @@ try {
 
       <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#">
-          <i class="far fa-user"></i>
-        </a>
+        <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="myProfile.php" class="dropdown-item">
             <!-- Message Start -->
             <div class="media">
-              <?php 
-                if($user_image != '' || $user_image != null || !empty($user_image)){
-                  echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle alt="User Image">';
-                }else{
-                  echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle alt="User Image">';
-                }
-              ?>
-            
+              <?php if (!empty($user_image)) : ?>
+                <img src="<?= '../assets/dist/img/' . htmlspecialchars($user_image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
+              <?php else: ?>
+                <img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">
+              <?php endif; ?>
               <div class="media-body">
-                <h3 class="dropdown-item-title py-3">
-                  <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
-                </h3>
+                <h3 class="dropdown-item-title py-3"><?= htmlspecialchars(ucfirst($first_name_user) . ' ' . ucfirst($last_name_user)) ?></h3>
               </div>
             </div>
             <!-- Message End -->
@@ -219,52 +212,15 @@ try {
 
     <!-- Sidebar -->
     <div class="sidebar">
-    
       <!-- Sidebar Menu -->
-       <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item">
-            <a href="dashboard.php" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Dashboard</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="myProfile.php" class="nav-link">
-              <i class="nav-icon fas fa-user"></i>
-              <p>My Profile</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="personalInformation.php" class="nav-link">
-              <i class="nav-icon fas fa-address-book"></i>
-              <p>Personal Information</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="myRecord.php" class="nav-link">
-              <i class="nav-icon fas fa-server"></i>
-              <p>Blotter Record</p>
-            </a>
-          </li>
-          <li class="nav-item bg-indigo">
-            <a href="drrmPlan.php" class="nav-link">
-              <i class="fas fa-clipboard-list nav-icon text-red"></i>
-              <p>Emergency Plan</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="changePassword.php" class="nav-link">
-              <i class="nav-icon fas fa-lock"></i>
-              <p>Change Password</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="certificate.php" class="nav-link">
-              <i class="nav-icon fas fa-file-alt"></i>
-              <p>Certificate</p>
-            </a>
-          </li>
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+          <li class="nav-item"><a href="personalInformation.php" class="nav-link"><i class="nav-icon fas fa-address-book"></i><p>Personal Information</p></a></li>
+          <li class="nav-item bg-indigo"><a href="drrmPlan.php" class="nav-link active"><i class="fas fa-clipboard-list nav-icon text-red"></i><p>Emergency Plan</p></a></li>
+          <li class="nav-item"><a href="myRecord.php" class="nav-link"><i class="nav-icon fas fa-server"></i><p>Blotter Record</p></a></li>
+          <li class="nav-item"><a href="certificate.php" class="nav-link"><i class="nav-icon fas fa-file-alt"></i><p>Certificate</p></a></li>
+          <li class="nav-item"><a href="changePassword.php" class="nav-link"><i class="nav-icon fas fa-lock"></i><p>Change Password</p></a></li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

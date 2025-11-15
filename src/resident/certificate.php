@@ -361,10 +361,10 @@ try{
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
-            <li class="nav-item"><a href="personalInformation.php" class="nav-link active"><i class="nav-icon fas fa-address-book"></i><p>Personal Information</p></a></li>
+            <li class="nav-item"><a href="personalInformation.php" class="nav-link"><i class="nav-icon fas fa-address-book"></i><p>Personal Information</p></a></li>
             <li class="nav-item"><a href="drrmPlan.php" class="nav-link"><i class="fas fa-clipboard-list nav-icon text-red"></i><p>Emergency Plan</p></a></li>
             <li class="nav-item"><a href="myRecord.php" class="nav-link"><i class="nav-icon fas fa-server"></i><p>Blotter Record</p></a></li>
-            <li class="nav-item"><a href="certificate.php" class="nav-link"><i class="nav-icon fas fa-file-alt"></i><p>Certificate</p></a></li>
+            <li class="nav-item"><a href="certificate.php" class="nav-link active"><i class="nav-icon fas fa-file-alt"></i><p>Certificate</p></a></li>
             <li class="nav-item"><a href="changePassword.php" class="nav-link"><i class="nav-icon fas fa-lock"></i><p>Change Password</p></a></li>       
           </ul>
         </nav>
