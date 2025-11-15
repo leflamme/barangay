@@ -174,11 +174,12 @@ try{
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
 
-        // Encode the data as a URL-encoded string (e.g., key1=value1&key2=value2)
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($simulated_data));
+        // Revert to json_encode, but wrap $simulated_data in an array [ ... ]
+        // to send a list containing one object
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([$simulated_data]));
         
-        // REMOVE the JSON HTTP HEADER. cURL will add the correct form-data header.
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        // Add the JSON content-type header back in
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
