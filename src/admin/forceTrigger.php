@@ -164,7 +164,7 @@ try{
         }
 
         // 2. Call the AI Model (Flask API)
-        $flask_api_url = 'http://barangay-api.railway.internal:8080/predict';
+        $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
         $ch = curl_init($flask_api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
