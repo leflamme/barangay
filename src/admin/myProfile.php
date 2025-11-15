@@ -311,6 +311,7 @@ try{
                   <p>Resident</p>
                 </a>
               </li>
+              <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
               <li class="nav-item">
                 <a href="userAdministrator.php" class="nav-link">
                   <i class="fas fa-circle nav-icon text-red"></i>
@@ -328,6 +329,36 @@ try{
               </p>
             </a>
           </li>
+
+          <!-- DRM Part   (START)   -->
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
+              <p>
+                DRRM
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+              
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="drrmHousehold.php" class="nav-link">
+                    <i class="fas fa-users nav-icon text-red"></i>
+                    <p>Household Members</p>
+                  </a>
+                </li>
+                
+                <li class="nav-item">
+                  <a href="drrmEvacuation.php" class="nav-link">
+                    <i class="fas fa-house-damage nav-icon text-red"></i>
+                    <p>Evacuation Center</p>
+                  </a>
+                </li>
+                
+              </ul>
+          </li>
+        <!-- End of DRM Part -->
+
           <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
@@ -344,14 +375,7 @@ try{
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="settings.php" class="nav-link">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>
-                Settings
-              </p>
-            </a>
-          </li>
+          
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
@@ -360,14 +384,7 @@ try{
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="backupRestore.php" class="nav-link">
-              <i class="nav-icon fas fa-database"></i>
-              <p>
-                Backup/Restore
-              </p>
-            </a>
-          </li>
+          
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
