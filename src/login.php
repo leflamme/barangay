@@ -65,8 +65,11 @@ $sql = "SELECT * FROM `barangay_information`";
 <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login - Barangay Kalusugan</title>
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
+  <!-- Website Icon -->
+  <link rel="icon" type="image/png" href="assets/logo/ksugan.jpg">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
 
   <!-- Theme style -->
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
