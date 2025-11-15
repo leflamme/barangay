@@ -123,47 +123,51 @@ try{
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger_type = $_POST['trigger'];
         $simulated_data = [];
-        $local_flood_history = $flood_history; // Get history from query above
 
         // 1. Create Simulated Weather Data based on button pressed
         //    **THIS BLOCK IS NOW FIXED**
         switch ($trigger_type) {
             case 'red':
-                // Simulating "RED" warning: > 30mm rain
                 $simulated_data = [
                     'rainfall_category' => 'heavy',
                     'rainfall_amount_mm' => 35.0,
-                    'flood_history' => $local_flood_history
+                    'flood_history' => $flood_history,
+                    'location_type' => 'urban', // Added dummy data
+                    'past_response' => 'evacuated' // Added dummy data
                 ];
                 break;
             case 'orange':
-                // Simulating "ORANGE" warning: 15-30mm rain
                 $simulated_data = [
                     'rainfall_category' => 'moderate',
                     'rainfall_amount_mm' => 20.0,
-                    'flood_history' => $local_flood_history
+                    'flood_history' => $flood_history,
+                    'location_type' => 'urban', 
+                    'past_response' => 'warned'
                 ];
                 break;
             case 'yellow':
-                // Simulating "YELLOW" warning: 7.5-15mm rain
                 $simulated_data = [
-                    'rainfall_category' => 'light', // or 'moderate' depending on your model
+                    'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 10.0,
-                    'flood_history' => $local_flood_history
+                    'flood_history' => $flood_history,
+                    'location_type' => 'urban',
+                    'past_response' => 'monitored'
                 ];
                 break;
             case 'normal':
             default:
-                // Simulating "NORMAL" weather
                 $simulated_data = [
-                    'rainfall_category' => 'light', // or 'none'
+                    'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 0.0,
-                    'flood_history' => $local_flood_history
+                    'flood_history' => $flood_history,
+                    'location_type' => 'urban',
+                    'past_response' => 'none'
                 ];
                 break;
         }
 
         // 2. Call the AI Model (Flask API)
+        //    **THIS URL IS NOW FIXED**
         $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
         $ch = curl_init($flask_api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -254,7 +258,7 @@ try{
     }
     .sidebar .nav-link.active, .sidebar .nav-link:hover {
       background-color: #3572EF !important;
-      color: #ffffff !imporant;
+      color: #ffffff !important;
     }
     .sidebar .nav-icon {
       color: #3ABEF9 !important;
@@ -361,7 +365,7 @@ try{
         
         <?php if (!empty($page_message)): ?>
             <div class="alert alert-info alert-dismissible">
-                <button typebutton" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                 <h5><i class="icon fas fa-info"></i> Trigger Result:</h5>
                 <?= $page_message ?>
             </div>
