@@ -170,32 +170,29 @@ try{
         // 2. Call the AI Model (Flask API)
       // ...
       $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
-
-      // --- START NEW CODE (Attempt 7) ---
-      // 1. Transform the data into the { "key": ["value"] } format
-      $dict_of_lists = [];
-      foreach ($simulated_data as $key => $value) {
-          $dict_of_lists[$key] = [$value]; // Wrap the value in an array
-      }
-
-      // 2. Nest that dictionary inside a "data" key
-      $data_for_json = [
-          'data' => $dict_of_lists
-      ];
-      // --- END NEW CODE ---
+      
+      // --- START NEW CODE (Attempt 8) ---
+      // This is a special attempt to fix a contradictory API.
+      // The API returns a 415 error if Content-Type is NOT 'application/json'.
+      // The API returns "columns missing" if the data is *sent* as JSON.
+      // This implies the API checks for the JSON header, but *reads* from form data.
+      // We will send Form Data, but *lie* about the Content-Type.
 
       $ch = curl_init($flask_api_url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_POST, true);
 
-      // Encode the NEW nested dict-of-lists
-      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
-
+      // 1. Send the data as a URL-encoded string (Form Data)
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($simulated_data));
+      
+      // 2. Set the Content-Type header to 'application/json' (to pass the 415 check)
       curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        
-        $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+      // --- END NEW CODE ---
+      
+      $response = curl_exec($ch);
+      $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      curl_close($ch);
         
         $result_data = json_decode($response, true);
         $new_status = $result_data['prediction'] ?? 'Error';
