@@ -446,6 +446,7 @@ while($row = $result->fetch_assoc()){
                   <p>Resident</p>
                 </a>
               </li>
+              <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
               <li class="nav-item">
                 <a href="userAdministrator.php" class="nav-link">
                   <i class="fas fa-circle nav-icon text-red"></i>
@@ -508,14 +509,7 @@ while($row = $result->fetch_assoc()){
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="settings.php" class="nav-link">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>
-                Settings
-              </p>
-            </a>
-          </li>
+         
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
@@ -524,14 +518,7 @@ while($row = $result->fetch_assoc()){
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="backupRestore.php" class="nav-link">
-              <i class="nav-icon fas fa-database"></i>
-              <p>
-                Backup/Restore
-              </p>
-            </a>
-          </li>
+        
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

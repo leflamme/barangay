@@ -504,9 +504,7 @@ if (empty($slides)) {
 
           <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
           <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Reports</p></a></li>
-          <li class="nav-item"><a href="settings.php" class="nav-link"><i class="nav-icon fas fa-cog"></i><p>Settings</p></a></li>
           <li class="nav-item"><a href="systemLog.php" class="nav-link"><i class="nav-icon fas fa-history"></i><p>System Logs</p></a></li>
-          <li class="nav-item"><a href="backupRestore.php" class="nav-link"><i class="nav-icon fas fa-database"></i><p>Backup/Restore</p></a></li>
         </ul>
       </nav>
     </div>
