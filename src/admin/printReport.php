@@ -148,15 +148,7 @@ try{
           <tbody>
             <tr>
               <td class="text-center">
-                <?php 
-                
-                if($row_barangay_information['image_path'] != '' || $row_barangay_information['image_path'] != null || !empty($row_barangay_information['image_path'])){
-                    echo '<img alt="barangay_logo" src="'.$row_barangay_information['image_path'].'" class="img-circle"  id="barangay_logo">';
-                }else{
-                  echo '<img alt="barangay_logo" src="../assets/logo/blank.png" class="img-circle"  id="barangay_logo">';
-                }
-                
-                ?>
+                <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="maynila" >
                 
               </td>
               <td class="text-center">
@@ -170,7 +162,7 @@ try{
                 </div>
               </td>
               <td  class="text-center">
-              <img alt="barangay_logo" src="../assets/logo/maynila.png" class="img-circle"  id="maynila">
+              <img src="../assets/logo/qclogo.png" id="maynila" alt="QC Logo">
                
                 <br>
                
