@@ -171,27 +171,29 @@ try{
       // ...
       $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
       
-      // --- START NEW CODE (Attempt 8) ---
-      // This is a special attempt to fix a contradictory API.
-      // The API returns a 415 error if Content-Type is NOT 'application/json'.
-      // The API returns "columns missing" if the data is *sent* as JSON.
-      // This implies the API checks for the JSON header, but *reads* from form data.
-      // We will send Form Data, but *lie* about the Content-Type.
+      // --- START NEW CODE (Attempt 12) ---
+      // This is the most complex but standard format we have not tried.
+      // { "data": [ { "row1_key": "val" }, { "row2_key": "val" } ] }
+      
+      // 1. Create a "data" key, whose value is a list
+      // 2. That list contains our single $simulated_data object
+      $data_for_json = [
+          'data' => [ $simulated_data ]
+      ];
 
       $ch = curl_init($flask_api_url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_POST, true);
 
-      // 1. Send the data as a URL-encoded string (Form Data)
-      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($simulated_data));
+      // 3. Encode this new nested structure as JSON
+      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
       
-      // 2. Set the Content-Type header to 'application/json' (to pass the 415 check)
+      // 4. Set the required JSON header
       curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
       // --- END NEW CODE ---
       
       $response = curl_exec($ch);
       $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
       curl_close($ch);
         
         $result_data = json_decode($response, true);
