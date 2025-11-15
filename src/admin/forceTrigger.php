@@ -169,20 +169,19 @@ try{
 
         // 2. Call the AI Model (Flask API)
         $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
-      
+        
         // --- START NEW CODE ---
-        // Transform the data into the { "key": ["value"] } format for Pandas
-        $data_for_json = [];
-        foreach ($simulated_data as $key => $value) {
-            $data_for_json[$key] = [$value]; // Wrap the value in an array
-        }
+        // Create a new array that nests the simulated data under the key 'data'
+        $data_for_json = [
+            'data' => $simulated_data
+        ];
         // --- END NEW CODE ---
 
         $ch = curl_init($flask_api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
 
-        // Now, encode the NEW transformed array
+        // Encode the NEW nested array.
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
         
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
