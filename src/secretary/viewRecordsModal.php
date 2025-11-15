@@ -4,30 +4,48 @@ include_once '../connection.php';
 try{
   if(isset($_REQUEST['record_id'])){
     $record_id = $con->real_escape_string(trim($_REQUEST['record_id']));
-    $sql_record = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-    INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-    INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_record.blotter_id = ?";
+    $sql_record = "SELECT * FROM blotter_record WHERE blotter_id = ?";
     $stmt_record = $con->prepare($sql_record) or die ($con->error);
     $stmt_record->bind_param('s',$record_id);
     $stmt_record->execute();
     $result_blotter = $stmt_record->get_result();
     $row_record_blotter = $result_blotter->fetch_assoc();
 
+    if (!$row_record_blotter) {
+        // If $row_record_blotter is null (no record found), stop the script.
+        echo '<div class="modal-body"><h3>Error: Blotter record not found.</h3></div>';
+        exit; 
+    }
 
+  // Fetch all COMPLAINANT IDs for this blotter and store in an array
+    $complainant_ids = [];
+    $sql_comp = "SELECT complainant_id FROM blotter_complainant WHERE blotter_main = ?";
+    $stmt_comp = $con->prepare($sql_comp);
+    $stmt_comp->bind_param('s', $record_id);
+    $stmt_comp->execute();
+    $result_comp = $stmt_comp->get_result();
+    while ($row_comp = $result_comp->fetch_assoc()) {
+        $complainant_ids[] = $row_comp['complainant_id'];
+    }
+
+    // Fetch all INVOLVED PERSON IDs for this blotter and store in an array
+    $person_ids = [];
+    $sql_pers = "SELECT person_id FROM blotter_status WHERE blotter_main = ?";
+    $stmt_pers = $con->prepare($sql_pers);
+    $stmt_pers->bind_param('s', $record_id);
+    $stmt_pers->execute();
+    $result_pers = $stmt_pers->get_result();
+    while ($row_pers = $result_pers->fetch_assoc()) {
+        $person_ids[] = $row_pers['person_id'];
+    }
 
   }
-
 
 }catch(Exception $e){
   echo $e->getMessage();
 }
 
-
-
-
-
 ?>
-
 
 
 <!-- Modal -->
@@ -81,26 +99,9 @@ try{
                             ?>
                               <option  value="<?= $row_record_resident_id['residence_id'] ?>" <?php
 
-                      
-                                $sql_record_while_complainant = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-                                INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-                                INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_complainant.blotter_main = ?";
-                                $stmt_record_while_complainant = $con->prepare($sql_record_while_complainant) or die ($con->error);
-                                $stmt_record_while_complainant->bind_param('s',$record_id);
-                                $stmt_record_while_complainant->execute();
-                                $result_blotter_while_complainant = $stmt_record_while_complainant->get_result();
-                                while($row_record_blotter_while_complainant = $result_blotter_while_complainant->fetch_assoc()){
-
-                                  if($row_record_resident_id['residence_id']  == $row_record_blotter_while_complainant['complainant_id']){
-                                    echo  'selected="selected"';
-                                  }else{
-                                    echo '';
-                                  }
-
+                                if (in_array($row_record_resident_id['residence_id'], $complainant_ids)) {
+                                  echo 'selected="selected"';
                                 }
-                              
-
-                                   
                                 
                               if($row_record_resident_id['image_path'] != '' || $row_record_resident_id['image_path'] != null || !empty($row_record_resident_id['image_path'])){
                                   echo 'data-image="'.$row_record_resident_id['image_path'].'"';
@@ -164,24 +165,9 @@ try{
                             ?>
                               <option value="<?= $row_person_id['residence_id'] ?>" <?php 
 
-
-                                    $sql_record_while_person = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-                                    INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-                                    INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_status.blotter_main = ?";
-                                    $stmt_record_while_person = $con->prepare($sql_record_while_person) or die ($con->error);
-                                    $stmt_record_while_person->bind_param('s',$record_id);
-                                    $stmt_record_while_person->execute();
-                                    $result_blotter_while_complainant = $stmt_record_while_person->get_result();
-                                    while($row_record_blotter_while_person = $result_blotter_while_complainant->fetch_assoc()){
-
-                                      if($row_person_id['residence_id']  == $row_record_blotter_while_person['person_id']){
-                                        echo  'selected="selected"';
-                                      }else{
-                                        echo '';
-                                      }
-
-}
-
+                                if (in_array($row_person_id['residence_id'], $person_ids)) {
+                                  echo 'selected="selected"';
+                                }
 
                               if($row_person_id['image_path'] != '' || $row_person_id['image_path'] != null || !empty($row_person_id['image_path'])){
                                   echo 'data-image="'.$row_person_id['image_path'].'"';
