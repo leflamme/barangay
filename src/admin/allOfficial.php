@@ -48,7 +48,9 @@ try{
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>List: All Officials</title>
+  <!-- Website Logo -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
  
   <!-- Font Awesome Icons -->
