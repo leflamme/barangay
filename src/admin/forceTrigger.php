@@ -8,7 +8,6 @@ include_once '../connection.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// --- PAGE-SPECIFIC HELPER FUNCTION FOR EMAIL BLAST ---
 /**
  * Sends a mass evacuation email to all residents.
  * Uses BCC for privacy and efficiency.
@@ -16,11 +15,12 @@ use PHPMailer\PHPMailer\Exception;
 function sendEvacuationEmailToAll($con, $alert_type) {
     
     $recipients = [];
-    $sql_emails = "SELECT email_address FROM residence_information WHERE email_address IS NOT NULL AND email_address != ''";
+    // Fetch emails from users table
+    $sql_emails = "SELECT email FROM users WHERE user_type = 'resident' AND email IS NOT NULL AND email != ''";
     $result = $con->query($sql_emails);
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $recipients[] = $row['email_address'];
+            $recipients[] = $row['email'];
         }
     }
 
@@ -46,20 +46,19 @@ function sendEvacuationEmailToAll($con, $alert_type) {
         $mail->setFrom($gmail_username, $barangay_name . ' ALERT SYSTEM');
 
         // Add all recipients as BCC
-        // This is the correct way to send a mass email.
         foreach ($recipients as $email) {
             $mail->addBCC($email);
         }
 
         // --- Email Content ---
         $mail->isHTML(true);
-        if ($alert_type == 'Evacuate') {
+        if ($alert_type == 'evacuate') { // Check for lowercase
             $mail->Subject = "🚨 URGENT: EVACUATION NOTICE for {$barangay_name}";
             $body = "<h2>Mabuhay, {$barangay_name} Residents!</h2>";
             $body .= "<p>This is an **URGENT EVACUATION ALERT**.</p>";
             $body .= "<p>The weather system has reached a critical level, and our system predicts a high probability of severe flooding. For your safety, all residents in flood-prone areas are advised to **EVACUATE IMMEDIATELY**.</p>";
             $body .= "<p>Please proceed to your designated evacuation center. Follow all instructions from barangay officials.</p>";
-        } else {
+        } else { // 'warn'
             $mail->Subject = "⚠️ WEATHER ALERT for {$barangay_name}";
             $body = "<h2>Mabuhay, {$barangay_name} Residents!</h2>";
             $body .= "<p>This is a **SEVERE WEATHER ALERT**.</p>";
@@ -107,6 +106,14 @@ try{
         $zone = $row_brgy['zone'];
         $district = $row_brgy['district'];
 
+        // --- NEW: GET FLOOD HISTORY ---
+        $sql_info = "SELECT flood_history FROM barangay_information LIMIT 1";
+        $stmt_info = $con->prepare($sql_info);
+        $stmt_info->execute();
+        $result_info = $stmt_info->get_result();
+        $barangay_info = $result_info->fetch_assoc();
+        $flood_history = $barangay_info['flood_history'] ?? 'rare'; // Default to 'rare'
+
     }else{
         echo '<script>window.location.href = "../login.php";</script>';
         exit;
@@ -116,36 +123,42 @@ try{
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger_type = $_POST['trigger'];
         $simulated_data = [];
+        $local_flood_history = $flood_history; // Get history from query above
 
         // 1. Create Simulated Weather Data based on button pressed
+        //    **THIS BLOCK IS NOW FIXED**
         switch ($trigger_type) {
             case 'red':
                 // Simulating "RED" warning: > 30mm rain
                 $simulated_data = [
-                    'rainfall' => 35.0, 'temp' => 24.5, 'humidity' => 90, 
-                    'pressure' => 998, 'wind_speed' => 15.0
+                    'rainfall_category' => 'heavy',
+                    'rainfall_amount_mm' => 35.0,
+                    'flood_history' => $local_flood_history
                 ];
                 break;
             case 'orange':
                 // Simulating "ORANGE" warning: 15-30mm rain
                 $simulated_data = [
-                    'rainfall' => 20.0, 'temp' => 25.0, 'humidity' => 85, 
-                    'pressure' => 1000, 'wind_speed' => 10.0
+                    'rainfall_category' => 'moderate',
+                    'rainfall_amount_mm' => 20.0,
+                    'flood_history' => $local_flood_history
                 ];
                 break;
             case 'yellow':
                 // Simulating "YELLOW" warning: 7.5-15mm rain
                 $simulated_data = [
-                    'rainfall' => 10.0, 'temp' => 26.0, 'humidity' => 80, 
-                    'pressure' => 1002, 'wind_speed' => 5.0
+                    'rainfall_category' => 'light', // or 'moderate' depending on your model
+                    'rainfall_amount_mm' => 10.0,
+                    'flood_history' => $local_flood_history
                 ];
                 break;
             case 'normal':
             default:
                 // Simulating "NORMAL" weather
                 $simulated_data = [
-                    'rainfall' => 0.0, 'temp' => 29.0, 'humidity' => 75, 
-                    'pressure' => 1005, 'wind_speed' => 2.0
+                    'rainfall_category' => 'light', // or 'none'
+                    'rainfall_amount_mm' => 0.0,
+                    'flood_history' => $local_flood_history
                 ];
                 break;
         }
@@ -159,13 +172,14 @@ try{
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         
         $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
         $result_data = json_decode($response, true);
         $new_status = $result_data['prediction'] ?? 'Error';
 
-        if ($new_status == 'Error') {
-            $page_message = "Error calling AI API. Response: " . $response;
+        if ($new_status == 'Error' || $http_code != 200) {
+            $page_message = "Error calling AI API. HTTP Status: {$http_code}. Response: " . $response;
         } else {
             // 3. Check current status from DB
             $sql_check = "SELECT status FROM current_alert_status WHERE id = 1";
@@ -179,13 +193,13 @@ try{
             if ($new_status != $current_status) {
                 $page_message .= "Status changed from '{$current_status}'. Updating database. ";
                 
-                $sql_update = "UPDATE current_alert_status SET status = ?, last_checked = NOW() WHERE id = 1";
+                $sql_update = "UPDATE current_alert_status SET status = ? WHERE id = 1";
                 $stmt_update = $con->prepare($sql_update);
                 $stmt_update->bind_param('s', $new_status);
                 $stmt_update->execute();
 
-                // 5. Send Email Blast if needed
-                if ($new_status == 'Evacuate' || $new_status == 'Alert') {
+                // 5. Send Email Blast if needed (e.g., 'evacuate' or 'warn')
+                if ($new_status == 'evacuate' || $new_status == 'warn') {
                     $email_result = sendEvacuationEmailToAll($con, $new_status);
                     $page_message .= $email_result;
                 }
@@ -240,7 +254,7 @@ try{
     }
     .sidebar .nav-link.active, .sidebar .nav-link:hover {
       background-color: #3572EF !important;
-      color: #ffffff !important;
+      color: #ffffff !imporant;
     }
     .sidebar .nav-icon {
       color: #3ABEF9 !important;
@@ -347,7 +361,7 @@ try{
         
         <?php if (!empty($page_message)): ?>
             <div class="alert alert-info alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <button typebutton" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                 <h5><i class="icon fas fa-info"></i> Trigger Result:</h5>
                 <?= $page_message ?>
             </div>
