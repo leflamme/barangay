@@ -538,7 +538,7 @@ try{
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Respondent</label>
-                        <input name="respondent" id="respondent"  class=" form-control">
+                        <input name="respodent" id="respodent"  class=" form-control">
                     </div>
                   </div>
                   <div class="col-sm-12">
