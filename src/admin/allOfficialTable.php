@@ -35,8 +35,8 @@ try{
 
   $stmt = $con->prepare($sql) or die ($con->error);
   $stmt->execute();
-  $stmt->get_result();
-  $totalData = $stmt->num_rows;
+  $result_for_count = $stmt->get_result(); // Save the result
+  $totalData = $result_for_count->num_rows; // Get the count from the result
 
 
 
@@ -132,7 +132,7 @@ try{
     'recordsTotal' => intval($totalData),
     'recordsFiltered' => intval($totalData),
     'data' => $data,
-    'total' => number_format($totalData),
+    'total' => intval($totalData),
   ];
 
   echo json_encode($json_data);
