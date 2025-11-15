@@ -43,6 +43,9 @@ $sql = "SELECT * FROM `barangay_information`";
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Barangay Registration Portal</title>
+  <!-- Website Icon -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
+  
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <!-- CSS Libraries -->
@@ -260,13 +263,13 @@ $sql = "SELECT * FROM `barangay_information`";
       <!-- Right navbar links -->
       <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto " >
           <li class="nav-item">
-            <a href="index.php" class="nav-link text-white rightBar" >HOME</a>
+            <a href="/index" class="nav-link text-white rightBar" >HOME</a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
+            <a href="/register" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
           </li>
           <li class="nav-item">
-            <a href="login.php" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a>
+            <a href="/login" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a>
           </li>
       </ul>
     </div>
