@@ -750,6 +750,13 @@ body {
                   <p>Resident</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="editRequests.php" class="nav-link">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Edit Requests</p>
+                </a>
+              </li>
+            
 
             </ul>
           </li>
