@@ -37,10 +37,41 @@ try {
         $last_name = $row_resident['last_name'];
         $contact_number = $row_resident['contact_number'];
         $email = $row_resident['email_address'];
-        $image = $row_resident['image_path'] ?: '../assets/dist/img/image.png';
+        
+        // --- FIXED IMAGE PATH ---
+        // Point to the new permanent volume folder
+        $image = $row_resident['image_path'] ? $row_resident['image_path'] : '../assets/dist/img/image.png';
+        if ($row_resident['image_path'] && !str_starts_with($row_resident['image_path'], '../permanent-data/images/')) {
+            $image = '../permanent-data/images/' . $row_resident['image'];
+        }
+        // --- END FIX ---
+        
         $barangay = $row_barangay['barangay'];
         $zone = $row_barangay['zone'];
         $district = $row_barangay['district'];
+
+        // --- NEW LOGIC TO CHECK EDIT STATUS ---
+        $edit_status = 'LOCKED'; // Default state
+        $is_editable = false;
+        
+        $sql_check_request = "SELECT * FROM `edit_requests` WHERE `user_id` = ? AND `status` IN ('PENDING', 'APPROVED') ORDER BY `request_date` DESC LIMIT 1";
+        $stmt_check = $con->prepare($sql_check_request);
+        $stmt_check->bind_param('s', $user_id);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        
+        if($result_check->num_rows > 0) {
+            $request = $result_check->fetch_assoc();
+            if ($request['status'] == 'APPROVED') {
+                $edit_status = 'APPROVED';
+                $is_editable = true;
+            } else {
+                $edit_status = 'PENDING';
+            }
+        }
+        // We use this to set readonly/disabled in the HTML
+        $edit_attr = $is_editable ? '' : 'readonly';
+        // --- END NEW LOGIC ---
 
     } else {
         header("Location: ../login.php");
@@ -58,17 +89,12 @@ try {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Profile</title>
-    <!-- Website Icon -->
     <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-     <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
-   <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-    <!-- overlayScrollbars -->
+   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-    <!-- Theme style -->
     <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -76,8 +102,7 @@ try {
     <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
     <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
     <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-     <!-- Tempusdominus Bbootstrap 4 -->
-  <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+     <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <style>
@@ -165,17 +190,20 @@ try {
         .file-input {
             display: none;
         }
+        /* Style for readonly inputs */
+        .form-control[readonly] {
+            background-color: #e9ecef !important;
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed">
 <div class="wrapper">
 
-    <!-- Preloader -->
     <div class="preloader flex-column justify-content-center align-items-center">
         <img class="animation__wobble" src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
     </div>
 
-    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-dark">
         <ul class="navbar-nav">
             <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
@@ -186,20 +214,15 @@ try {
             <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
         </ul>
 
-        <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <a href="myProfile.php" class="dropdown-item">
                         <div class="media">
-                            <?php if (!empty($user_image)) : ?>
-                                <img src="<?= '../assets/dist/img/' . htmlspecialchars($user_image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
-                            <?php else: ?>
-                                <img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">
-                            <?php endif; ?>
+                            <img src="<?= htmlspecialchars($image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
                             <div class="media-body">
-                                <h3 class="dropdown-item-title py-3"><?= htmlspecialchars(ucfirst($first_name_user) . ' ' . ucfirst($last_name_user)) ?></h3>
+                                <h3 class="dropdown-item-title py-3"><?= htmlspecialchars(ucfirst($first_name) . ' ' . ucfirst($last_name)) ?></h3>
                             </div>
                         </div>
                     </a>
@@ -209,14 +232,9 @@ try {
             </li>
         </ul>
     </nav>
-    <!-- /.navbar -->
-
-    <!-- Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-        <!-- Barangay Logo-->
         <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-        <!-- Sidebar -->
         <div class="sidebar">
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
@@ -231,9 +249,7 @@ try {
         </div>
     </aside>
 
-    <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
-        <!-- Content Header -->
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -244,7 +260,6 @@ try {
             </div>
         </div>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -254,60 +269,68 @@ try {
                                 <h3 class="card-title">Personal Information</h3>
                             </div>
                             <form id="profileForm" method="post" enctype="multipart/form-data">
-    <div class="card-body">
-        <div class="text-center">
-            <div class="profile-image-container">
-                <img src="<?= $image ?>" id="profileImage" class="profile-image" alt="Profile Image">
-                <input type="file" id="imageUpload" name="image" class="file-input">
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label>First Name</label>
-            <input type="text" class="form-control" name="first_name" 
-                   value="<?= htmlspecialchars($first_name) ?>" 
-                   <?= !empty($first_name) ? 'readonly' : '' ?> required>
-        </div>
-        
-        <div class="form-group">
-            <label>Middle Name</label>
-            <input type="text" class="form-control" name="middle_name" 
-                   value="<?= htmlspecialchars($middle_name) ?>" 
-                   <?= !empty($middle_name) ? 'readonly' : '' ?>>
-        </div>
-        
-        <div class="form-group">
-            <label>Last Name</label>
-            <input type="text" class="form-control" name="last_name" 
-                   value="<?= htmlspecialchars($last_name) ?>" 
-                   <?= !empty($last_name) ? 'readonly' : '' ?> required>
-        </div>
-        
-        <div class="form-group">
-            <label>Contact Number</label>
-            <input type="text" class="form-control" name="contact_number" 
-                   value="<?= htmlspecialchars($contact_number) ?>" 
-                   <?= !empty($contact_number) ? 'readonly' : '' ?> required>
-        </div>
-        
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" class="form-control" name="email" 
-                   value="<?= htmlspecialchars($email) ?>" 
-                   <?= !empty($email) ? 'readonly' : '' ?>>
-        </div>
-        
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" class="form-control" 
-                   value="<?= htmlspecialchars($username) ?>" readonly>
-        </div>
-    </div>
-    
-    <div class="card-footer">
-        <button type="submit" class="btn btn-primary">Update Profile</button>
-    </div>
-</form>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <div class="profile-image-container">
+                                            <img src="<?= $image ?>" id="profileImage" class="profile-image" alt="Profile Image" <?= $is_editable ? 'style="cursor: pointer;"' : 'style="cursor: not-allowed;"' ?>>
+                                            <input type="file" id="imageUpload" name="image" class="file-input" <?= $is_editable ? '' : 'disabled' ?>>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>First Name</label>
+                                        <input type="text" class="form-control" name="first_name" 
+                                               value="<?= htmlspecialchars($first_name) ?>" 
+                                               <?= $edit_attr ?> required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Middle Name</label>
+                                        <input type="text" class="form-control" name="middle_name" 
+                                               value="<?= htmlspecialchars($middle_name) ?>" 
+                                               <?= $edit_attr ?>>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Last Name</label>
+                                        <input type="text" class="form-control" name="last_name" 
+                                               value="<?= htmlspecialchars($last_name) ?>" 
+                                               <?= $edit_attr ?> required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Contact Number</label>
+                                        <input type="text" class="form-control" name="contact_number" 
+                                               value="<?= htmlspecialchars($contact_number) ?>" 
+                                               <?= $edit_attr ?> required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" class="form-control" name="email" 
+                                               value="<?= htmlspecialchars($email) ?>" 
+                                               <?= $edit_attr ?>>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Username</label>
+                                        <input type="text" class="form-control" 
+                                               value="<?= htmlspecialchars($username) ?>" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer">
+                                    <?php if ($edit_status == 'APPROVED'): ?>
+                                        <button type="submit" class="btn btn-success"><i class="fas fa-edit"></i> Update Profile</button>
+                                    
+                                    <?php elseif ($edit_status == 'PENDING'): ?>
+                                        <button type="button" class="btn btn-warning" disabled><i class="fas fa-clock"></i> Request Pending</button>
+                                    
+                                    <?php else: // $edit_status == 'LOCKED' ?>
+                                        <button type="button" class="btn btn-primary" id="requestEditButton"><i class="fas fa-lock-open"></i> Request Access to Edit</button>
+                                    <?php endif; ?>
+                                </div>
+                            </form>
 
                         </div>
                     </div>
@@ -316,13 +339,31 @@ try {
         </section>
     </div>
 
-    <!-- Footer -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Confirm Update</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            I hereby declare that all information given is true and up to date.
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-success" id="confirmUpdate">Yes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
     <footer class="main-footer">
         <strong>Copyright &copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')) ?></strong>
     </footer>
 </div>
 
-<!-- REQUIRED SCRIPTS -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/plugins/sweetalert2/js/sweetalert2.all.min.js"></script>
@@ -330,9 +371,49 @@ try {
 
 <script>
 $(document).ready(function() {
+
+    // --- NEW: REQUEST EDIT ACCESS BUTTON ---
+    $('#requestEditButton').on('click', function() {
+        $.ajax({
+            url: 'requestEditAccess.php', // This is the new file from our previous step
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if(response.success) {
+                    Swal.fire({
+                        title: 'Request Submitted!',
+                        text: 'Your request to edit has been sent to the admin. You will be notified upon approval.',
+                        type: 'success', 
+                        confirmButtonColor: '#050C9C'
+                    }).then(() => {
+                        window.location.reload(); // Reload to show the "Pending" button
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.message || 'Could not submit request.',
+                        type: 'error',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    title: 'AJAX Error',
+                    text: 'Something went wrong with the request.',
+                    type: 'error',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    });
+
     // Profile image click handler
     $('#profileImage').click(function() {
-        $('#imageUpload').click();
+        // Only trigger click if the form is editable
+        if(<?= $is_editable ? 'true' : 'false' ?>) {
+            $('#imageUpload').click();
+        }
     });
     
     // Display selected image
@@ -350,29 +431,48 @@ $(document).ready(function() {
     $('#profileForm').submit(function(e) {
         e.preventDefault();
         
-        var formData = new FormData(this);
+        // Show the confirmation modal first
+        $('#confirmationModal').modal('show');
+
+        // Handle the 'Yes' button click
+        $('#confirmUpdate').off('click').on('click', function() {
+            $('#confirmationModal').modal('hide');
+            
+            var formData = new FormData($('#profileForm')[0]);
         
-        $.ajax({
-            url: 'updateProfile.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Profile updated successfully',
-                    timer: 2000
-                });
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'There was a problem updating your profile'
-                });
-            }
+            $.ajax({
+                url: 'updateProfile.php', // The new backend script
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.trim() === 'success') {
+                        Swal.fire({
+                            type: 'success',
+                            title: 'Success!',
+                            text: 'Profile updated successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                         Swal.fire({
+                            type: 'error',
+                            title: 'Error!',
+                            text: response || 'There was a problem updating your profile'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Error!',
+                        text: 'There was a problem updating your profile'
+                    });
+                }
+            });
         });
     });
 });
