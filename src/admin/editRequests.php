@@ -47,6 +47,8 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edit Requests</title>
+<!-- Web Icon Logo -->
+<link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg"/>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
@@ -140,78 +142,108 @@ try{
 <body class="hold-transition  sidebar-mini   layout-footer-fixed">
 <div class="wrapper">
 
-   <div class="preloader flex-column justify-content-center align-items-center">
-          <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
+   <!-- Preloader -->
+  <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
+  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
     <ul class="navbar-nav">
       <li class="nav-item">
         <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
       </li>
+      <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;">
+        <h5 class="nav-link text-white"><?= htmlspecialchars($barangay) ?></h5>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($zone) ?></h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">-</h5></li>
+      <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
     </ul>
+
     <ul class="navbar-nav ml-auto">
       <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#">
-          <i class="far fa-user"></i>
-        </a>
+        <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="myProfile.php" class="dropdown-item">
             <div class="media">
-              <?php 
-                if(!empty($user_image)){
-                  echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle" alt="User Image">';
-                } else {
-                  echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">';
-                }
-              ?>
+              <?php if (!empty($user_image)) : ?>
+                <img src="<?= '../assets/dist/img/' . htmlspecialchars($user_image) ?>" class="img-size-50 mr-3 img-circle" alt="User Image">
+              <?php else: ?>
+                <img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">
+              <?php endif; ?>
               <div class="media-body">
                 <h3 class="dropdown-item-title py-3">
-                  <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
+                  <?= htmlspecialchars(ucfirst($first_name_user) .' '. ucfirst($last_name_user)) ?>
                 </h3>
               </div>
             </div>
-          </a>
+          </a>         
           <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
-
     <div class="sidebar">
       <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+
           <li class="nav-item">
-            <a href="dashboard.php" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Dashboard</p>
-            </a>
+            <a href="#" class="nav-link"><i class="nav-icon fas fa-users-cog"></i><p>Barangay Official<i class="right fas fa-angle-left"></i></p></a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="newOfficial.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>New Official</p></a></li>
+              <li class="nav-item"><a href="allOfficial.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>List of Official</p></a></li>
+              <li class="nav-item"><a href="officialEndTerm.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Official End Term</p></a></li>
+            </ul>
           </li>
+
           <li class="nav-item">
-            <a href="allOfficial.php" class="nav-link">
-              <i class="nav-icon fas fa-users-cog"></i>
-              <p>Barangay Official</p>
-            </a>
+            <a href="#" class="nav-link"><i class="nav-icon fas fa-users"></i><p>Residence<i class="right fas fa-angle-left"></i></p></a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="newResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>New Residence</p></a></li>
+              <li class="nav-item"><a href="allResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>All Residence</p></a></li>
+              <li class="nav-item"><a href="archiveResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Archive Residence</p></a></li>
+            </ul>
           </li>
+
+          <li class="nav-item"><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
+
           <li class="nav-item">
-            <a href="allResidence.php" class="nav-link">
-              <i class="nav-icon fas fa-users"></i>
-              <p>Residence</p>
-            </a>
+            <a href="#" class="nav-link"><i class="nav-icon fas fa-user-shield"></i><p>Users<i class="right fas fa-angle-left"></i></p></a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="usersResident.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Resident</p></a></li>
+              <li class="nav-item"><a href="editRequests.php" class="nav-link active"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
+              <li class="nav-item"><a href="userAdministrator.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Administrator</p></a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a href="editRequests.php" class="nav-link active">
-              <i class="nav-icon fas fa-user-edit"></i>
-              <p>Edit Requests</p>
-            </a>
+
+          <li class="nav-item"><a href="position.php" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Position</p></a></li>
+
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>DRRM<i class="right fas fa-angle-left"></i></p></a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="drrmHousehold.php" class="nav-link"><i class="fas fa-users nav-icon text-red"></i><p>Household Members</p></a></li>
+              <li class="nav-item"><a href="drrmEvacuation.php" class="nav-link"><i class="fas fa-house-damage nav-icon text-red"></i><p>Evacuation Center</p></a></li>
+            </ul>
           </li>
-          </ul>
+
+          <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
+          <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Reports</p></a></li>
+          <li class="nav-item"><a href="settings.php" class="nav-link"><i class="nav-icon fas fa-cog"></i><p>Settings</p></a></li>
+          <li class="nav-item"><a href="systemLog.php" class="nav-link"><i class="nav-icon fas fa-history"></i><p>System Logs</p></a></li>
+          <li class="nav-item"><a href="backupRestore.php" class="nav-link"><i class="nav-icon fas fa-database"></i><p>Backup/Restore</p></a></li>
+        </ul>
       </nav>
-      </div>
-    </aside>
+    </div>
+  </aside>
 
   <div class="content-wrapper">
     <div class="content-header">
