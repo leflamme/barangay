@@ -171,16 +171,16 @@ try{
       // ...
       $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
 
-      // --- START NEW CODE (Attempt 6) ---
-      // Build the "split" orientation JSON for Pandas
-      // This is the most unambiguous format.
-      $columns = array_keys($simulated_data);
-      $values = array_values($simulated_data);
+      // --- START NEW CODE (Attempt 7) ---
+      // 1. Transform the data into the { "key": ["value"] } format
+      $dict_of_lists = [];
+      foreach ($simulated_data as $key => $value) {
+          $dict_of_lists[$key] = [$value]; // Wrap the value in an array
+      }
 
+      // 2. Nest that dictionary inside a "data" key
       $data_for_json = [
-          'columns' => $columns,
-          'index'   => [0],        // We are sending one row, at index 0
-          'data'    => [ $values ] // The data is a list of lists of values
+          'data' => $dict_of_lists
       ];
       // --- END NEW CODE ---
 
@@ -188,7 +188,7 @@ try{
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_POST, true);
 
-      // Encode the NEW split-oriented array
+      // Encode the NEW nested dict-of-lists
       curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
 
       curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
