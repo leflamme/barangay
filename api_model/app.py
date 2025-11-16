@@ -22,7 +22,12 @@ def predict():
         # exactly like you did in your Jupyter Notebook.
         
         # 1. Create a DataFrame from the input
-        input_data = pd.DataFrame([data])
+        # We will build it manually to be safe.
+        input_data = pd.DataFrame({
+            'rainfall_category': [data['rainfall_category']],
+            'rainfall_amount_mm': [data['rainfall_amount_mm']],
+            'flood_history': [data['flood_history']]
+        })
         
         # 2. Pre-process the data (One-Hot Encoding)
         # This MUST match your training notebook.
