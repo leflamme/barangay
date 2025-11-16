@@ -4,8 +4,8 @@ import sys
 
 app = Flask(__name__)
 
-# We are NOT loading the model. Its logic is flawed.
-# model = joblib.load('model.pkl')
+# We are NOT loading the model.
+# We are defining the logic ourselves.
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -15,11 +15,11 @@ def predict():
         print(f"Data received: {data}", file=sys.stderr)
 
         # Get the inputs from the JSON
-        category = data.get('rainfall_category', 'light')
+        # We add .lower() to make sure "Heavy" or "HEAVY" also works
+        category = data.get('rainfall_category', 'light').lower() 
         amount_mm = data.get('rainfall_amount_mm', 0)
 
         # --- THIS IS THE "AI" LOGIC ---
-        # We are defining the correct output ourselves.
         
         prediction_status = 'normal' # Default
         
@@ -27,11 +27,11 @@ def predict():
             prediction_status = 'evacuate'
         elif category == 'moderate':
             prediction_status = 'warn'
-        elif category == 'light' and amount_mm > 0:
+        elif category == 'light' and amount_mm > 5: # Set a small threshold for yellow
             # This handles the "Yellow Alert"
             prediction_status = 'warn'
         else:
-            # This handles "Normal" (light and 0mm)
+            # This handles "Normal"
             prediction_status = 'normal'
         
         # --- END OF LOGIC ---
