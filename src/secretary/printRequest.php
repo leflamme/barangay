@@ -182,7 +182,7 @@ if($count_official != 0){
 
 <div class="d-flex justify-content-around">
   <div >
-    <?= $image ?>
+    <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="maynila" >
   </div>
   <div class=" text-center" style="font-size:17pt; font-weight: 500">
     <br>
@@ -195,7 +195,7 @@ if($count_official != 0){
                  OFFICE OF THE BARANGAY CHAIRMAN
   </div>
   <div >
-  <img src="../assets/logo/maynila.png" class="img-circle" id="maynila" alt="logo">
+  <img src="../assets/logo/qclogo.png" id="maynila" alt="QC Logo">
   </div>
 </div>
 
