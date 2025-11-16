@@ -132,7 +132,7 @@ fieldset {
           <tbody>
             <tr>
               <td class="text-center">
-                <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="maynila" >
+                <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="barangay_logo" >
                 
                 
               </td>
