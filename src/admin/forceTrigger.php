@@ -59,10 +59,10 @@ function sendEvacuationEmailToAll($con, $alert_type) {
             $body .= "<p>The weather system has reached a critical level, and our system predicts a high probability of severe flooding. For your safety, all residents in flood-prone areas are advised to **EVACUATE IMMEDIATELY**.</p>";
             $body .= "<p>Please proceed to your designated evacuation center. Follow all instructions from barangay officials.</p>";
         } else { // 'warn'
-            $mail->Subject = "⚠️ WEATHER ALERT for {$barangay_name}";
+            $mail->Subject = "⚠️ WEATHER ALERT: Heavy Rainfall Warning";
             $body = "<h2>Mabuhay, {$barangay_name} Residents!</h2>";
-            $body .= "<p>This is a **SEVERE WEATHER ALERT**.</p>";
-            $body .= "<p>A heavy rainfall warning is in effect. Our system predicts a high probability of flooding. Please prepare for potential evacuation. Secure your belongings and stay tuned for further announcements.</p>";
+            $body .= "<p>This is a **WEATHER ALERT**.</p>";
+            $body .= "<p>Heavy rainfall ahead, stay safe and be prepared.</p>";
         }
         $body .= "<p>Stay safe!</p>";
         $mail->Body = $body;

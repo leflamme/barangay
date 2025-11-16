@@ -111,10 +111,10 @@ if ($prediction != $current_status) {
 function sendAlertEmail($to_email, $to_name, $status, $barangay_name, $gmail_user, $gmail_pass) {
     $mail = new PHPMailer(true);
     
-    $subject = ($status == 'evacuate') ? "URGENT: EVACUATION NOTICE" : "IMPORTANT: HEAVY RAIN WARNING";
+    $subject = ($status == 'evacuate') ? "URGENT: EVACUATION NOTICE" : "WEATHER ALERT: Heavy Rainfall Warning";
     $body = ($status == 'evacuate')
         ? "This is an URGENT notice from {$barangay_name}. Due to severe weather conditions, the AI model has triggered an EVACUATION order. Please proceed to the nearest evacuation center."
-        : "This is an important alert from {$barangay_name}. The AI model predicts heavy rainfall. Please take necessary precautions and stay alert for further updates.";
+        : "This is an important alert from {$barangay_name}: Heavy rainfall ahead, stay safe and be prepared.";
 
     try {
         $mail->isSMTP();
