@@ -671,11 +671,7 @@ try{
             <div class="card">
               <div class="card-header border-transparent">
                 <h3 class="card-title">List of Records</h3>
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool bg-black btn-flat" id="addRecord" data-toggle="modal" data-target="#blotterRecordModal">
-                    <i class="fas fa-plus"></i> New Record
-                  </button>
-                </div>
+                
               </div>
               <!-- /.card-header -->
               <div class="card-body ">
