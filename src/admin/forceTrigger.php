@@ -129,21 +129,21 @@ try{
         switch ($trigger_type) {
             case 'red':
                 $simulated_data = [
-                    'rainfall_category' => 'red',
+                    'rainfall_category' => 'heavy',
                     'rainfall_amount_mm' => 70.0,
                     'flood_history' => $local_flood_history,
                 ];
                 break;
             case 'orange':
                 $simulated_data = [
-                    'rainfall_category' => 'orange',
+                    'rainfall_category' => 'moderate',
                     'rainfall_amount_mm' => 35.0,
                     'flood_history' => $local_flood_history,
                 ];
                 break;
             case 'yellow':
                 $simulated_data = [
-                    'rainfall_category' => 'yellow',
+                    'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 10.0,
                     'flood_history' => $local_flood_history,
                 ];
