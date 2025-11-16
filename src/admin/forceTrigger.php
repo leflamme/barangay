@@ -77,7 +77,6 @@ function sendEvacuationEmailToAll($con, $alert_type) {
 }
 // --- END HELPER FUNCTION ---
 
-
 // --- MAIN PAGE LOGIC ---
 $page_message = ""; // To show results of the trigger
 
