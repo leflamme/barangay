@@ -20,7 +20,7 @@ $barangay_name = getenv('BARANGAY_NAME');
 
 // This is the internal URL Railway gives your Flask API
 // It MUST match the service name you created for the API (e.g., 'barangay-api')
-$flask_api_url = 'http://barangay-api.railway.internal:8080/predict';
+$flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
 
 // --- 3. GET BARANGAY FLOOD HISTORY ---
 // We need this to send to the model.

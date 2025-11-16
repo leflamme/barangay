@@ -132,8 +132,6 @@ try{
                     'rainfall_category' => 'heavy',
                     'rainfall_amount_mm' => 35.0,
                     'flood_history' => $local_flood_history,
-                    'location_type' => 'urban', // Added dummy data
-                    'past_response' => 'evacuated' // Added dummy data
                 ];
                 break;
             case 'orange':
@@ -141,8 +139,6 @@ try{
                     'rainfall_category' => 'moderate',
                     'rainfall_amount_mm' => 20.0,
                     'flood_history' => $local_flood_history,
-                    'location_type' => 'urban', 
-                    'past_response' => 'warned'
                 ];
                 break;
             case 'yellow':
@@ -150,8 +146,6 @@ try{
                     'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 10.0,
                     'flood_history' => $local_flood_history,
-                    'location_type' => 'urban',
-                    'past_response' => 'monitored'
                 ];
                 break;
             case 'normal':
@@ -160,8 +154,6 @@ try{
                     'rainfall_category' => 'light',
                     'rainfall_amount_mm' => 0.0,
                     'flood_history' => $local_flood_history,
-                    'location_type' => 'urban',
-                    'past_response' => 'none'
                 ];
                 break;
         }
@@ -170,26 +162,20 @@ try{
       // ...
       $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
       
-      // --- START NEW CODE (Attempt 12) ---
-      // This is the most complex but standard format we have not tried.
-      // { "data": [ { "row1_key": "val" }, { "row2_key": "val" } ] }
-      
-      // 1. Create a "data" key, whose value is a list
-      // 2. That list contains our single $simulated_data object
-      $data_for_json = [
-          'data' => [ $simulated_data ]
-      ];
+      // --- START FIXED CODE ---
+      // We send the $simulated_data array directly, just like check_weather.php does.
+      $api_payload = json_encode($simulated_data);
 
       $ch = curl_init($flask_api_url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_POST, true);
-
-      // 3. Encode this new nested structure as JSON
-      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_for_json));
+      
+      // 3. Encode the flat object as JSON
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $api_payload);
       
       // 4. Set the required JSON header
       curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-      // --- END NEW CODE ---
+      // --- END FIXED CODE ---
       
       $response = curl_exec($ch);
       $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
