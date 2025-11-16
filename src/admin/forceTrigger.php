@@ -130,14 +130,14 @@ try{
             case 'red':
                 $simulated_data = [
                     'rainfall_category' => 'heavy',
-                    'rainfall_amount_mm' => 35.0,
+                    'rainfall_amount_mm' => 60.0,
                     'flood_history' => $local_flood_history,
                 ];
                 break;
             case 'orange':
                 $simulated_data = [
                     'rainfall_category' => 'moderate',
-                    'rainfall_amount_mm' => 20.0,
+                    'rainfall_amount_mm' => 30.0,
                     'flood_history' => $local_flood_history,
                 ];
                 break;
