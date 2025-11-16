@@ -16,16 +16,16 @@ function sendEvacuationEmailToAll($con, $alert_type) {
     
     $recipients = [];
     // Fetch emails by joining users and residence_information
-    $sql_emails = "SELECT r.email 
+    $sql_emails = "SELECT r.email_address 
                    FROM users u
                    JOIN residence_information r ON u.id = r.user_id 
                    WHERE u.user_type = 'resident' 
-                   AND r.email IS NOT NULL AND r.email != ''";
+                   AND r.email_address IS NOT NULL AND r.email_address != ''";
     
     $result = $con->query($sql_emails);
     if ($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
-            $recipients[] = $row['email']; // This line stays the same
+            $recipients[] = $row['email_address']; // <-- CHANGE THIS LINE TOO
         }
     }
 

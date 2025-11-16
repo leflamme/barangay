@@ -94,11 +94,11 @@ if ($prediction != $current_status) {
     // B. Send the email alerts
     if ($prediction == 'evacuate' || $prediction == 'warn') {
         // Fetch all resident emails by joining users and residence_information
-        $sql = "SELECT r.email, u.first_name, u.last_name 
+        $sql = "SELECT r.email_address, u.first_name, u.last_name 
                 FROM users u
                 JOIN residence_information r ON u.id = r.user_id
                 WHERE u.user_type = 'resident' 
-                AND r.email IS NOT NULL AND r.email != ''";
+                AND r.email_address IS NOT NULL AND r.email_address != ''";
 
         $stmt_users = $con->prepare($sql);
         $stmt_users->execute();
@@ -106,7 +106,7 @@ if ($prediction != $current_status) {
         
         while ($user = $result_users->fetch_assoc()) {
             $full_name = $user['first_name'] . ' ' . $user['last_name'];
-            sendAlertEmail($user['email'], $full_name, $prediction, $barangay_name, $gmail_user, $gmail_pass);
+            sendAlertEmail($user['email_address'], $full_name, $prediction, $barangay_name, $gmail_user, $gmail_pass); // <-- CHANGE THIS LINE TOO
         }
     }
 } else {
