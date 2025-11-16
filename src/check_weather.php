@@ -96,7 +96,7 @@ if ($prediction != $current_status) {
         // Fetch all resident emails by joining users and residence_information
         $sql = "SELECT r.email_address, u.first_name, u.last_name 
                 FROM users u
-                JOIN residence_information r ON u.id = r.user_id
+                JOIN residence_information r ON u.id = r.residence_id
                 WHERE u.user_type = 'resident' 
                 AND r.email_address IS NOT NULL AND r.email_address != ''";
 

@@ -18,7 +18,7 @@ function sendEvacuationEmailToAll($con, $alert_type) {
     // Fetch emails by joining users and residence_information
     $sql_emails = "SELECT r.email_address 
                    FROM users u
-                   JOIN residence_information r ON u.id = r.user_id 
+                   JOIN residence_information r ON u.id = r.residence_id 
                    WHERE u.user_type = 'resident' 
                    AND r.email_address IS NOT NULL AND r.email_address != ''";
     
