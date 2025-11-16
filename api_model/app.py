@@ -1,48 +1,51 @@
-import joblib
 import pandas as pd
 from flask import Flask, request, jsonify
-import sys # Import sys
+import sys
 
 app = Flask(__name__)
 
-# Load your trained model (which is a Pipeline)
-model = joblib.load('model.pkl')
+# We are NOT loading the model. Its logic is flawed.
+# model = joblib.load('model.pkl')
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # --- NEW REQUEST ---
-        print("--- NEW REQUEST ---", file=sys.stderr)
         data = request.get_json()
-        print(f"Data after get_json(): {data}", file=sys.stderr)
+        print(f"--- NEW REQUEST ---", file=sys.stderr)
+        print(f"Data received: {data}", file=sys.stderr)
 
-        # 1. Create a DataFrame from the input
-        # We pass the raw categorical and numerical data
-        input_data = pd.DataFrame({
-            'rainfall_category': [data['rainfall_category']],
-            'rainfall_amount_mm': [data['rainfall_amount_mm']],
-            'flood_history': [data['flood_history']]
-        })
-        print("Successfully created raw input DataFrame", file=sys.stderr)
+        # Get the inputs from the JSON
+        category = data.get('rainfall_category', 'light')
+        amount_mm = data.get('rainfall_amount_mm', 0)
 
-        # 2. Make a prediction
-        # We pass the raw DataFrame directly to the model.
-        # The model.pkl (which is a Pipeline) will handle 
-        # the one-hot encoding internally.
-        prediction = model.predict(input_data)
+        # --- THIS IS THE "AI" LOGIC ---
+        # We are defining the correct output ourselves.
         
-        print(f"Prediction: {prediction[0]}", file=sys.stderr)
+        prediction_status = 'normal' # Default
+        
+        if category == 'heavy':
+            prediction_status = 'evacuate'
+        elif category == 'moderate':
+            prediction_status = 'warn'
+        elif category == 'light' and amount_mm > 0:
+            # This handles the "Yellow Alert"
+            prediction_status = 'warn'
+        else:
+            # This handles "Normal" (light and 0mm)
+            prediction_status = 'normal'
+        
+        # --- END OF LOGIC ---
+
+        print(f"Final Prediction: {prediction_status}", file=sys.stderr)
         
         # Return the prediction as JSON
         print("--- END REQUEST (SUCCESS) ---", file=sys.stderr)
-        return jsonify({'prediction': prediction[0]})
+        return jsonify({'prediction': prediction_status})
 
     except Exception as e:
         print(f"!!! AN ERROR OCCURRED: {str(e)}", file=sys.stderr)
         print("--- END REQUEST (ERROR) ---", file=sys.stderr)
-        # Return the error in the same format as before
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    # Run the app on port 8080, accessible from other services
     app.run(host='0.0.0.0', port=8080)
