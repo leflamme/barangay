@@ -4,14 +4,12 @@ require __DIR__ . '/../vendor/autoload.php';
 include_once '../connection.php';
 
 // --- DEBUG: CHECK VARIABLES ---
-// This will help you see if Railway/Env vars are actually loading
 $vars_status = [
     'Twilio SID' => !empty(getenv('TWILIO_SID')) ? '✅ Loaded' : '❌ Missing',
     'Twilio Token' => !empty(getenv('TWILIO_TOKEN')) ? '✅ Loaded' : '❌ Missing',
     'Twilio Number' => !empty(getenv('TWILIO_PHONE_NUMBER')) ? '✅ Loaded' : '❌ Missing',
     'Resend Key' => !empty(getenv('RESEND_API_KEY')) ? '✅ Loaded' : '❌ Missing',
 ];
-// ------------------------------
 
 function broadcastEmergencyAlerts($con, $alert_type) {
     $barangay_name = getenv('BARANGAY_NAME');
@@ -20,14 +18,22 @@ function broadcastEmergencyAlerts($con, $alert_type) {
     $twilio_token = getenv('TWILIO_TOKEN');
     $twilio_number = getenv('TWILIO_PHONE_NUMBER');
 
+    // DEBUG: Print Query Info
     $sql = "SELECT r.email_address, r.contact_number, u.first_name 
             FROM users u
             JOIN residence_information r ON u.id = r.residence_id
             WHERE u.user_type = 'resident'";
             
     $result = $con->query($sql);
+    $num_rows = $result->num_rows;
     
-    if ($result->num_rows == 0) return "No residents found.";
+    // --- DEBUG OUTPUT 1: Database Check ---
+    $debug_log = "<strong>Database Check:</strong> Found {$num_rows} resident(s).<br>";
+    
+    if ($num_rows == 0) {
+        $debug_log .= "⚠️ No residents found. Check if users have 'resident' type in database.<br>";
+        return $debug_log;
+    }
 
     $count_email = 0;
     $count_sms = 0;
@@ -39,13 +45,12 @@ function broadcastEmergencyAlerts($con, $alert_type) {
 
         // --- SMS (Twilio) ---
         if (!empty($phone) && !empty($twilio_sid)) {
+            // Phone Formatting
             $clean_phone = preg_replace('/[^0-9]/', '', $phone);
             if (substr($clean_phone, 0, 1) == '0') $clean_phone = '63' . substr($clean_phone, 1);
             $final_phone = '+' . $clean_phone;
             
-            $sms_body = ($alert_type == 'evacuate') 
-                ? "🚨 URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected."
-                : "⚠️ WARNING {$barangay_name}: Heavy rain detected. Stay alert.";
+            $sms_body = "TEST ALERT {$barangay_name}: {$alert_type}.";
 
             $url = "https://api.twilio.com/2010-04-01/Accounts/{$twilio_sid}/Messages.json";
             $postData = http_build_query(['From' => $twilio_number, 'To' => $final_phone, 'Body' => $sms_body]);
@@ -59,13 +64,21 @@ function broadcastEmergencyAlerts($con, $alert_type) {
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($code == 200 || $code == 201) $count_sms++;
+            if ($code == 200 || $code == 201) {
+                $count_sms++;
+                $debug_log .= "✅ SMS sent to ...".substr($final_phone, -4)."<br>";
+            } else {
+                // --- DEBUG OUTPUT 2: Twilio Error ---
+                $resp_json = json_decode($resp, true);
+                $error_msg = $resp_json['message'] ?? $resp;
+                $debug_log .= "❌ SMS Failed ({$final_phone}): <strong>{$error_msg}</strong> (Code: {$code})<br>";
+            }
         }
 
         // --- EMAIL (Resend) ---
         if (!empty($email) && !empty($resend_api_key)) {
-            $subject = ($alert_type == 'evacuate') ? "🚨 EVACUATE NOW - {$barangay_name}" : "⚠️ WEATHER WARNING - {$barangay_name}";
-            $html = "<h1>{$subject}</h1><p>Dear {$name}, please take action immediately.</p>";
+            $subject = "TEST ALERT: {$alert_type}";
+            $html = "<p>Test Alert for {$name}</p>";
 
             $ch = curl_init('https://api.resend.com/emails');
             curl_setopt($ch, CURLOPT_POST, true);
@@ -76,11 +89,19 @@ function broadcastEmergencyAlerts($con, $alert_type) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $resend_api_key, 'Content-Type: application/json']);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $resp = curl_exec($ch);
-            if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200) $count_email++;
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
+            
+            if ($code == 200) {
+                $count_email++;
+                $debug_log .= "✅ Email sent to {$email}<br>";
+            } else {
+                // --- DEBUG OUTPUT 3: Resend Error ---
+                $debug_log .= "❌ Email Failed ({$email}): HTTP {$code}<br>";
+            }
         }
     }
-    return "Sent {$count_sms} SMS and {$count_email} Emails.";
+    return $debug_log . "<br><strong>Summary:</strong> Sent {$count_sms} SMS and {$count_email} Emails.";
 }
 
 // --- MAIN LOGIC ---
@@ -89,14 +110,11 @@ try {
     if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
         echo '<script>window.location.href = "../login.php";</script>'; exit;
     }
-    // ... (User fetching code hidden for brevity, same as before) ...
-    
-    // FETCH HISTORY (Needed for simulation)
+    // FETCH HISTORY
     $stmt_info = $con->prepare("SELECT flood_history FROM barangay_information LIMIT 1");
     $stmt_info->execute();
     $flood_history = $stmt_info->get_result()->fetch_assoc()['flood_history'] ?? 'rare';
 
-    // TRIGGER LOGIC
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger = $_POST['trigger'];
         
@@ -118,15 +136,12 @@ try {
         $result = json_decode($response, true);
         $status = $result['prediction'] ?? 'Error';
 
-        // 3. Force Database Update & Alert
         if ($status != 'Error') {
             $con->query("UPDATE current_alert_status SET status = '$status' WHERE id = 1");
-            $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.";
+            $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.<br>";
             
             if ($status == 'evacuate' || $status == 'warn') {
-                $page_message .= "<br>Sending Alerts... " . broadcastEmergencyAlerts($con, $status);
-            } else {
-                $page_message .= "<br>Status is normal. No alerts sent.";
+                $page_message .= "<hr>" . broadcastEmergencyAlerts($con, $status);
             }
         } else {
             $page_message = "Error calling AI: " . $response;
@@ -144,7 +159,7 @@ try {
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
   <div class="content-wrapper">
-    <section class="content-header"><h1>Force Weather Trigger</h1></section>
+    <section class="content-header"><h1>Force Weather Trigger (DEBUG MODE)</h1></section>
     <section class="content">
       <div class="container-fluid">
         
@@ -153,9 +168,7 @@ try {
             <div class="card-body">
                 <div class="row">
                     <?php foreach($vars_status as $key => $val): ?>
-                        <div class="col-md-3">
-                            <strong><?= $key ?>:</strong> <?= $val ?>
-                        </div>
+                        <div class="col-md-3"><strong><?= $key ?>:</strong> <?= $val ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>
