@@ -6,10 +6,10 @@ include_once '../connection.php';
 // ==========================================
 //   USER CONFIGURATION (TESTING MODE)
 // ==========================================
-// 1. Put the EXACT email you used to sign up for Resend here:
-$MY_TEST_EMAIL = 'ljbalong29@gmail.com'; // <--- CHECK IF THIS IS CORRECT
+// 1. UPDATED: Your correct Resend Signup Email:
+$MY_TEST_EMAIL = 'lawrencejohnmhinanay@tua.edu.ph'; 
 
-// 2. Put your verified Twilio phone number here:
+// 2. Your verified Twilio number (Note: SMS will still fail today due to quota)
 $MY_TEST_PHONE = '9274176508'; 
 // ==========================================
 
@@ -30,7 +30,7 @@ function broadcastEmergencyAlerts($con, $alert_type, $test_email, $test_phone) {
 
     $debug_log = "<strong>Test Mode Active:</strong> Sending only to Admin.<br>";
 
-    // --- 1. FORCE SEND SMS (To Admin Only) ---
+    // --- 1. FORCE SEND SMS (Will fail if quota exceeded) ---
     if (!empty($twilio_sid) && !empty($test_phone)) {
         // Format phone
         $final_phone = $test_phone;
@@ -65,8 +65,8 @@ function broadcastEmergencyAlerts($con, $alert_type, $test_email, $test_phone) {
 
     // --- 2. FORCE SEND EMAIL (To Admin Only) ---
     if (!empty($resend_api_key) && !empty($test_email)) {
-        $subject = ($alert_type == 'evacuate') ? "🚨 EVACUATE NOW" : "⚠️ WEATHER WARNING";
-        $html = "<h1>System Test</h1><p>This is a test alert sent to the admin email: {$test_email}</p>";
+        $subject = ($alert_type == 'evacuate') ? "🚨 EVACUATE NOW - {$barangay_name}" : "⚠️ WEATHER WARNING - {$barangay_name}";
+        $html = "<h1>System Test</h1><p>This is a test alert sent to the admin email: <strong>{$test_email}</strong></p>";
 
         $ch = curl_init('https://api.resend.com/emails');
         curl_setopt($ch, CURLOPT_POST, true);
@@ -85,7 +85,7 @@ function broadcastEmergencyAlerts($con, $alert_type, $test_email, $test_phone) {
         if ($code == 200) {
             $debug_log .= "<span style='color:green'>✅ Email sent to {$test_email}</span><br>";
         } else {
-            $debug_log .= "<span style='color:red'>❌ Email Failed ({$test_email}): HTTP {$code} (Check if this is your Resend signup email)</span><br>";
+            $debug_log .= "<span style='color:red'>❌ Email Failed ({$test_email}): HTTP {$code}</span><br>";
         }
     }
 
@@ -158,7 +158,7 @@ try {
                     <?php endforeach; ?>
                 </div>
                 <small class="text-danger mt-2 d-block">
-                    Note: Forced to send to Admin Email/Phone only to bypass Trial restrictions.
+                    Note: Twilio quota exceeded for today. SMS will fail, but EMAIL should work now.
                 </small>
             </div>
         </div>
