@@ -34,7 +34,8 @@ $owm_url = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon
 
 $weather_json = @file_get_contents($owm_url);
 if ($weather_json === FALSE) {
-    die("Error: OpenWeatherMap API unreachable.");
+    error_log("Error: OpenWeatherMap API unreachable.");
+    exit;
 }
 $weather_data = json_decode($weather_json, true);
 $rainfall_amount_mm = $weather_data['rain']['1h'] ?? 0;
