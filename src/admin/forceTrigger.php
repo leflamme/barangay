@@ -18,7 +18,6 @@ function broadcastEmergencyAlerts($con, $alert_type) {
     $twilio_number = getenv('TWILIO_PHONE_NUMBER');
 
     // 2. Fetch Residents (Email AND Phone)
-    // We join users and residence_information to get contact details
     $sql = "SELECT r.email_address, r.contact_number, u.first_name, u.last_name 
             FROM users u
             JOIN residence_information r ON u.id = r.residence_id
@@ -33,7 +32,7 @@ function broadcastEmergencyAlerts($con, $alert_type) {
     $count_email = 0;
     $count_sms = 0;
 
-    // 3. Loop through residents and send alerts
+    // 3. Loop through residents
     while($row = $result->fetch_assoc()) {
         $email = $row['email_address'];
         $phone = $row['contact_number'];
@@ -42,19 +41,24 @@ function broadcastEmergencyAlerts($con, $alert_type) {
         // --- A. SEND SMS (Twilio) ---
         if (!empty($phone) && !empty($twilio_sid)) {
             // Ensure phone is E.164 format (+63...)
-            if (substr($phone, 0, 1) == '0') {
-                $phone = '+63' . substr($phone, 1);
+            // Remove any spaces or dashes just in case
+            $clean_phone = preg_replace('/[^0-9]/', '', $phone);
+            
+            // Convert 0917... to +63917...
+            if (substr($clean_phone, 0, 1) == '0') {
+                $final_phone = '+63' . substr($clean_phone, 1);
+            } else {
+                $final_phone = '+' . $clean_phone; // Assume it might be 639... without +
             }
             
             $sms_body = ($alert_type == 'evacuate') 
                 ? "🚨 URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected. Proceed to evacuation centers."
                 : "⚠️ WARNING {$barangay_name}: Heavy rain detected. Please stay alert.";
 
-            // Send via Twilio REST API
             $url = "https://api.twilio.com/2010-04-01/Accounts/{$twilio_sid}/Messages.json";
             $postData = http_build_query([
                 'From' => $twilio_number,
-                'To' => $phone,
+                'To' => $final_phone,
                 'Body' => $sms_body
             ]);
 
@@ -80,7 +84,7 @@ function broadcastEmergencyAlerts($con, $alert_type) {
                 : "<h1>Weather Warning</h1><p>Dear {$name},<br>Heavy rainfall has been detected. Please monitor local news and be prepared to evacuate.</p>";
 
             $data = [
-                'from' => "Barangay Alert <onboarding@resend.dev>", // Change to your verified domain if you have one
+                'from' => "Barangay Alert <onboarding@resend.dev>", // Or your domain
                 'to' => [$email],
                 'subject' => $subject,
                 'html' => $html_body
@@ -104,9 +108,8 @@ function broadcastEmergencyAlerts($con, $alert_type) {
         }
     }
 
-    return "Broadcast Complete. Sent {$count_sms} SMS and {$count_email} Emails.";
+    return "Broadcast Sent: {$count_sms} SMS and {$count_email} Emails.";
 }
-// --- END HELPER FUNCTION ---
 
 // --- MAIN PAGE LOGIC ---
 $page_message = ""; 
@@ -126,15 +129,7 @@ try{
         $last_name_user = $row_user['last_name'];
         $user_image = $row_user['image'];
 
-        // Fetch Barangay Info
-        $sql_brgy = "SELECT * FROM `barangay_information`";
-        $query_brgy = $con->prepare($sql_brgy) or die ($con->error);
-        $query_brgy->execute();
-        $result_brgy = $query_brgy->get_result();
-        $row_brgy = $result_brgy->fetch_assoc();
-        $barangay = $row_brgy['barangay'];
-        
-        // --- GET FLOOD HISTORY ---
+        // Get Flood History for the simulation
         $sql_info = "SELECT flood_history FROM barangay_information LIMIT 1";
         $stmt_info = $con->prepare($sql_info);
         $stmt_info->execute();
@@ -147,48 +142,31 @@ try{
         exit;
     }
 
-    // --- FORM SUBMISSION LOGIC ---
+    // --- TRIGGER LOGIC ---
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger_type = $_POST['trigger'];
         $simulated_data = [];
         $local_flood_history = $flood_history;
 
-        // 1. Create Simulated Weather Data
+        // 1. Simulate Data
         switch ($trigger_type) {
             case 'red':
-                $simulated_data = [
-                    'rainfall_category' => 'heavy',
-                    'rainfall_amount_mm' => 70.0,
-                    'flood_history' => $local_flood_history,
-                ];
+                $simulated_data = ['rainfall_category' => 'heavy', 'rainfall_amount_mm' => 70.0, 'flood_history' => $local_flood_history];
                 break;
             case 'orange':
-                $simulated_data = [
-                    'rainfall_category' => 'moderate',
-                    'rainfall_amount_mm' => 35.0,
-                    'flood_history' => $local_flood_history,
-                ];
+                $simulated_data = ['rainfall_category' => 'moderate', 'rainfall_amount_mm' => 35.0, 'flood_history' => $local_flood_history];
                 break;
             case 'yellow':
-                $simulated_data = [
-                    'rainfall_category' => 'light',
-                    'rainfall_amount_mm' => 10.0,
-                    'flood_history' => $local_flood_history,
-                ];
+                $simulated_data = ['rainfall_category' => 'light', 'rainfall_amount_mm' => 10.0, 'flood_history' => $local_flood_history];
                 break;
             case 'normal':
             default:
-                $simulated_data = [
-                    'rainfall_category' => 'light',
-                    'rainfall_amount_mm' => 0.0,
-                    'flood_history' => $local_flood_history,
-                ];
+                $simulated_data = ['rainfall_category' => 'light', 'rainfall_amount_mm' => 0.0, 'flood_history' => $local_flood_history];
                 break;
         }
 
-        // 2. Call the AI Model (Flask API)
+        // 2. Call AI
         $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
-        
         $api_payload = json_encode($simulated_data);
 
         $ch = curl_init($flask_api_url);
@@ -205,36 +183,25 @@ try{
         $new_status = $result_data['prediction'] ?? 'Error';
 
         if ($new_status == 'Error' || $http_code != 200) {
-            $page_message = "Error calling AI API. HTTP Status: {$http_code}. Response: " . $response;
+            $page_message = "Error calling AI. Response: " . $response;
         } else {
-            // 3. Check current status from DB
-            $sql_check = "SELECT status FROM current_alert_status WHERE id = 1";
-            $result_check = $con->query($sql_check);
-            $row_check = $result_check->fetch_assoc();
-            $current_status = $row_check['status'];
+            // 3. ALWAYS UPDATE DB & SEND ALERTS (Forced Trigger)
+            
+            // Update Database to match the forced state
+            $sql_update = "UPDATE current_alert_status SET status = ? WHERE id = 1";
+            $stmt_update = $con->prepare($sql_update);
+            $stmt_update->bind_param('s', $new_status);
+            $stmt_update->execute();
 
-            $page_message = "Triggered '{$trigger_type}'. AI Prediction: <strong>{$new_status}</strong>. ";
+            $page_message = "Forced Trigger: <strong>{$trigger_type}</strong>. AI Prediction: <strong>{$new_status}</strong>.";
 
-            // 4. Update Database
-            // For Force Trigger, we usually want to update even if status is same, 
-            // but for safety, let's follow standard logic:
-            if ($new_status != $current_status || $trigger_type == 'red' || $trigger_type == 'orange') {
-                
-                $sql_update = "UPDATE current_alert_status SET status = ? WHERE id = 1";
-                $stmt_update = $con->prepare($sql_update);
-                $stmt_update->bind_param('s', $new_status);
-                $stmt_update->execute();
-
-                // 5. BROADCAST ALERTS (Email + SMS)
-                if ($new_status == 'evacuate' || $new_status == 'warn') {
-                    $page_message .= " Sending alerts... <br>";
-                    $broadcast_result = broadcastEmergencyAlerts($con, $new_status);
-                    $page_message .= $broadcast_result;
-                } else {
-                    $page_message .= " Status is normal/yellow. No alerts sent.";
-                }
+            // 4. Force Send Alerts (No comparison with previous status)
+            if ($new_status == 'evacuate' || $new_status == 'warn') {
+                $page_message .= " Sending alerts now... <br>";
+                $broadcast_result = broadcastEmergencyAlerts($con, $new_status);
+                $page_message .= $broadcast_result;
             } else {
-                $page_message .= "Status unchanged. No action taken.";
+                $page_message .= " Status is {$new_status}. No alerts sent.";
             }
         }
     }
@@ -374,30 +341,30 @@ try{
 
         <div class="card card-primary">
             <div class="card-header">
-                <h3 class="card-title">Select Simulated Weather Condition</h3>
+                <h3 class="card-title">Test & Force Alerts</h3>
             </div>
             <div class="card-body">
-                <p>Click a button to force the system to simulate a weather condition. This will call the AI model and trigger any necessary alerts (Email & SMS).</p>
+                <p><strong>Note:</strong> Buttons below will FORCE an SMS and Email broadcast to all residents, regardless of the current weather status.</p>
                 <form method="POST">
                     <div class="row">
                         <div class="col-md-3">
                             <button type="submit" name="trigger" value="normal" class="btn btn-lg btn-block btn-success">
-                                <i class="fas fa-sun"></i> Normal
+                                <i class="fas fa-sun"></i> Force Normal
                             </button>
                         </div>
                         <div class="col-md-3">
                             <button type="submit" name="trigger" value="yellow" class="btn btn-lg btn-block btn-warning">
-                                <i class="fas fa-cloud-sun-rain"></i> Yellow Alert
+                                <i class="fas fa-cloud-sun-rain"></i> Force Yellow
                             </button>
                         </div>
                         <div class="col-md-3">
                             <button type="submit" name="trigger" value="orange" class="btn btn-lg btn-block" style="background-color: #fd7e14; color: white;">
-                                <i class="fas fa-cloud-showers-heavy"></i> Orange Alert
+                                <i class="fas fa-cloud-showers-heavy"></i> Force Orange (Warn)
                             </button>
                         </div>
                         <div class="col-md-3">
                             <button type="submit" name="trigger" value="red" class="btn btn-lg btn-block btn-danger">
-                                <i class="fas fa-poo-storm"></i> Red Alert (Evacuate)
+                                <i class="fas fa-poo-storm"></i> Force Red (Evacuate)
                             </button>
                         </div>
                     </div>
