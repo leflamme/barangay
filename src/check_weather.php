@@ -1,60 +1,52 @@
 <?php
-// Set a long execution time, as this is a background script
-ini_set('max_execution_time', 240); // 4 minutes
+// check_weather.php
 
-// 1. LOAD ALL DEPENDENCIES
-// Use Composer's autoloader (assumes vendor is in the root: /barangay/vendor)
-require __DIR__ . '/../vendor/autoload.php';
-// Load your database connection
-require 'connection.php';
+// Set execution time (4 mins)
+ini_set('max_execution_time', 240);
 
-// Import PHPMailer classes
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+// Load Database Connection
+require 'connection.php'; // Ensure this path is correct relative to this file
 
-// 2. CONFIGURATION (All from Railway Environment Variables)
+// --- CONFIGURATION FROM ENV ---
 $owm_api_key = getenv('OWM_API_KEY');
-$gmail_user = getenv('GMAIL_USER');
-$gmail_pass = getenv('GMAIL_PASS');
 $barangay_name = getenv('BARANGAY_NAME');
-
-// This is the internal URL Railway gives your Flask API
-// It MUST match the service name you created for the API (e.g., 'barangay-api')
 $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
 
-// --- 3. GET BARANGAY FLOOD HISTORY ---
-// We need this to send to the model.
+// Notification Keys
+$resend_api_key = getenv('RESEND_API_KEY');
+$twilio_sid = getenv('TWILIO_SID');
+$twilio_token = getenv('TWILIO_TOKEN');
+$twilio_number = getenv('TWILIO_PHONE_NUMBER');
+
+// 1. GET BARANGAY HISTORY
 $stmt_history = $con->prepare("SELECT flood_history FROM barangay_information LIMIT 1");
 $stmt_history->execute();
 $result_history = $stmt_history->get_result();
 $barangay_info = $result_history->fetch_assoc();
-// Default to 'rare' if the database has no value
-$flood_history = $barangay_info['flood_history'] ?? 'rare'; 
+$flood_history = $barangay_info['flood_history'] ?? 'rare';
 
-// --- 4. GET CURRENT WEATHER FROM OPENWEATHERMAP ---
-// This is for Kalusugan, Quezon City. Update lat/lon if needed.
-$lat = '14.6191';
+// 2. GET WEATHER (OpenWeatherMap)
+$lat = '14.6191'; // Kalusugan, QC
 $lon = '121.0189';
 $owm_url = "https://api.openweathermap.org/data/2.5/weather?lat={$lat}&lon={$lon}&appid={$owm_api_key}&units=metric";
 
 $weather_json = @file_get_contents($owm_url);
 if ($weather_json === FALSE) {
-    die("Error: Could not fetch from OpenWeatherMap API. Check API key or network.");
+    die("Error: OpenWeatherMap API unreachable.");
 }
 $weather_data = json_decode($weather_json, true);
-
-// Get rainfall in mm. OWM provides it for '1h' (last hour).
 $rainfall_amount_mm = $weather_data['rain']['1h'] ?? 0;
 
-// --- 5. PRE-PROCESS DATA FOR YOUR AI MODEL ---
-$rainfall_category = 'light'; // Default
+// 3. PREPARE DATA FOR AI
+// We still categorize roughly for the AI mapping
+$rainfall_category = 'light';
 if ($rainfall_amount_mm > 50) {
     $rainfall_category = 'heavy';
-} elseif ($rainfall_amount_mm > 10) {
+} elseif ($rainfall_amount_mm > 7.5) {
     $rainfall_category = 'moderate';
 }
 
-// --- 6. CALL YOUR FLASK API TO GET PREDICTION ---
+// 4. CALL PYTHON AI (Revised Logic)
 $api_payload = json_encode([
     'rainfall_category' => $rainfall_category,
     'rainfall_amount_mm' => (float)$rainfall_amount_mm,
@@ -67,82 +59,109 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $api_payload);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 $api_response_json = curl_exec($ch);
-
-if (curl_errno($ch)) {
-    die("Error: cURL failed to connect to Flask API: " . curl_error($ch));
-}
 curl_close($ch);
 
 $api_response = json_decode($api_response_json, true);
-$prediction = $api_response['prediction'] ?? 'normal'; // e.g., "evacuate", "warn", "normal"
+$prediction = $api_response['prediction'] ?? 'normal';
 
-// --- 7. CHECK IF STATUS HAS CHANGED & SEND ALERTS ---
+// 5. CHECK STATUS & SEND ALERTS
 $stmt_status = $con->prepare("SELECT status FROM current_alert_status WHERE id = 1");
 $stmt_status->execute();
-$result_status = $stmt_status->get_result();
-$current_status_row = $result_status->fetch_assoc();
-$current_status = $current_status_row['status'];
+$current_status = $stmt_status->get_result()->fetch_assoc()['status'];
 
 if ($prediction != $current_status) {
-    echo "Status changed! From '{$current_status}' to '{$prediction}'. Sending alerts.";
+    echo "Status Update: {$current_status} -> {$prediction}. Sending Notifications...\n";
 
-    // A. Update the status in the database
+    // Update DB
     $stmt_update = $con->prepare("UPDATE current_alert_status SET status = ? WHERE id = 1");
     $stmt_update->bind_param('s', $prediction);
     $stmt_update->execute();
 
-    // B. Send the email alerts
+    // Only notify on DANGER (Evacuate) or WARNING
     if ($prediction == 'evacuate' || $prediction == 'warn') {
-        // Fetch all resident emails by joining users and residence_information
-        $sql = "SELECT r.email_address, u.first_name, u.last_name 
+        
+        // Fetch Residents
+        $sql = "SELECT r.email_address, r.contact_number, u.first_name 
                 FROM users u
                 JOIN residence_information r ON u.id = r.residence_id
-                WHERE u.user_type = 'resident' 
-                AND r.email_address IS NOT NULL AND r.email_address != ''";
+                WHERE u.user_type = 'resident'";
+        $result_users = $con->query($sql);
 
-        $stmt_users = $con->prepare($sql);
-        $stmt_users->execute();
-        $result_users = $stmt_users->get_result();
-        
         while ($user = $result_users->fetch_assoc()) {
-            $full_name = $user['first_name'] . ' ' . $user['last_name'];
-            sendAlertEmail($user['email_address'], $full_name, $prediction, $barangay_name, $gmail_user, $gmail_pass); // <-- CHANGE THIS LINE TOO
+            $email = $user['email_address'];
+            $phone = $user['contact_number']; // Ensure format is +639...
+            $name = $user['first_name'];
+
+            // --- A. SEND EMAIL (RESEND API) ---
+            if (!empty($email) && !empty($resend_api_key)) {
+                sendResendEmail($email, $name, $prediction, $barangay_name, $resend_api_key);
+            }
+
+            // --- B. SEND SMS (TWILIO API) ---
+            if (!empty($phone) && !empty($twilio_sid)) {
+                sendTwilioSMS($phone, $prediction, $barangay_name, $twilio_sid, $twilio_token, $twilio_number);
+            }
         }
     }
 } else {
-    echo "Status '{$current_status}' is unchanged. No alert sent.";
+    echo "Status unchanged ({$current_status}). No alerts sent.";
 }
 
-// --- 8. PHPMailer Function (re-used from your structure) ---
-function sendAlertEmail($to_email, $to_name, $status, $barangay_name, $gmail_user, $gmail_pass) {
-    $mail = new PHPMailer(true);
+// ==========================================
+//  HELPER FUNCTIONS
+// ==========================================
+
+function sendResendEmail($to, $name, $status, $brgy, $apiKey) {
+    $subject = ($status == 'evacuate') ? "🚨 URGENT: EVACUATE NOW - {$brgy}" : "⚠️ WEATHER WARNING - {$brgy}";
     
-    $subject = ($status == 'evacuate') ? "URGENT: EVACUATION NOTICE" : "WEATHER ALERT: Heavy Rainfall Warning";
-    $body = ($status == 'evacuate')
-        ? "This is an URGENT notice from {$barangay_name}. Due to severe weather conditions, the AI model has triggered an EVACUATION order. Please proceed to the nearest evacuation center."
-        : "This is an important alert from {$barangay_name}: Heavy rainfall ahead, stay safe and be prepared.";
+    $html = ($status == 'evacuate') 
+        ? "<h1>URGENT EVACUATION ORDER</h1><p>Dear {$name},<br>The AI Flood System has detected critical rainfall levels. <strong>Please EVACUATE immediately</strong> to the nearest center.</p>"
+        : "<h1>Weather Warning</h1><p>Dear {$name},<br>Heavy rainfall detected. Please stay alert and prepare for possible evacuation.</p>";
 
-    try {
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = $gmail_user;
-        $mail->Password   = $gmail_pass;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = 465;
+    $data = [
+        'from' => "Barangay Alert <onboarding@resend.dev>", // Or your verified domain
+        'to' => [$to],
+        'subject' => $subject,
+        'html' => $html
+    ];
 
-        $mail->setFrom($gmail_user, $barangay_name . ' Alert System');
-        $mail->addAddress($to_email, $to_name);
+    $ch = curl_init('https://api.resend.com/emails');
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $apiKey,
+        'Content-Type: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    // echo "Resend Response: " . $response . "\n";
+}
 
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = $body;
-        
-        $mail->send();
-        echo "Alert sent to {$to_email}\n";
-    } catch (Exception $e) {
-        // Log the error
-        error_log("PHPMailer Error: " . $mail->ErrorInfo);
+function sendTwilioSMS($to, $status, $brgy, $sid, $token, $fromNumber) {
+    // Format number: Ensure it starts with +63 if it starts with 0
+    if (substr($to, 0, 1) == '0') {
+        $to = '+63' . substr($to, 1);
     }
+
+    $body = ($status == 'evacuate') 
+        ? "🚨 URGENT {$brgy}: EVACUATE NOW. Severe flooding expected. Proceed to evacuation centers immediately."
+        : "⚠️ WARNING {$brgy}: Heavy rain detected. Please stay alert and monitor updates.";
+
+    $url = "https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json";
+    $postData = http_build_query([
+        'From' => $fromNumber,
+        'To' => $to,
+        'Body' => $body
+    ]);
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_USERPWD, "{$sid}:{$token}"); // Basic Auth
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    // echo "Twilio Response: " . $response . "\n";
 }
 ?>

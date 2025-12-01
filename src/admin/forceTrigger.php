@@ -4,86 +4,112 @@ session_start();
 require __DIR__ . '/../vendor/autoload.php';
 include_once '../connection.php';
 
-// Import PHPMailer Classes
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 /**
- * Sends a mass evacuation email to all residents.
- * Uses BCC for privacy and efficiency.
+ * BROADCAST FUNCTION
+ * Iterates through all residents and sends SMS (Twilio) and Email (Resend).
  */
-function sendEvacuationEmailToAll($con, $alert_type) {
+function broadcastEmergencyAlerts($con, $alert_type) {
     
-    $recipients = [];
-    // Fetch emails by joining users and residence_information
-    $sql_emails = "SELECT r.email_address 
-                   FROM users u
-                   JOIN residence_information r ON u.id = r.residence_id 
-                   WHERE u.user_type = 'resident' 
-                   AND r.email_address IS NOT NULL AND r.email_address != ''";
-    
-    $result = $con->query($sql_emails);
-    if ($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            $recipients[] = $row['email_address']; // <-- CHANGE THIS LINE TOO
-        }
-    }
-
-    if (empty($recipients)) {
-        return "No residents with email addresses found.";
-    }
-
-    $mail = new PHPMailer(true);
-    $gmail_username = getenv('GMAIL_USER');
-    $gmail_password = getenv('GMAIL_PASS');
+    // 1. Setup Environment Variables
     $barangay_name = getenv('BARANGAY_NAME');
+    $resend_api_key = getenv('RESEND_API_KEY');
+    $twilio_sid = getenv('TWILIO_SID');
+    $twilio_token = getenv('TWILIO_TOKEN');
+    $twilio_number = getenv('TWILIO_PHONE_NUMBER');
 
-    try {     
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = $gmail_username;
-        $mail->Password   = $gmail_password;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
-        $mail->Port       = 465;
-
-        // Sender
-        $mail->setFrom($gmail_username, $barangay_name . ' ALERT SYSTEM');
-
-        // Add all recipients as BCC
-        foreach ($recipients as $email) {
-            $mail->addBCC($email);
-        }
-
-        // --- Email Content ---
-        $mail->isHTML(true);
-        if ($alert_type == 'evacuate') { // Check for lowercase
-            $mail->Subject = "🚨 URGENT: EVACUATION NOTICE for {$barangay_name}";
-            $body = "<h2>Mabuhay, {$barangay_name} Residents!</h2>";
-            $body .= "<p>This is an **URGENT EVACUATION ALERT**.</p>";
-            $body .= "<p>The weather system has reached a critical level, and our system predicts a high probability of severe flooding. For your safety, all residents in flood-prone areas are advised to **EVACUATE IMMEDIATELY**.</p>";
-            $body .= "<p>Please proceed to your designated evacuation center. Follow all instructions from barangay officials.</p>";
-        } else { // 'warn'
-            $mail->Subject = "⚠️ WEATHER ALERT: Heavy Rainfall Warning";
-            $body = "<h2>Mabuhay, {$barangay_name} Residents!</h2>";
-            $body .= "<p>This is a **WEATHER ALERT**.</p>";
-            $body .= "<p>Heavy rainfall ahead, stay safe and be prepared.</p>";
-        }
-        $body .= "<p>Stay safe!</p>";
-        $mail->Body = $body;
-
-        $mail->send();
-        return "Successfully sent evacuation emails to " . count($recipients) . " residents.";
-
-    } catch (Exception $e) {
-      error_log("Barangay Mailer Error: " . $mail->ErrorInfo);
-      return "Failed to send emails. Error: " . $mail->ErrorInfo;
+    // 2. Fetch Residents (Email AND Phone)
+    // We join users and residence_information to get contact details
+    $sql = "SELECT r.email_address, r.contact_number, u.first_name, u.last_name 
+            FROM users u
+            JOIN residence_information r ON u.id = r.residence_id
+            WHERE u.user_type = 'resident'";
+            
+    $result = $con->query($sql);
+    
+    if ($result->num_rows == 0) {
+        return "No residents found in database.";
     }
+
+    $count_email = 0;
+    $count_sms = 0;
+
+    // 3. Loop through residents and send alerts
+    while($row = $result->fetch_assoc()) {
+        $email = $row['email_address'];
+        $phone = $row['contact_number'];
+        $name = $row['first_name'];
+
+        // --- A. SEND SMS (Twilio) ---
+        if (!empty($phone) && !empty($twilio_sid)) {
+            // Ensure phone is E.164 format (+63...)
+            if (substr($phone, 0, 1) == '0') {
+                $phone = '+63' . substr($phone, 1);
+            }
+            
+            $sms_body = ($alert_type == 'evacuate') 
+                ? "🚨 URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected. Proceed to evacuation centers."
+                : "⚠️ WARNING {$barangay_name}: Heavy rain detected. Please stay alert.";
+
+            // Send via Twilio REST API
+            $url = "https://api.twilio.com/2010-04-01/Accounts/{$twilio_sid}/Messages.json";
+            $postData = http_build_query([
+                'From' => $twilio_number,
+                'To' => $phone,
+                'Body' => $sms_body
+            ]);
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($ch, CURLOPT_USERPWD, "{$twilio_sid}:{$twilio_token}");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($http_code == 201 || $http_code == 200) {
+                $count_sms++;
+            }
+        }
+
+        // --- B. SEND EMAIL (Resend API) ---
+        if (!empty($email) && !empty($resend_api_key)) {
+            $subject = ($alert_type == 'evacuate') ? "🚨 URGENT: EVACUATE NOW - {$barangay_name}" : "⚠️ WEATHER WARNING - {$barangay_name}";
+            $html_body = ($alert_type == 'evacuate') 
+                ? "<h1>URGENT EVACUATION ORDER</h1><p>Dear {$name},<br>The AI Flood System has triggered a <strong>RED ALERT</strong>. Please <strong>EVACUATE IMMEDIATELY</strong> to the nearest designated center.</p>"
+                : "<h1>Weather Warning</h1><p>Dear {$name},<br>Heavy rainfall has been detected. Please monitor local news and be prepared to evacuate.</p>";
+
+            $data = [
+                'from' => "Barangay Alert <onboarding@resend.dev>", // Change to your verified domain if you have one
+                'to' => [$email],
+                'subject' => $subject,
+                'html' => $html_body
+            ];
+
+            $ch = curl_init('https://api.resend.com/emails');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $resend_api_key,
+                'Content-Type: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($http_code == 200) {
+                $count_email++;
+            }
+        }
+    }
+
+    return "Broadcast Complete. Sent {$count_sms} SMS and {$count_email} Emails.";
 }
 // --- END HELPER FUNCTION ---
 
 // --- MAIN PAGE LOGIC ---
-$page_message = ""; // To show results of the trigger
+$page_message = ""; 
 
 try{
     if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'){
@@ -107,16 +133,14 @@ try{
         $result_brgy = $query_brgy->get_result();
         $row_brgy = $result_brgy->fetch_assoc();
         $barangay = $row_brgy['barangay'];
-        $zone = $row_brgy['zone'];
-        $district = $row_brgy['district'];
-
+        
         // --- GET FLOOD HISTORY ---
         $sql_info = "SELECT flood_history FROM barangay_information LIMIT 1";
         $stmt_info = $con->prepare($sql_info);
         $stmt_info->execute();
         $result_info = $stmt_info->get_result();
         $barangay_info = $result_info->fetch_assoc();
-        $flood_history = $barangay_info['flood_history'] ?? 'rare'; // Default to 'rare'
+        $flood_history = $barangay_info['flood_history'] ?? 'rare'; 
 
     }else{
         echo '<script>window.location.href = "../login.php";</script>';
@@ -127,10 +151,9 @@ try{
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger_type = $_POST['trigger'];
         $simulated_data = [];
-        $local_flood_history = $flood_history; // Get history from query above
+        $local_flood_history = $flood_history;
 
-        // 1. Create Simulated Weather Data based on button pressed
-        //    **THIS BLOCK SENDS THE 5 CORRECT FEATURES**
+        // 1. Create Simulated Weather Data
         switch ($trigger_type) {
             case 'red':
                 $simulated_data = [
@@ -164,27 +187,19 @@ try{
         }
 
         // 2. Call the AI Model (Flask API)
-      // ...
-      $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
-      
-      // --- START FIXED CODE ---
-      // We send the $simulated_data array directly, just like check_weather.php does.
-      $api_payload = json_encode($simulated_data);
+        $flask_api_url = 'http://barangay_api.railway.internal:8080/predict';
+        
+        $api_payload = json_encode($simulated_data);
 
-      $ch = curl_init($flask_api_url);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_POST, true);
-      
-      // 3. Encode the flat object as JSON
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $api_payload);
-      
-      // 4. Set the required JSON header
-      curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-      // --- END FIXED CODE ---
-      
-      $response = curl_exec($ch);
-      $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      curl_close($ch);
+        $ch = curl_init($flask_api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $api_payload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
         
         $result_data = json_decode($response, true);
         $new_status = $result_data['prediction'] ?? 'Error';
@@ -200,22 +215,26 @@ try{
 
             $page_message = "Triggered '{$trigger_type}'. AI Prediction: <strong>{$new_status}</strong>. ";
 
-            // 4. Compare and Update if status changed
-            if ($new_status != $current_status) {
-                $page_message .= "Status changed from '{$current_status}'. Updating database. ";
+            // 4. Update Database
+            // For Force Trigger, we usually want to update even if status is same, 
+            // but for safety, let's follow standard logic:
+            if ($new_status != $current_status || $trigger_type == 'red' || $trigger_type == 'orange') {
                 
                 $sql_update = "UPDATE current_alert_status SET status = ? WHERE id = 1";
                 $stmt_update = $con->prepare($sql_update);
                 $stmt_update->bind_param('s', $new_status);
                 $stmt_update->execute();
 
-                // 5. Send Email Blast if needed (e.g., 'evacuate' or 'warn')
+                // 5. BROADCAST ALERTS (Email + SMS)
                 if ($new_status == 'evacuate' || $new_status == 'warn') {
-                    $email_result = sendEvacuationEmailToAll($con, $new_status);
-                    $page_message .= $email_result;
+                    $page_message .= " Sending alerts... <br>";
+                    $broadcast_result = broadcastEmergencyAlerts($con, $new_status);
+                    $page_message .= $broadcast_result;
+                } else {
+                    $page_message .= " Status is normal/yellow. No alerts sent.";
                 }
             } else {
-                $page_message .= "Status '{$new_status}' is unchanged. No action taken.";
+                $page_message .= "Status unchanged. No action taken.";
             }
         }
     }
@@ -239,43 +258,17 @@ try{
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #ffffff;
-    }
-    .wrapper, .content-wrapper, .main-footer, .content, .content-header {
-      background-color: #ffffff !important;
-      color: #050C9C;
-    }
-    .main-header.navbar {
-      background-color: #050C9C !important;
-    }
-    .navbar .nav-link, .navbar .nav-link:hover {
-      color: #ffffff !important;
-    }
-    .main-sidebar {
-      background-color: #050C9C !important;
-    }
-    .brand-link {
-      background-color: transparent !important;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .sidebar .nav-link {
-      color: #A7E6FF !important;
-    }
-    .sidebar .nav-link.active, .sidebar .nav-link:hover {
-      background-color: #3572EF !important;
-      color: #ffffff !important;
-    }
-    .sidebar .nav-icon {
-      color: #3ABEF9 !important;
-    }
-    .card {
-        border-radius: 12px;
-    }
-    .card-primary .card-header {
-        background-color: #050C9C;
-    }
+    body { font-family: 'Poppins', sans-serif; background-color: #ffffff; }
+    .wrapper, .content-wrapper, .main-footer, .content, .content-header { background-color: #ffffff !important; color: #050C9C; }
+    .main-header.navbar { background-color: #050C9C !important; }
+    .navbar .nav-link, .navbar .nav-link:hover { color: #ffffff !important; }
+    .main-sidebar { background-color: #050C9C !important; }
+    .brand-link { background-color: transparent !important; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar .nav-link { color: #A7E6FF !important; }
+    .sidebar .nav-link.active, .sidebar .nav-link:hover { background-color: #3572EF !important; color: #ffffff !important; }
+    .sidebar .nav-icon { color: #3ABEF9 !important; }
+    .card { border-radius: 12px; }
+    .card-primary .card-header { background-color: #050C9C; }
   </style>
 </head>
 
@@ -320,6 +313,7 @@ try{
       </li>
     </ul>
   </nav>
+
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
@@ -383,7 +377,7 @@ try{
                 <h3 class="card-title">Select Simulated Weather Condition</h3>
             </div>
             <div class="card-body">
-                <p>Click a button to force the system to simulate a weather condition. This will call the AI model and trigger any necessary alerts, including evacuation emails, just as the real cron job would.</p>
+                <p>Click a button to force the system to simulate a weather condition. This will call the AI model and trigger any necessary alerts (Email & SMS).</p>
                 <form method="POST">
                     <div class="row">
                         <div class="col-md-3">
