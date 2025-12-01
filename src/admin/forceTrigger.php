@@ -3,6 +3,16 @@ session_start();
 require __DIR__ . '/../vendor/autoload.php';
 include_once '../connection.php';
 
+// ==========================================
+//   USER CONFIGURATION (TESTING MODE)
+// ==========================================
+// 1. Put the EXACT email you used to sign up for Resend here:
+$MY_TEST_EMAIL = 'ljbalong29@gmail.com'; // <--- CHECK IF THIS IS CORRECT
+
+// 2. Put your verified Twilio phone number here:
+$MY_TEST_PHONE = '9274176508'; 
+// ==========================================
+
 // --- DEBUG: CHECK VARIABLES ---
 $vars_status = [
     'Twilio SID' => !empty(getenv('TWILIO_SID')) ? '✅ Loaded' : '❌ Missing',
@@ -11,117 +21,75 @@ $vars_status = [
     'Resend Key' => !empty(getenv('RESEND_API_KEY')) ? '✅ Loaded' : '❌ Missing',
 ];
 
-function broadcastEmergencyAlerts($con, $alert_type) {
+function broadcastEmergencyAlerts($con, $alert_type, $test_email, $test_phone) {
     $barangay_name = getenv('BARANGAY_NAME');
     $resend_api_key = getenv('RESEND_API_KEY');
     $twilio_sid = getenv('TWILIO_SID');
     $twilio_token = getenv('TWILIO_TOKEN');
     $twilio_number = getenv('TWILIO_PHONE_NUMBER');
 
-    // YOUR VERIFIED TESTING NUMBER
-    $MY_VERIFIED_NUMBER = '9274176508'; 
+    $debug_log = "<strong>Test Mode Active:</strong> Sending only to Admin.<br>";
 
-    $sql = "SELECT r.email_address, r.contact_number, u.first_name 
-            FROM users u
-            JOIN residence_information r ON u.id = r.residence_id
-            WHERE u.user_type = 'resident'";
-            
-    $result = $con->query($sql);
-    $num_rows = $result->num_rows;
-    $debug_log = "<strong>Database Check:</strong> Found {$num_rows} resident(s).<br>";
-    
-    if ($num_rows == 0) return $debug_log . "⚠️ No residents found.";
+    // --- 1. FORCE SEND SMS (To Admin Only) ---
+    if (!empty($twilio_sid) && !empty($test_phone)) {
+        // Format phone
+        $final_phone = $test_phone;
+        if (substr($test_phone, 0, 1) == '0') $final_phone = '+63' . substr($test_phone, 1);
+        elseif (substr($test_phone, 0, 1) == '9') $final_phone = '+63' . $test_phone;
+        elseif (substr($test_phone, 0, 2) == '63') $final_phone = '+' . $test_phone;
 
-    $sms_sent_flag = false;   // Tracker to ensure we only send ONCE
-    $email_sent_flag = false; // Tracker to ensure we only send ONCE
+        $sms_body = ($alert_type == 'evacuate') 
+            ? "🚨 URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected."
+            : "⚠️ WARNING {$barangay_name}: Heavy rain detected. Stay alert.";
 
-    while($row = $result->fetch_assoc()) {
-        
-        // Stop the loop if we have already sent both alerts (Save Quota!)
-        if ($sms_sent_flag && $email_sent_flag) {
-            $debug_log .= "<br><em>Loop stopped early to save API quota (Test Mode).</em>";
-            break;
-        }
+        $url = "https://api.twilio.com/2010-04-01/Accounts/{$twilio_sid}/Messages.json";
+        $postData = http_build_query(['From' => $twilio_number, 'To' => $final_phone, 'Body' => $sms_body]);
 
-        $email = $row['email_address'];
-        $phone = $row['contact_number'];
-        $name = $row['first_name'];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_USERPWD, "{$twilio_sid}:{$twilio_token}");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        // --- PHONE NUMBER CLEANING ---
-        $clean_phone = preg_replace('/[^0-9]/', '', $phone);
-        if (substr($clean_phone, 0, 1) == '0') $final_phone = '+63' . substr($clean_phone, 1);
-        elseif (substr($clean_phone, 0, 1) == '9') $final_phone = '+63' . $clean_phone;
-        elseif (substr($clean_phone, 0, 2) == '63') $final_phone = '+' . $clean_phone;
-        else $final_phone = $phone;
-
-        // --- 1. SEND SMS (Only if verified number & not sent yet) ---
-        if (!$sms_sent_flag && strpos($final_phone, $MY_VERIFIED_NUMBER) !== false) {
-            
-            if (!empty($twilio_sid)) {
-                $sms_body = ($alert_type == 'evacuate') 
-                    ? "🚨 URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected."
-                    : "⚠️ WARNING {$barangay_name}: Heavy rain detected. Stay alert.";
-
-                $url = "https://api.twilio.com/2010-04-01/Accounts/{$twilio_sid}/Messages.json";
-                $postData = http_build_query(['From' => $twilio_number, 'To' => $final_phone, 'Body' => $sms_body]);
-
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-                curl_setopt($ch, CURLOPT_USERPWD, "{$twilio_sid}:{$twilio_token}");
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $resp = curl_exec($ch);
-                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-
-                if ($code == 200 || $code == 201) {
-                    $sms_sent_flag = true;
-                    $debug_log .= "<span style='color:green'>✅ SMS sent to {$final_phone}</span><br>";
-                } else {
-                    $resp_json = json_decode($resp, true);
-                    $error_msg = $resp_json['message'] ?? $resp;
-                    $debug_log .= "<span style='color:red'>❌ SMS Failed ({$final_phone}): {$error_msg}</span><br>";
-                }
-            }
-        }
-
-        // --- 2. SEND EMAIL (Only if not sent yet) ---
-        // We will try to send email to ANY valid email found in your verified row
-        // (assuming the row with your phone number also has your email)
-        if (!$email_sent_flag && !empty($email) && !empty($resend_api_key)) {
-            
-            // Only send email if this row matches your verified phone OR if you want to test any email
-            // For safety, let's stick to the row that matches your phone number for now.
-            if (strpos($final_phone, $MY_VERIFIED_NUMBER) !== false) {
-                
-                $subject = ($alert_type == 'evacuate') ? "🚨 EVACUATE NOW" : "⚠️ WEATHER WARNING";
-                $html = "<p>Test Alert for {$name}</p>";
-
-                $ch = curl_init('https://api.resend.com/emails');
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                    'from' => "Barangay Alert <onboarding@resend.dev>",
-                    'to' => [$email], 'subject' => $subject, 'html' => $html
-                ]));
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $resend_api_key, 'Content-Type: application/json']);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $resp = curl_exec($ch);
-                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                
-                if ($code == 200) {
-                    $email_sent_flag = true;
-                    $debug_log .= "<span style='color:green'>✅ Email sent to {$email}</span><br>";
-                } else {
-                     $debug_log .= "<span style='color:red'>❌ Email Failed ({$email}): HTTP {$code}</span><br>";
-                }
-            }
+        if ($code == 200 || $code == 201) {
+            $debug_log .= "<span style='color:green'>✅ SMS sent to {$final_phone}</span><br>";
+        } else {
+            $resp_json = json_decode($resp, true);
+            $error_msg = $resp_json['message'] ?? $resp;
+            $debug_log .= "<span style='color:red'>❌ SMS Failed: {$error_msg}</span><br>";
         }
     }
-    
-    $sms_count = $sms_sent_flag ? 1 : 0;
-    $email_count = $email_sent_flag ? 1 : 0;
-    return $debug_log . "<br><strong>Summary:</strong> Sent {$sms_count} SMS and {$email_count} Email.";
+
+    // --- 2. FORCE SEND EMAIL (To Admin Only) ---
+    if (!empty($resend_api_key) && !empty($test_email)) {
+        $subject = ($alert_type == 'evacuate') ? "🚨 EVACUATE NOW" : "⚠️ WEATHER WARNING";
+        $html = "<h1>System Test</h1><p>This is a test alert sent to the admin email: {$test_email}</p>";
+
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'from' => "Barangay Alert <onboarding@resend.dev>",
+            'to' => [$test_email], 
+            'subject' => $subject, 
+            'html' => $html
+        ]));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $resend_api_key, 'Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($code == 200) {
+            $debug_log .= "<span style='color:green'>✅ Email sent to {$test_email}</span><br>";
+        } else {
+            $debug_log .= "<span style='color:red'>❌ Email Failed ({$test_email}): HTTP {$code} (Check if this is your Resend signup email)</span><br>";
+        }
+    }
+
+    return $debug_log;
 }
 
 // --- MAIN LOGIC ---
@@ -159,7 +127,7 @@ try {
             $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.<br>";
             
             if ($status == 'evacuate' || $status == 'warn') {
-                $page_message .= "<hr>" . broadcastEmergencyAlerts($con, $status);
+                $page_message .= "<hr>" . broadcastEmergencyAlerts($con, $status, $MY_TEST_EMAIL, $MY_TEST_PHONE);
             }
         } else {
             $page_message = "Error calling AI: " . $response;
@@ -177,7 +145,7 @@ try {
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
   <div class="content-wrapper">
-    <section class="content-header"><h1>Force Weather Trigger (SMART TEST MODE)</h1></section>
+    <section class="content-header"><h1>Force Weather Trigger (ADMIN ONLY)</h1></section>
     <section class="content">
       <div class="container-fluid">
         
@@ -190,7 +158,7 @@ try {
                     <?php endforeach; ?>
                 </div>
                 <small class="text-danger mt-2 d-block">
-                    Note: Testing Mode active. Will stop after sending 1 SMS and 1 Email to prevent quota limits.
+                    Note: Forced to send to Admin Email/Phone only to bypass Trial restrictions.
                 </small>
             </div>
         </div>
