@@ -6,64 +6,93 @@ include_once '../connection.php';
 // ==========================================
 //   USER CONFIGURATION (TESTING MODE)
 // ==========================================
-// 1. UPDATED: Your correct Resend Signup Email:
+// 1. Your Resend Signup Email:
 $MY_TEST_EMAIL = 'lawrencejohnmhinanay@tua.edu.ph'; 
 
-// 2. Your verified Twilio number (Note: SMS will still fail today due to quota)
-$MY_TEST_PHONE = '9274176508'; 
+// 2. Your Phone Number for PhilSMS testing
+// (PhilSMS usually handles 09... or 639... formats)
+$MY_TEST_PHONE = '09274176508'; 
 // ==========================================
 
 // --- DEBUG: CHECK VARIABLES ---
+// Updated to check Resend only, as PhilSMS credentials are hardcoded below
 $vars_status = [
-    'Twilio SID' => !empty(getenv('TWILIO_SID')) ? '✅ Loaded' : '❌ Missing',
-    'Twilio Token' => !empty(getenv('TWILIO_TOKEN')) ? '✅ Loaded' : '❌ Missing',
-    'Twilio Number' => !empty(getenv('TWILIO_PHONE_NUMBER')) ? '✅ Loaded' : '❌ Missing',
-    'Resend Key' => !empty(getenv('RESEND_API_KEY')) ? '✅ Loaded' : '❌ Missing',
+    'PhilSMS API'  => '✅ Integrated (Hardcoded)',
+    'Resend Key'   => !empty(getenv('RESEND_API_KEY')) ? '✅ Loaded' : '❌ Missing',
 ];
 
 function broadcastEmergencyAlerts($con, $alert_type, $test_email, $test_phone) {
     $barangay_name = getenv('BARANGAY_NAME');
     $resend_api_key = getenv('RESEND_API_KEY');
-    $twilio_sid = getenv('TWILIO_SID');
-    $twilio_token = getenv('TWILIO_TOKEN');
-    $twilio_number = getenv('TWILIO_PHONE_NUMBER');
+
+    // PhilSMS Credentials (From your file)
+    $philsms_url = "https://dashboard.philsms.com/api/v3/";
+    $philsms_key = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f";
 
     $debug_log = "<strong>Test Mode Active:</strong> Sending only to Admin.<br>";
 
-    // --- 1. FORCE SEND SMS (Will fail if quota exceeded) ---
-    if (!empty($twilio_sid) && !empty($test_phone)) {
-        // Format phone
-        $final_phone = $test_phone;
-        if (substr($test_phone, 0, 1) == '0') $final_phone = '+63' . substr($test_phone, 1);
-        elseif (substr($test_phone, 0, 1) == '9') $final_phone = '+63' . $test_phone;
-        elseif (substr($test_phone, 0, 2) == '63') $final_phone = '+' . $test_phone;
+    // --- 1. FORCE SEND SMS (PhilSMS Integration) ---
+    if (!empty($test_phone)) {
+        
+        // PHONE FORMATTING LOGIC
+        // PhilSMS expects "639..." format.
+        $clean_phone = preg_replace('/[^0-9]/', '', $test_phone);
+        
+        // Convert 09... to 639...
+        if (substr($clean_phone, 0, 1) == "0") {
+            $final_phone = "63" . substr($clean_phone, 1);
+        } 
+        // Convert 9... to 639...
+        elseif (substr($clean_phone, 0, 1) == "9") {
+            $final_phone = "63" . $clean_phone;
+        } 
+        // Assume it's already 639... or 11 digits
+        else {
+            $final_phone = $clean_phone;
+        }
 
         $sms_body = ($alert_type == 'evacuate') 
-            ? "🚨 URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected."
-            : "⚠️ WARNING {$barangay_name}: Heavy rain detected. Stay alert.";
+            ? "URGENT {$barangay_name}: EVACUATE NOW. Severe flooding expected."
+            : "WARNING {$barangay_name}: Heavy rain detected. Stay alert.";
 
-        $url = "https://api.twilio.com/2010-04-01/Accounts/{$twilio_sid}/Messages.json";
-        $postData = http_build_query(['From' => $twilio_number, 'To' => $final_phone, 'Body' => $sms_body]);
+        // Prepare Data
+        $data = [
+            "recipient" => $final_phone,
+            "sender_id" => "PhilSMS", 
+            "message"   => $sms_body,
+        ];
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        curl_setopt($ch, CURLOPT_USERPWD, "{$twilio_sid}:{$twilio_token}");
+        // Send Request via cURL
+        $ch = curl_init($philsms_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer " . $philsms_key,
+            "Content-Type: application/json",
+            "Accept: application/json"
+        ]);
+
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($code == 200 || $code == 201) {
-            $debug_log .= "<span style='color:green'>✅ SMS sent to {$final_phone}</span><br>";
+        // Analyze Response
+        // PhilSMS typically returns JSON. We decode it to check success.
+        $resp_json = json_decode($response, true);
+        
+        // Check if the API request was successful (HTTP 200/201)
+        if ($http_code >= 200 && $http_code < 300) {
+            $debug_log .= "<span style='color:green'>✅ SMS sent via PhilSMS to {$final_phone}</span><br>";
         } else {
-            $resp_json = json_decode($resp, true);
-            $error_msg = $resp_json['message'] ?? $resp;
-            $debug_log .= "<span style='color:red'>❌ SMS Failed: {$error_msg}</span><br>";
+            // Try to get error message from response
+            $error_msg = $resp_json['message'] ?? 'Unknown Error';
+            $debug_log .= "<span style='color:red'>❌ SMS Failed: {$error_msg} (HTTP {$http_code})</span><br>";
         }
     }
 
     // --- 2. FORCE SEND EMAIL (To Admin Only) ---
+    // (This part remains unchanged using Resend)
     if (!empty($resend_api_key) && !empty($test_email)) {
         $subject = ($alert_type == 'evacuate') ? "🚨 EVACUATE NOW - {$barangay_name}" : "⚠️ WEATHER WARNING - {$barangay_name}";
         $html = "<h1>System Test</h1><p>This is a test alert sent to the admin email: <strong>{$test_email}</strong></p>";
@@ -158,7 +187,7 @@ try {
                     <?php endforeach; ?>
                 </div>
                 <small class="text-danger mt-2 d-block">
-                    Note: Twilio quota exceeded for today. SMS will fail, but EMAIL should work now.
+                    Note: Using PhilSMS for SMS and Resend for Email.
                 </small>
             </div>
         </div>
