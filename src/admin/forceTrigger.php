@@ -26,8 +26,8 @@ function broadcastEmergencyAlerts($con, $alert_type, $test_email, $test_phone) {
     $resend_api_key = getenv('RESEND_API_KEY');
 
     // PhilSMS Credentials (From your file)
-    $philsms_url = "https://dashboard.philsms.com/api/v3/";
-    $philsms_key = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f";
+    $philsms_url = "https://dashboard.philsms.com/api/v3/sms/send";
+    $philsms_key = "81|dLhVxHfXMFlYlfpofWvPjeKoXYiI3g6OnsP9dhNEbaa33ce3";
 
     $debug_log = "<strong>Test Mode Active:</strong> Sending only to Admin.<br>";
 
