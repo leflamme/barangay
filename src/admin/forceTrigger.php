@@ -22,7 +22,7 @@ function sendCombinedAlert($type, $message, $phone, $email) {
         elseif (substr($clean_phone, 0, 1) == "9") $final_phone = "63" . $clean_phone;
         else $final_phone = $clean_phone;
 
-        $ch = curl_init("https://dashboard.philsms.com/api/v3/");
+        $ch = curl_init("https://dashboard.philsms.com/api/v3/sms/send");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
