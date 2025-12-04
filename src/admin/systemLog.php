@@ -66,119 +66,175 @@ try {
   <link rel="stylesheet" href="../assets/dist/css/admin.css">
 
   <style>
-    /* ===== SYSTEM LOGS CUSTOM DESIGN ===== */
+   /* Navbar */
+.main-header.navbar {
+  background-color: #050C9C !important;
+  border-bottom: none;
+}
 
-    .card {
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+.navbar .nav-link,
+.navbar .nav-link:hover {
+  color: #ffffff !important;
+}
+
+/* Sidebar */
+.main-sidebar {
+  background-color: #050C9C !important;
+}
+
+.brand-link {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar .nav-link {
+  color: #A7E6FF !important;
+  transition: all 0.3s;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+  background-color: #3572EF !important;
+  color: #ffffff !important;
+}
+
+.sidebar .nav-icon {
+  color: #3ABEF9 !important;
+}
+
+.dropdown-menu {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+  font-weight: 600;
+  transition: 0.2s ease-in-out;
+}
+
+.dropdown-item:hover {
+  background-color: #F5587B;
+  color: white;
+}
+
+  /* ===== SYSTEM LOGS CUSTOM DESIGN ===== */
+
+  .card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .card-title span {
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .card-header {
+    background-color: #050C9C;
+    border-bottom: 2px solid #3572EF;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 15px 20px;
+  }
+
+  .card-body {
+    background-color: #ffffff;
+    padding: 20px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+
+  /* Table Styling */
+  #systemLogsTable {
+    border: 1px solid #A7E6FF;
+  }
+
+  #systemLogsTable thead {
+    background-color: #3572EF;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  #systemLogsTable th {
+    font-weight: 600;
+  }
+
+  #systemLogsTable tbody tr:hover {
+    background-color: #FFF591;
+    color: #000;
+  }
+
+  #systemLogsTable td {
+    color: #050C9C;
+    vertical-align: middle;
+    font-weight: 500;
+  }
+
+  /* Pagination Styling */
+  .dataTables_wrapper .dataTables_paginate .page-item .page-link {
+    background-color: #A7E6FF;
+    color: #050C9C;
+    border-radius: 6px;
+    margin: 0 3px;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+    background-color: #050C9C;
+    color: #ffffff;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .page-item .page-link:hover {
+    background-color: #3ABEF9;
+    color: #fff;
+  }
+
+  /* Tooltip adjustments */
+  .first:after,
+  .last:after,
+  .next:after,
+  .previous:after {
+    background-color: #050C9C !important;
+    color: #FFF591 !important;
+    font-weight: bold;
+    border-radius: 5px;
+  }
+
+  /* Responsive Table Adjustments */
+  @media (max-width: 768px) {
+    #systemLogsTable thead {
+      font-size: 12px;
+    }
+
+    #systemLogsTable td,
+    #systemLogsTable th {
+      padding: 8px;
     }
 
     .card-title span {
-      color: #fff;
-      font-weight: 700;
-      font-size: 18px;
+      font-size: 16px;
     }
-
-    .card-header {
-      background-color: #050C9C;
-      border-bottom: 2px solid #3572EF;
-      color: #ffffff;
-      font-family: 'Poppins', sans-serif;
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
-    }
-
-    .card-body {
-      background-color: #ffffff;
-      padding: 20px;
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
-    }
-
-    /* Table Styling */
-    #systemLogsTable {
-      border: 1px solid #A7E6FF;
-    }
-
-    #systemLogsTable thead {
-      background-color: #3572EF;
-      color: white;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    #systemLogsTable th {
-      font-weight: 600;
-    }
-
-    #systemLogsTable tbody tr:hover {
-      background-color: #FFF591;
-      color: #000;
-    }
-
-    #systemLogsTable td {
-      color: #050C9C;
-      vertical-align: middle;
-    }
-
-    /* Pagination Styling */
-    .dataTables_wrapper .dataTables_paginate .page-item .page-link {
-      background-color: #A7E6FF;
-      color: #050C9C;
-      border-radius: 6px;
-      margin: 0 3px;
-      border: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
-      background-color: #050C9C;
-      color: #ffffff;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .page-item .page-link:hover {
-      background-color: #3ABEF9;
-      color: #fff;
-    }
-
-    /* Tooltip adjustments */
-    .first:after,
-    .last:after,
-    .next:after,
-    .previous:after {
-      background-color: #050C9C !important;
-      color: #FFF591 !important;
-      font-weight: bold;
-      border-radius: 5px;
-    }
-
-    /* Responsive Table Adjustments */
-    @media (max-width: 768px) {
-      #systemLogsTable thead {
-        font-size: 12px;
-      }
-
-      #systemLogsTable td,
-      #systemLogsTable th {
-        padding: 8px;
-      }
-
-      .card-title span {
-        font-size: 16px;
-      }
-    }
+  }
   </style>
 </head>
 
 <body class="hold-transition  sidebar-mini   layout-footer-fixed">
   <div class="wrapper">
 
+    <!-- Preloader -->
     <div class="preloader flex-column justify-content-center align-items-center">
       <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
     </div>
 
+    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-dark">
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -201,14 +257,17 @@ try {
         </li>
       </ul>
 
+      <!-- Right Navbar Links -->
       <ul class="navbar-nav ml-auto">
 
+        <!-- Message Dropdown Menu -->
         <li class="nav-item dropdown">
           <a class="nav-link" data-toggle="dropdown" href="#">
             <i class="far fa-user"></i>
           </a>
           <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
             <a href="myProfile.php" class="dropdown-item">
+              <!-- Message Start -->
               <div class="media">
                 <?php
                 if (!empty($user_image)) {
@@ -217,12 +276,14 @@ try {
                   echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">';
                 }
                 ?>
+
                 <div class="media-body">
                   <h3 class="dropdown-item-title py-3">
                     <?= ucfirst($first_name_user) . ' ' . ucfirst($last_name_user) ?>
                   </h3>
                 </div>
               </div>
+              <!-- Message End -->
             </a>
             <div class="dropdown-divider"></div>
             <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
@@ -230,31 +291,16 @@ try {
         </li>
       </ul>
     </nav>
-    <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-      <a href="#" class="brand-link text-center">
-        <?php
-        $fallback = '../assets/dist/img/logo/logo.png';
 
-        if (!empty($image_path) && file_exists($image_path)) {
-          echo '<img src="' . $image_path . '" id="logo_image" class="img-circle elevation-5 img-bordered-sm" alt="logo" style="width: 70%;">';
-        } else {
-          echo '<img src="' . $fallback . '" id="logo_image" class="img-circle elevation-5 img-bordered-sm" alt="logo" style="width: 70%;">';
-        }
-        ?>
-        <span class="brand-text font-weight-light"></span>
-      </a>
-
+    <!-- Main Navbar Container -->
+    <aside class="main-sidebar elevation-4 sidebar-no-expand dark-mode">
+      <!-- Brand Logo -->
+      <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display:block;">
+      
+      <!-- Sidebar -->
       <div class="sidebar">
 
-
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-          <div class="image">
-            <img src="../assets/dist/img/logo.png" class="img-circle elevation-5 img-bordered-sm" alt="User Image">
-          </div>
-          <div class="info text-center">
-            <a href="#" class="d-block text-bold"><?= strtoupper($user_type) ?></a>
-          </div>
-        </div>
+        <!-- Sidebar Menu -->
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
@@ -356,6 +402,34 @@ try {
 
               </ul>
             </li>
+
+            <!-- DRM Part   (START)   -->
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
+              <p>
+                DRRM
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+              
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="drrmHousehold.php" class="nav-link">
+                    <i class="fas fa-users nav-icon text-red"></i>
+                    <p>Household Members</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="drrmEvacuation.php" class="nav-link">
+                    <i class="fas fa-house-damage nav-icon text-red"></i>
+                    <p>Evacuation Center</p>
+                  </a>
+                </li>
+              </ul>
+          </li>
+        <!-- End of DRM Part -->
+
             <li class="nav-item">
               <a href="position.php" class="nav-link">
                 <i class="nav-icon fas fa-user-tie"></i>
@@ -380,14 +454,7 @@ try {
                 </p>
               </a>
             </li>
-            <li class="nav-item">
-              <a href="settings.php" class="nav-link">
-                <i class="nav-icon fas fa-cog"></i>
-                <p>
-                  Settings
-                </p>
-              </a>
-            </li>
+            
             <li class="nav-item">
               <a href="systemLog.php" class="nav-link bg-indigo">
                 <i class="nav-icon fas fa-history"></i>
@@ -396,14 +463,7 @@ try {
                 </p>
               </a>
             </li>
-            <li class="nav-item">
-              <a href="backupRestore.php" class="nav-link">
-                <i class="nav-icon fas fa-database"></i>
-                <p>
-                  Backup/Restore
-                </p>
-              </a>
-            </li>
+            
           </ul>
         </nav>
         </div>
