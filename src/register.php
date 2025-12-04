@@ -326,6 +326,16 @@ $sql = "SELECT * FROM `barangay_information`";
 
               <div class="row">
                 <div class="col-sm-12">
+                  <div class="form-group">
+                    <label>Voters <span class="text-danger">*</span></label>
+                    <select name="add_voters" id="add_voters" class="form-control">
+                      <option value=""></option>
+                      <option value="NO">NO</option>
+                      <option value="YES">YES</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-sm-12">
                   <div class="form-group ">
                     <label >Gender</label>
                     <select name="add_gender" id="add_gender" class="form-control">
@@ -365,7 +375,7 @@ $sql = "SELECT * FROM `barangay_information`";
                         </div>
                         <div class="col-sm-12">
                           <div class="form-group ">
-                            <label >Single Parent <span class="text-danger">*</span></label>
+                            <label >Single Parent</label>
                             <select name="add_single_parent" id="add_single_parent" class="form-control">
                               <option value=""></option>
                               <option value="NO">NO</option>
@@ -485,8 +495,13 @@ $sql = "SELECT * FROM `barangay_information`";
                           <input type="text" class="form-control" id="add_street" name="add_street" >
                           </div>
                         </div>
+                        
                         <div class="col-sm-6">
-                          </div>
+                          <div class="form-group">
+                            <label>Address <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_address" name="add_address" >
+                          </div> 
+                        </div>
                         <div class="col-sm-6">
                           <div class="form-group">
                             <label >Contact Number <span class="text-danger">*</span></label>
