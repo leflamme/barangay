@@ -1230,18 +1230,13 @@ $(document).ready(function(){
         
         var householdId = $('#existing_household_id').val();
         var headId = $('#existing_household_head_id').val();
-        var relationship = $('#relationship_to_head').val();
+        // 1. Get the value the user selected in the first modal
+        var relationship = $('#relationship_to_head').val(); 
         
         if (!householdId || householdId === '') {
             Swal.fire('Error', 'No household selected', 'error');
             return;
         }
-        
-        // Show relationship field first
-        $('#relationshipField').show();
-        
-        // Focus on relationship dropdown
-        $('#relationship_to_head').focus();
         
         // Show confirmation with relationship selection
         Swal.fire({
@@ -1257,18 +1252,23 @@ $(document).ready(function(){
                 '<option value="Tenant">Tenant</option>' +
                 '<option value="Other">Other</option>' +
                 '</select>',
-            type: 'question',
+            type: 'question', // Note: In newer SweetAlert2 versions this is 'icon': 'question'
             showCancelButton: true,
             confirmButtonText: 'Yes, Join Household',
             cancelButtonText: 'Cancel',
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
+            // 2. THIS IS THE FIX: Set the value when the modal opens
+            didOpen: () => {
+                $('#swalRelationship').val(relationship);
+            },
             preConfirm: () => {
                 return {
                     relationship: document.getElementById('swalRelationship').value
                 };
             }
         }).then((result) => {
+            // Check result.value because SweetAlert2 uses that for preConfirm data
             if (result.value) {
                 var relationshipValue = result.value.relationship;
                 
