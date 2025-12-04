@@ -1302,37 +1302,48 @@ $(document).ready(function() {
          
             $.ajax({
               type: "POST",
-              url: "deleteBlotterRecord.php",
-              cache:false,
+              url: "deleteBlotterRecord.php", // Use the file we just fixed
+              cache: false,
               data: 'id='+selected_values,
-              success: function(data) {
-              
+              dataType: 'json', // IMPORTANT: This expects the JSON we added above
+              success: function(response) {
+                  
+                  // CHECK THE SERVER RESPONSE
+                  if(response.status == 'success'){
+                      Swal.fire({
+                        title: '<strong class="text-success">SUCCESS</strong>',
+                        text: "Deleted Blotter Record Successfully",
+                        type: 'success',
+                        timer: 1500,
+                        width: '400px',
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                      }).then(()=>{
+                       $("#blotterRecordTable").DataTable().ajax.reload();
+                       $("#select_count").text('0');
+                       $('#select_all').prop('checked', false);
+                      })
+                  } else {
+                      // SHOW THE REAL ERROR MESSAGE
+                      Swal.fire({
+                        title: '<strong class="text-danger">ERROR</strong>',
+                        text: response.message, 
+                        type: 'error',
+                        width: '400px',
+                      });
+                  }
+              },
+              error: function(xhr){
+                  // Capture crash errors
+                  console.log(xhr.responseText);
                   Swal.fire({
-                    title: '<strong class="text-success">SUCESS</strong>',
-                    text: "Deleted Blotter Record Successfully",
-                    type: 'success',
-                    timer: 1500,
+                    title: 'System Error',
+                    text: 'Check console for details',
+                    type: 'error',
                     width: '400px',
-                    showConfirmButton: false,
-                    allowOutsideClick: false,
-                  }).then(()=>{
-                   $("#blotterRecordTable").DataTable().ajax.reload();
-                   $("#select_count").text('0');
-                   $('#select_all').prop('checked', false);
-                  })
-                
-                
+                  })    
               } 
-            }).fail(function(){
-              Swal.fire({
-                title: 'Ooppss...',
-                text: 'Something went wrong with ajax !',
-                type: 'error',
-                confirmButtonColor: '#6610f2',
-                allowOutsideClick: false,
-                width: '400px',
-              })             
-            })
+            });
         }
       });								 
 		} 

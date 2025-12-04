@@ -1,53 +1,49 @@
 <?php 
 include_once '../connection.php';
-header('Content-Type: application/json'); // Return JSON so the frontend can read the error
+header('Content-Type: application/json'); // Return JSON to frontend
 
 try{
   if(isset($_REQUEST['id'])){
-    $blotter_id = $con->real_escape_string($_REQUEST['id']);
+    // 1. Prepare the IDs (Wrap them in quotes for SQL)
+    $raw_ids = $_REQUEST['id'];
+    $id_array = explode(",", $raw_ids);
+    $clean_ids = [];
+    foreach($id_array as $id){
+        $clean_ids[] = $con->real_escape_string(trim($id));
+    }
+    // Result: '2025-11-15-0002', '2025-11-15-0003'
+    $formatted_ids_string = "'" . implode("','", $clean_ids) . "'";
 
-    // 1. Log the Activity (Optional: Keep your logging logic)
-    $sql_blotter = "SELECT * FROM blotter_record WHERE blotter_id IN ($blotter_id)";
-    $stmt_blotter = $con->prepare($sql_blotter);
-    if($stmt_blotter){
-        $stmt_blotter->execute();
-        $result_blotter = $stmt_blotter->get_result();
-        $row_blotter = $result_blotter->fetch_assoc();
+    // --- DELETE CHILDREN FIRST (To fix Foreign Key Constraint) ---
 
-        if($row_blotter){
-            $admin = strtoupper('ADMIN');
-            $date_activity = date("j-n-Y g:i A");  
-            $message = $admin.':' .' '. 'DELETED BLOTTER RECORD - '.' ' .$blotter_id;
-            $status_activity_log = 'delete';
-            
-            $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
-            $stmt_activity_log = $con->prepare($sql_activity_log);
-            $stmt_activity_log->bind_param('sss',$message,$date_activity,$status_activity_log);
-            $stmt_activity_log->execute();
-        }
+    // 2. Delete Complainants
+    $sql_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($formatted_ids_string)";
+    if(!$con->query($sql_complainant)){
+        throw new Exception("Error deleting complainants: " . $con->error);
     }
 
-    // --- THE FIX: DELETE CHILDREN FIRST, THEN PARENT ---
-
-    // 2. Delete from 'blotter_complainant'
-    $sql_delete_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
-    if(!$con->query($sql_delete_complainant)){
-        throw new Exception("Error deleting complainant links: " . $con->error);
+    // 3. Delete Status/Person Involved
+    $sql_status = "DELETE FROM blotter_status WHERE blotter_main IN ($formatted_ids_string)";
+    if(!$con->query($sql_status)){
+        throw new Exception("Error deleting status: " . $con->error);
     }
 
-    // 3. Delete from 'blotter_status'
-    $sql_delete_status = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
-    if(!$con->query($sql_delete_status)){
-        throw new Exception("Error deleting status links: " . $con->error);
+    // --- DELETE PARENT LAST ---
+
+    // 4. Delete Blotter Record
+    $sql_record = "DELETE FROM blotter_record WHERE blotter_id IN ($formatted_ids_string)";
+    if(!$con->query($sql_record)){
+        throw new Exception("Error deleting record: " . $con->error);
     }
 
-    // 4. Finally, delete from 'blotter_record'
-    $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
-    if(!$con->query($sql_delete_record)){
-        throw new Exception("Error deleting main record: " . $con->error);
-    }
+    // 5. Log it (Optional but recommended)
+    $date_activity = date("j-n-Y g:i A");
+    $message = "ADMIN: DELETED BLOTTER RECORDS - " . $raw_ids;
+    $sql_log = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?, 'delete')";
+    $stmt_log = $con->prepare($sql_log);
+    $stmt_log->bind_param('ss', $message, $date_activity);
+    $stmt_log->execute();
 
-    // Success Response
     echo json_encode(['status' => 'success']);
 
   } else {
@@ -55,7 +51,6 @@ try{
   }
 
 }catch(Exception $e){
-  // Error Response
   echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 ?>
