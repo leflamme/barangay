@@ -1,7 +1,10 @@
 <?php
-session_start();
+//index.php
 include_once 'connection.php';
+session_start();
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
+
+
   $user_id = $_SESSION['user_id'];
   $sql = "SELECT * FROM users WHERE id = '$user_id'";
   $query = $con->query($sql) or die ($con->error);
@@ -11,16 +14,20 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
   echo '<script>
           window.location.href="admin/dashboard.php";
       </script>';
+  
   } elseif ($account_type == 'secretary') {
       echo '<script>
           window.location.href="secretary/dashboard.php";
       </script>';
+  
   } else {
       echo '<script>
       window.location.href="resident/dashboard.php";
   </script>';
+  
 }
 }
+
 $sql = "SELECT * FROM `barangay_information`";
   $query = $con->prepare($sql) or die ($con->error);
   $query->execute();
@@ -34,7 +41,12 @@ $sql = "SELECT * FROM `barangay_information`";
       $id = $row['id'];
       $postal_address = $row['postal_address'];
   }
+
+ 
+
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,9 +57,10 @@ $sql = "SELECT * FROM `barangay_information`";
   <title>Barangay Registration Portal</title>
   <!-- Website Icon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
-  
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <!-- CSS Libraries -->
   <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="assets/plugins/bs-stepper/css/bs-stepper.min.css">
@@ -55,6 +68,7 @@ $sql = "SELECT * FROM `barangay_information`";
   <link rel="stylesheet" href="assets/plugins/sweetalert2/css/sweetalert2.min.css">
   <link rel="stylesheet" href="assets/plugins/step-wizard/css/smart_wizard_all.min.css">
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
+
   <!-- Custom CSS -->
   <style>
     body {
@@ -63,16 +77,19 @@ $sql = "SELECT * FROM `barangay_information`";
       min-height: 100vh;
       margin: 0;
     }
+
     .navbar {
       background-color: #050C9C;
       padding: 1.2rem 1rem;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
+
     .navbar-brand {
       display: flex;
       align-items: center;
       gap: 12px;
     }
+
     .navbar-brand img {
   height: 50px;
   width: 50px;
@@ -83,20 +100,24 @@ $sql = "SELECT * FROM `barangay_information`";
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   aspect-ratio: 1 / 1; /* Keeps it a perfect circle */
 }
+
     .navbar-brand span {
       color: #A7E6FF;
       font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: 1px;
     }
+
     .nav-link {
       color: #A7E6FF !important;
       font-weight: 600;
       position: relative;
     }
+
     .nav-link:hover {
       color: #FFF591 !important;
     }
+
     .nav-link::after {
       content: '';
       position: absolute;
@@ -107,9 +128,11 @@ $sql = "SELECT * FROM `barangay_information`";
       background-color: #E41749;
       transition: width 0.3s ease;
     }
+
     .nav-link:hover::after {
       width: 100%;
     }
+
     .form-section {
       padding: 2rem;
       background: #ffffff;
@@ -118,64 +141,77 @@ $sql = "SELECT * FROM `barangay_information`";
       margin: 2rem auto;
       max-width: 1200px;
     }
+
     .form-section h2 {
       font-size: 1.75rem;
       font-weight: 700;
       margin-bottom: 1.5rem;
       color: #1d34e0;
     }
+
     .form-group label {
       font-weight: 600;
       margin-bottom: 0.5rem;
       display: inline-block;
     }
+
     .form-control {
       border-radius: 6px;
       box-shadow: none;
       transition: border-color 0.3s ease;
     }
+
     .form-control:focus {
       border-color: #1d34e0;
       box-shadow: 0 0 0 2px rgba(29, 52, 224, 0.2);
     }
+
     .btn-success {
       background-color: #28a745;
       border-color: #28a745;
       font-weight: 600;
       padding: 0.5rem 2rem;
     }
+
     .btn-success:hover {
       background-color: #218838;
       border-color: #1e7e34;
     }
+
     .tab-content .tab-pane {
       padding-top: 1rem;
     }
+
     .tab-content .lead {
       font-size: 1.2rem;
       font-weight: 600;
       margin-bottom: 1rem;
     }
+
     .img-thumbnail {
       border-radius: 8px;
     }
+
     .profile-username {
       font-weight: 600;
       margin-top: 1rem;
       color: #0037af;
     }
       /* Navbar Design from Homepage */
+
 .navbar {
   background-color: #050C9C !important;
   padding: 1.2rem 1rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   z-index: 1000;
 }
+
 .navbar-brand {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
 .navbar-brand img {
   height: 50px;
   width: 50px;
@@ -186,6 +222,7 @@ $sql = "SELECT * FROM `barangay_information`";
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   aspect-ratio: 1 / 1; /* Keeps it a perfect circle */
 }
+
 .navbar-brand span {
   font-size: 1.7rem;
   font-weight: 800;
@@ -193,6 +230,7 @@ $sql = "SELECT * FROM `barangay_information`";
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 .navbar-nav .nav-link {
   color: #A7E6FF !important;
   font-size: 18px;
@@ -201,9 +239,11 @@ $sql = "SELECT * FROM `barangay_information`";
   transition: 0.3s ease;
   position: relative;
 }
+
 .navbar-nav .nav-link:hover {
   color: #FFF591 !important;
 }
+
 .navbar-nav .nav-link::after {
   content: '';
   display: block;
@@ -215,38 +255,37 @@ $sql = "SELECT * FROM `barangay_information`";
   bottom: -5px;
   left: 0;
 }
+
 .navbar-nav .nav-link:hover::after {
   width: 100%;
 }
+
 .tab-nav-link {
   background-color: #ffffff !important;  /* Default: white background */
   color: #003366 !important;            /* Default: dark text */
   border: 1px solid #cccccc !important;
   font-weight: 600;
 }
+
 .tab-nav-link.active {
   background-color: #003366 !important; /* Active: dark blue background */
   color: #ffffff !important;           /* Active: white text */
 }
+
 .tab-nav-link:hover {
   background-color: #f0f0f0 !important; /* Light gray on hover */
   color: #003366 !important;
 }
-     /* NEW: Disable tab links initially (prevents direct clicking) */
-     .disabled-tab {
-       pointer-events: none;  /* Disables mouse clicks */
-       opacity: 0.5;          /* Makes them look grayed out */
-       cursor: not-allowed;   /* Changes cursor to indicate disabled */
-     }
-     .disabled-tab:hover {
-       background-color: transparent !important;  /* No hover effect */
-       color: #003366 !important;                 /* Keeps default color on hover */
-     }
+
+
+
   </style>
 </head>
-
 <body  class="hold-transition layout-top-nav">
+
+
 <div class="wrapper">
+
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand-md" style="background-color: #0037af">
     <div class="container">
@@ -254,19 +293,25 @@ $sql = "SELECT * FROM `barangay_information`";
         <img src="assets/logo/ksugan.jpg" alt="logo">
         <span class="brand-text text-white" style="font-weight: 700">BARANGAY PORTAL</span>
       </a>
+
       <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse order-3" id="navbarCollapse">
         <!-- Left navbar links -->
+
+
+       
       </div>
+
       <!-- Right navbar links -->
       <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto " >
           <li class="nav-item">
             <a href="index.php" class="nav-link text-white rightBar" >HOME</a>
           </li>
           <li class="nav-item">
-            <a href="register.php" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
+            <a href="#" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
           </li>
           <li class="nav-item">
             <a href="login.php" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a>
@@ -279,10 +324,22 @@ $sql = "SELECT * FROM `barangay_information`";
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper double" id="backGround">
     <!-- Content Header (Page header) -->
+ 
+    
+  
     <!-- /.content-header -->
+
     <!-- Main content -->
     <div class="content" >
+
+  
+
+
+
+    
+       
               <div class="container-fluid py-5">
+
 <form id="registerResidentForm" method="POST" enctype="multipart/form-data" autocomplete="off">
 <div class="row mb-3">
   <div class="col-sm-4">
@@ -292,9 +349,11 @@ $sql = "SELECT * FROM `barangay_information`";
           <img class="profile-user-img img-fluid img-thumbnail" src="assets/dist/img/blank_image.png" alt="User profile picture" style="cursor: pointer;" id="image_residence">
           <input type="file" name="add_image_residence" id="add_image_residence" style="display: none;">
         </div>
+
         <h3 class="profile-username text-center "><span id="keyup_first_name"></span> <span id="keyup_last_name"></span></h3>
+
         <div class="row">
-          <div class="col-sm-12">
+         <!-- <div class="col-sm-12">
             <div class="form-group">
               <label>Voters <span class="text-danger">*</span></label>
               <select name="add_voters" id="add_voters" class="form-control">
@@ -303,13 +362,14 @@ $sql = "SELECT * FROM `barangay_information`";
                 <option value="YES">YES</option>
               </select>
             </div>
-          </div>
+          </div> -->
           <div class="col-sm-12">
             <div class="form-group ">
               <label >Gender</label>
               <select name="add_gender" id="add_gender" class="form-control">
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
+          
               </select>
             </div>
           </div>
@@ -352,6 +412,10 @@ $sql = "SELECT * FROM `barangay_information`";
                     </div>
                   </div>
         </div>
+
+
+
+       
       </div>
       <!-- /.card-body -->
     </div>
@@ -359,20 +423,21 @@ $sql = "SELECT * FROM `barangay_information`";
   <div class="col-sm-8">
     <div class="card  card-tabs h-100 transparent-card shadow-card">
       <div class="card-header p-0 pt-1">
-     <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-       <li class="nav-item">
-         <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
-       </li>
-       <li class="nav-item">
-         <a class="nav-link tab-nav-link disabled-tab" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
-       </li>
-       <li class="nav-item">
-         <a class="nav-link tab-nav-link disabled-tab" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
-       </li>
-       <li class="nav-item">
-         <a class="nav-link tab-nav-link disabled-tab" id="account-tab" data-toggle="pill" href="#account">Account</a>
-       </li>
-     </ul>
+<ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link tab-nav-link" id="account-tab" data-toggle="pill" href="#account">Account</a>
+  </li>
+</ul>
+
       </div>
       <div class="card-body" >
         <div class="tab-content" id="custom-tabs-one-tabContent">
@@ -415,6 +480,7 @@ $sql = "SELECT * FROM `barangay_information`";
                       </select>
                     </div>
                   </div>
+                  
                   <div class="col-sm-6">
                     <div class="form-group ">
                       <label >Religion</label>
@@ -428,18 +494,13 @@ $sql = "SELECT * FROM `barangay_information`";
                     </div>
                   </div>                              
                 </div>
-                <div class="card-footer step-footer">
-  <button type="button" id="proceed-basic" class="btn btn-success px-4 elevation-3">
-    <i class="fas fa-arrow-right"></i> Proceed to Other Info
-  </button>
-</div>
           </div>
           <div class="tab-pane fade" id="other-info" role="tabpanel" aria-labelledby="other-info-tab">
                 <p class="lead text-center lead-bold">Address</p>
                 <div class="row">
                   <div class="col-sm-6">
                     <div class="form-group">
-                      <label>Municipality</label>
+                      <label>Municipality <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_municipality" name="add_municipality">
                     </div>
                   </div>
@@ -451,7 +512,7 @@ $sql = "SELECT * FROM `barangay_information`";
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
-                      <label>Barangay</label>
+                      <label>Barangay <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_barangay" name="add_barangay" >
                     </div>
                   </div>
@@ -463,15 +524,15 @@ $sql = "SELECT * FROM `barangay_information`";
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
-                    <label>Street</label>
+                    <label>Street <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="add_street" name="add_street" >
                     </div>
                   </div>
                   <div class="col-sm-6">
-                    <div class="form-group">
-                      <label >Address <span class="text-danger">*</span></label>
+                    <!-- <div class="form-group">
+                      <label>Address <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_address" name="add_address" >
-                    </div>
+                    </div> -->
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
@@ -481,20 +542,17 @@ $sql = "SELECT * FROM `barangay_information`";
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
-                      <label>Email Address <span class="text-danger">*</span></label>
+                      <label>Email Address</label>
                       <input type="text" class="form-control" id="add_email_address" name="add_email_address" >
                     </div>
                   </div>
                 </div>
-                <div class="card-footer step-footer">
-  <button type="button" id="proceed-other" class="btn btn-success px-4 elevation-3">
-    <i class="fas fa-arrow-right"></i> Proceed to Guardian
-  </button>
-</div>
           </div>
           <div class="tab-pane fade" id="guardian" role="tabpanel" aria-labelledby="guardian-tab">
+           
               <p class="lead text-center lead-bold">Guardian</p>
               <div class="row">
+
                 <div class="col-sm-12">
                   <div class="form-group">
                     <label>Father's Name</label>
@@ -519,16 +577,15 @@ $sql = "SELECT * FROM `barangay_information`";
                     <input type="text" class="form-control" maxlength="11" id="add_guardian_contact" name="add_guardian_contact" >
                   </div>
                 </div>
+
               </div>
-              <div class="card-footer step-footer">
-  <button type="button" id="proceed-guardian" class="btn btn-success px-4 elevation-3">
-    <i class="fas fa-arrow-right"></i> Proceed to Account
-  </button>
-</div>
+            
           </div>
           <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+           
               <p class="lead text-center lead-bold">Account</p>
                           <div class="row">
+                            
                             <div class="col-sm-12 ">
                               <div class="form-group">
                                 <div class="input-group mb-3">
@@ -566,19 +623,24 @@ $sql = "SELECT * FROM `barangay_information`";
                               </div>
                             </div>
                           </div>
-                          <div class="card-footer">
-        <button type="submit"  class="btn btn-success px-4 elevation-3"> <i class="fas fa-user-plus"></i> REGISTER</button>
-      </div> 
+            
           </div>
         </div>
       </div>
+      <div class="card-footer">
+        <button type="submit"  class="btn btn-success px-4 elevation-3"> <i class="fas fa-user-plus"></i> REGISTER</button>
+      </div> 
       <!-- /.card -->
     </div>
+
   </div>
 </div>
 </form>
-</div><!--/. container-fluid -->
+    
 
+
+</div><!--/. container-fluid -->
+          
      <!-- Data Privacy Modal -->
 <div class="modal fade" id="dataPrivacyModal" tabindex="-1" aria-labelledby="dataPrivacyModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -601,6 +663,7 @@ $sql = "SELECT * FROM `barangay_information`";
         </p>
         <h2>1. Introduction</h2>
         <p>The Barangay Kalusugan is committed to protecting the privacy and security of your personal information. This notice outlines how we collect, use, and safeguard your data in compliance with the Data Privacy Act of 2012 (Republic Act No. 10173) and its implementing rules and regulations.</p>
+
         <h2>2. Personal Information We Collect</h2>
         <p>We may collect the following types of personal information:</p>
         <ul>
@@ -611,6 +674,7 @@ $sql = "SELECT * FROM `barangay_information`";
             <li>Identification Documents (e.g., government-issued ID)</li>
             <li>Other relevant information necessary for barangay services</li>
         </ul>
+
         <h2>3. Purpose of Data Collection</h2>
         <p>Your personal information is collected for the following purposes:</p>
         <ul>
@@ -618,6 +682,7 @@ $sql = "SELECT * FROM `barangay_information`";
             <li>To maintain accurate records of residents</li>
             <li>To facilitate communication regarding barangay activities and announcements</li>
         </ul>
+
         <h2>4. Data Sharing and Disclosure</h2>
         <p>We may share your personal information with:</p>
         <ul>
@@ -625,6 +690,7 @@ $sql = "SELECT * FROM `barangay_information`";
             <li>Third-party service providers who assist us in delivering services (with appropriate safeguards)</li>
             <li>Other entities with your consent</li>
         </ul>
+
         <h2>5. Data Security</h2>
         <p>We implement reasonable and appropriate security measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction. These measures include:</p>
         <ul>
@@ -642,15 +708,19 @@ $sql = "SELECT * FROM `barangay_information`";
             <li>The right to data portability</li>
             <li>The right to erasure or blocking of your personal data</li>
         </ul>
+
         <h2>7. How to Exercise Your Rights</h2>
         <div class="contact-info">
             <p>To exercise your rights or for any inquiries regarding your personal information, please contact:</p>
             <p><strong>Barangay Kalusugan Data Protection Officer or Secretay</strong><br>
+            
         </div>
         <h2>8. Changes to This Notice</h2>
         <p>We may update this Data Privacy Act Notice from time to time. Any changes will be posted on our official bulletin board and website. We encourage you to review this notice periodically.</p>
         <h2>9. Acknowledgment</h2>
         <p>By providing your personal information to Barangay Kalusugan, you acknowledge that you have read and understood this Data Privacy Act Notice.</p>
+
+        
       </div>
       <div class="modal-footer">
         <button type="button" id="agreeButton" class="btn btn-success">I Agree</button>
@@ -658,10 +728,23 @@ $sql = "SELECT * FROM `barangay_information`";
     </div>
   </div>
 </div>
+          
+
+     
+          
+               
+      
+     
     </div>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+
+
+
+
+
 
 <!-- jQuery -->
 <script src="assets/plugins/jquery/jquery.min.js"></script>
@@ -675,72 +758,12 @@ $sql = "SELECT * FROM `barangay_information`";
 <script src="assets/plugins/phone code/intlTelInput.js"></script>
 <script src="assets/plugins/sweetalert2/js/sweetalert2.all.min.js"></script>
 <script src="assets/plugins/step-wizard/js/jquery.smartWizard.min.js"></script>
-
 <script>
   $(document).ready(function(){
-    // Function to check if all required fields in the active/current tab are valid
-function isCurrentStepValid(tabId) {
-    var isValid = true;
-    $('#' + tabId + ' :input').each(function() {
-        if (!$(this).valid()) {
-            isValid = false;
-        }
-    });
-    return isValid;
-}
-// Proceed from Basic Info to Other Info
-$('#proceed-basic').click(function(e) {
-    e.preventDefault();
-    if (isCurrentStepValid('basic-info')) {
-        $('#other-info-tab').removeClass('disabled-tab').tab('show');
-        $('#basic-info-tab').removeClass('active');
-        $('#basic-info').removeClass('active show');
-        $('#other-info').addClass('active show');
-    } else {
-        Swal.fire({
-            title: 'Please Enter Information needed',
-            text: 'Complete required fields before proceeding.',
-            icon: 'warning',
-            confirmButtonColor: '#28a745'
-        });
-    }
-});
-// Proceed from Other Info to Guardian
-$('#proceed-other').click(function(e) {
-    e.preventDefault();
-    if (isCurrentStepValid('other-info')) {
-        $('#guardian-tab').removeClass('disabled-tab').tab('show');
-        $('#other-info-tab').removeClass('active');
-        $('#other-info').removeClass('active show');
-        $('#guardian').addClass('active show');
-    } else {
-        Swal.fire({
-            title: 'Please Enter Information needed',
-            text: 'Complete required fields before proceeding.',
-            icon: 'warning',
-            confirmButtonColor: '#28a745'
-        });
-    }
-});
-// Proceed from Guardian to Account
-$('#proceed-guardian').click(function(e) {
-    e.preventDefault();
-    if (isCurrentStepValid('guardian')) {
-        $('#account-tab').removeClass('disabled-tab').tab('show');
-        $('#guardian-tab').removeClass('active');
-        $('#guardian').removeClass('active show');
-        $('#account').addClass('active show');
-    } else {
-        Swal.fire({
-            title: 'Please Enter Information needed',
-            text: 'Complete required fields before proceeding.',
-            icon: 'warning',
-            confirmButtonColor: '#28a745'
-        });
-    }
-});
+ 
     $("#add_pwd").change(function(){
       var pwd_check = $(this).val();
+
       if(pwd_check == 'YES'){
         $("#pwd_check").css('display', 'block');
         $("#add_pwd_info").prop('disabled', false);
@@ -748,10 +771,71 @@ $('#proceed-guardian').click(function(e) {
         $("#pwd_check").css('display', 'none');
         $("#add_pwd_info").prop('disabled', true);
       }
+
     })
-    
-    // Initialize form validation
-    $('#registerResidentForm').validate({
+ $(function () {
+        $.validator.setDefaults({
+          submitHandler: function (form) {
+
+            $.ajax({
+                    url: 'signup/newResidence.php',
+                    type: 'POST',
+                    data: new FormData(form),
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    success:function(data){
+
+                      if(data == 'errorPassword'){
+                          Swal.fire({
+                            title: '<strong class="text-danger">ERROR</strong>',
+                            type: 'error',
+                            html: '<b>Password not Match<b>',
+                            width: '400px',
+                            confirmButtonColor: '#6610f2',
+                          })
+                      }else if(data == 'errorUsername'){
+
+                        Swal.fire({
+                            title: '<strong class="text-danger">ERROR</strong>',
+                            type: 'error',
+                            html: '<b>Username is Already Taken<b>',
+                            width: '400px',
+                            confirmButtonColor: '#6610f2',
+                          })
+
+                      }else{
+
+                        Swal.fire({
+                          title: '<strong class="text-success">SUCCESS</strong>',
+                          type: 'success',
+                          html: '<b>Registered Residence has Successfully<b>',
+                          width: '400px',
+                          confirmButtonColor: '#6610f2',
+                          allowOutsideClick: false,
+                          showConfirmButton: false,
+                          timer: 2000,
+                        }).then(()=>{
+                          window.location.reload();
+                        })
+                      }
+
+                      
+                    }
+                }).fail(function(){
+                    Swal.fire({
+                      title: '<strong class="text-danger">Ooppss..</strong>',
+                      type: 'error',
+                      html: '<b>Something went wrong with ajax !<b>',
+                      width: '400px',
+                      confirmButtonColor: '#6610f2',
+                    })
+                })
+
+           
+          }
+        });
+      $('#registerResidentForm').validate({
        ignore:'',
         rules: {
           add_first_name: {
@@ -772,16 +856,13 @@ $('#proceed-guardian').click(function(e) {
             required: true,
             minlength: 11
           },
-          add_email_address: {
-            required: true,
-            email: true
-          },
           add_voters: {
             required: true,
           },
           add_pwd: {
             required: true,
           },
+        
           add_username:{
             required: true,
             minlength: 8
@@ -792,12 +873,36 @@ $('#proceed-guardian').click(function(e) {
           },
           add_confirm_password:{
             required: true,
-            minlength: 8,
-            equalTo: "#add_password"
+            minlength: 8
+          },
+          add_pwd:{
+            required: true,
+          },
+          add_voters:{
+            required: true,
+          },
+          add_single_parent:{
+            required: true,
+          },
+          add_pwd_info:{
+            required: true,
           },
           add_address: {
             required: true,
           },
+          add_municipality: {
+            required: true,
+          },
+          add_barangay: {
+            required: true,
+          },
+          add_house_number: {
+            required: true,
+          },
+          add_street: {
+            required: true,
+          },
+        
         },
         messages: {
           add_first_name: {
@@ -808,26 +913,25 @@ $('#proceed-guardian').click(function(e) {
             required: "This Field is required",
             minlength: "Last Name must be at least 2 characters long"
           },
+        
           add_contact_number: {
             required: "This Field is required",
             minlength: "Input Exact Contact Number"
           },
-          add_email_address: {
-            required: "This Field is required",
-            email: "Please enter a valid email address"
-          },
-          add_birth_date: {
+            add_birth_date: {
             required: "This Field is required",
           },
           add_gender: {
             required: "This Field is required",
           },
-          add_voters: {
-            required: "This Field is required",
-          },
+      
+         
           add_pwd: {
             required: "This Field is required",
           },
+       
+       
+         
           add_username: {
             required: "This Field is required",
             minlength: "Username must be at least 8 characters long"
@@ -836,16 +940,19 @@ $('#proceed-guardian').click(function(e) {
             required: "This Field is required",
             minlength: "Password must be at least 8 characters long"
           },
-          add_confirm_password: {
+          add_password: {
             required: "This Field is required",
-            minlength: "Confirm Password must be at least 8 characters long",
-            equalTo: "Passwords do not match"
+            minlength: "Confirm Password must be at least 8 characters long"
           },
+            
         },
+   
+     
         errorElement: 'span',
         errorPlacement: function (error, element) {
           error.addClass('invalid-feedback');
           element.closest('.form-group').append(error);
+        
         },
         highlight: function (element, errorClass, validClass) {
           $(element).addClass('is-invalid');
@@ -853,99 +960,18 @@ $('#proceed-guardian').click(function(e) {
         unhighlight: function (element, errorClass, validClass) {
           $(element).removeClass('is-invalid');
         },
-        // Handle form submission ONLY after validation passes
-        submitHandler: function (form) {
-            // Show Data Privacy modal instead of submitting immediately
-            $('#dataPrivacyModal').modal('show');
-            
-            // Set up one-time agree handler
-            $('#agreeButton').off('click').on('click', function() {
-                $('#dataPrivacyModal').modal('hide');
-                
-                // Now submit via AJAX
-                $.ajax({
-                    url: 'signup/newResidence.php',
-                    type: 'POST',
-                    data: new FormData(form),
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    success: function(data) {
-                      // Trim whitespace from the response
-                      var response = data.trim(); 
+      
+      });
+      
+    })
 
-                      // Check 1: Perfect Success
-                      if (response == 'success') {
-                          // This is the ONLY success case
-                          Swal.fire({
-                              title: '<strong class="text-success">SUCCESS</strong>',
-                              type: 'success',
-                              html: '<b>Registered Successfully</b><br>You will now be redirected.',
-                              width: '400px',
-                              allowOutsideClick: false,
-                              showConfirmButton: false,
-                              timer: 2000,
-                          }).then(() => {
-                              window.location.href = 'login.php';
-                          });
 
-                      // Check 2 :Registration worked, but email failed
-                      } else if (response.includes('Registration successful, but the welcome email could not be sent')) {
-                          Swal.fire({
-                            title: '<strong class="text-warning">Registration Complete</strong>',
-                            icon: 'warning',
-                            html: '<b>Your account is active.</b><br>The welcome email could not be sent.<br>You will now be redirected.',
-                            width: '400px',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            timer: 3500, // Longer timer to read the warning
-                          }).then(() => {
-                            window.location.href = 'login.php';
-                          });
-                          
-                      } else if (response == 'errorPassword') {
-                          Swal.fire({
-                              title: '<strong class="text-danger">ERROR</strong>',
-                              icon: 'error',
-                              html: '<b>Password not Match</b>',
-                              confirmButtonColor: '#6610f2',
-                          });
 
-                      } else if (response == 'errorUsername') {
-                          Swal.fire({
-                              title: '<strong class="text-danger">ERROR</strong>',
-                              icon: 'error',
-                              html: '<b>Username is Already Taken</b>',
-                              confirmButtonColor: '#6610f2',
-                          });
 
-                      } else {
-                          // THIS IS THE NEW ERROR HANDLER
-                          // It will show the exact PHP error message
-                          Swal.fire({
-                              title: '<strong class="text-danger">Registration Failed!</strong>',
-                              icon: 'error',
-                              html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + response + '</pre>',
-                              confirmButtonColor: '#d33',
-                          });
-                      }
-                  }
-                }).fail(function(){
-                    Swal.fire({
-                      title: '<strong class="text-danger">Ooppss..</strong>',
-                      icon: 'error',
-                      html: '<b>Something went wrong with ajax!</b>',
-                      confirmButtonColor: '#6610f2',
-                    })
-                });
-            });
-            
-            return false; // Prevent default submit
-        }
-    });
 
-    // Fix password toggle
-    $("#show_hide_password a").on('click', function(event) {
+
+
+$("#show_hide_password a").on('click', function(event) {
         event.preventDefault();
         if($('#show_hide_password input').attr("type") == "text"){
             $('#show_hide_password input').attr('type', 'password');
@@ -969,21 +995,24 @@ $('#proceed-guardian').click(function(e) {
             $('#show_hide_password_confirm i').addClass( "fa-eye" );
         }
     });
-    
-    // Image preview
+
     $("#image_residence").click(function(){
           $("#add_image_residence").click();
       });
-    function displayImge(input){
+
+
+      function displayImge(input){
       if(input.files && input.files[0]){
         var reader = new FileReader();
         var add_image = $("#add_image_residence").val().split('.').pop().toLowerCase();
+
         if(add_image != ''){
           if(jQuery.inArray(add_image,['gif','png','jpg','jpeg']) == -1){
             Swal.fire({
               title: '<strong class="text-danger">ERROR</strong>',
-              icon: 'error',
-              html: '<b>Invalid Image File</b>',
+              type: 'error',
+              html: '<b>Invalid Image File<b>',
+              width: '400px',
               confirmButtonColor: '#6610f2',
             })
             $("#add_image_residence").val('');
@@ -991,19 +1020,29 @@ $('#proceed-guardian').click(function(e) {
             return false;
           }
         }
+
         reader.onload = function(e){
           $("#image_residence").attr('src',e.target.result);
           $("#image_residence").hide();
           $("#image_residence").fadeIn(650);
         }
+
         reader.readAsDataURL(input.files[0]);
+
       }
     }  
+
     $("#add_image_residence").change(function(){
       displayImge(this);
     })
+
+
+
+
   });
+
 </script>
+
 <script>
 // Restricts input for each element in the set of matched elements to the given inputFilter.
 (function($) {
@@ -1022,15 +1061,38 @@ $('#proceed-guardian').click(function(e) {
     });
   };
 }(jQuery));
+
+ 
   $("#add_contact_number,#add_zip, #add_guardian_contact, #add_age").inputFilter(function(value) {
   return /^-?\d*$/.test(value); 
+  
   });
+
+
   $("#add_first_name, #add_middle_name, #add_last_name, #add_suffix, #add_religion, #add_nationality, #add_municipality, #add_fathers_name, #add_mothers_name, #add_guardian").inputFilter(function(value) {
   return /^[a-z, ]*$/i.test(value); 
   });
+  
   $("#add_street, #add_birth_place, #add_house_number").inputFilter(function(value) {
   return /^[0-9a-z, ,-]*$/i.test(value); 
   });
+
+
+$(document).ready(function(){
+
+  // Show the Data Privacy Modal on page load
+  $('#dataPrivacyModal').modal('show');
+
+  // Handle the "I Agree" button click
+  $('#agreeButton').click(function() {
+    $('#dataPrivacyModal').modal('hide');
+    $('#registrationContainer').css({
+      'pointer-events': 'auto',
+      'opacity': '1'
+    });
+  });
+});
 </script>
+
 </body>
 </html>
