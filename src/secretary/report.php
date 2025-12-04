@@ -30,6 +30,12 @@ try {
     $zone = htmlspecialchars($brgy_info['zone'] ?? '');
     $district = htmlspecialchars($brgy_info['district'] ?? '');
 
+    $table = '';
+    $total_households = 0;
+    $total_residents = 0;
+    $total_seniors = 0;
+    $total_pwd = 0;
+
     // Initialize filter variables
     $filters = [];
     $params = [];
@@ -84,7 +90,7 @@ try {
                 LEFT JOIN users u ON h.household_head_id = u.id
                 LEFT JOIN residence_information ri ON u.id = ri.residence_id
                 WHERE 1=1 {$search_where}
-                GROUP BY h.id, h.household_number, h.address, h.barangay, h.municipality, h.zip_code, h.date_created, h.household_head_id
+                GROUP BY h.id, h.household_number, h.address, h.barangay, h.municipality, h.zip_code, h.date_created, h.household_head_id, ri.first_name, ri.last_name
                 ORDER BY h.date_created DESC";
 
     // Prepare and execute query
@@ -98,12 +104,6 @@ try {
     } else {
         $result_households = $con->query($base_sql);
     }
-
-    $table = '';
-    $total_households = 0;
-    $total_residents = 0;
-    $total_seniors = 0;
-    $total_pwd = 0;
     
     if ($result_households && $result_households->num_rows > 0) {
         while ($row = $result_households->fetch_assoc()) {
@@ -195,6 +195,8 @@ try {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Household Monitoring</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
