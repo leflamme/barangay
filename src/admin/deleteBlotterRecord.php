@@ -3,40 +3,48 @@ include_once '../connection.php';
 
 try{
   if(isset($_REQUEST['id'])){
+    // 1. Clean the ID
     $blotter_id = $con->real_escape_string($_REQUEST['id']);
 
+    // 2. Create the Log (This is fine to keep here)
     $sql_blotter = "SELECT * FROM blotter_record WHERE blotter_id IN ($blotter_id)";
     $stmt_blotter = $con->prepare($sql_blotter) or die ($con->error);
     $stmt_blotter->execute();
     $result_blotter = $stmt_blotter->get_result();
     $row_blotter = $result_blotter->fetch_assoc();
 
-    $old_date_incident = $row_blotter['date_incident'];
-    $old_date_reported = $row_blotter['date_reported'];
-    $old_location_incident = $row_blotter['location_incident'];
+    if($row_blotter) {
+        $old_date_incident = $row_blotter['date_incident'];
+        $old_date_reported = $row_blotter['date_reported'];
+        $old_location_incident = $row_blotter['location_incident'];
 
-    $date_activity = $now = date("j-n-Y g:i A");  
-    $admin = strtoupper('ADMIN').':' .' '. 'DELETED BLOTTER RECORD - '.' ' .$blotter_id.' | ' . $old_date_incident.' ' . $old_date_reported. ' ' . $old_location_incident;
-    $status_activity_log = 'delete';
-    $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
-    $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
-    $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
-    $stmt_activity_log->execute();
-    $stmt_activity_log->close();
+        $date_activity = $now = date("j-n-Y g:i A");  
+        $admin = strtoupper('ADMIN').':' .' '. 'DELETED BLOTTER RECORD - '.' ' .$blotter_id.' | ' . $old_date_incident.' ' . $old_date_reported. ' ' . $old_location_incident;
+        $status_activity_log = 'delete';
+        $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
+        $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
+        $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
+        $stmt_activity_log->execute();
+        $stmt_activity_log->close();
+    }
 
-    $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
-    $stmt_delete_record = $con->query($sql_delete_record) or die ($con->error);
-
+    // --- START OF FIX ---
+    
+    // STEP 1: Delete from CHILD tables FIRST (Complainant and Status)
     $sql_record_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
-    $stmt_record_complainant = $con->query($sql_record_complainant) or die ($con->error);
+    $con->query($sql_record_complainant) or die ($con->error);
 
     $sql_blotter_person = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
-    $stmt_blotter_person = $con->query($sql_blotter_person) or die ($con->error);
+    $con->query($sql_blotter_person) or die ($con->error);
 
+    // STEP 2: Delete from PARENT table LAST (Blotter Record)
+    $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
+    $con->query($sql_delete_record) or die ($con->error);
+
+    // --- END OF FIX ---
   }
 
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
 ?>
