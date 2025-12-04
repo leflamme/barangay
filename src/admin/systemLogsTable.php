@@ -11,39 +11,37 @@ ob_clean();
 header('Content-Type: application/json');
 
 try {
-    // Columns that DataTables expects
     $col = ['id', 'message', 'date'];
-    
-    // Select everything so we can access the 'status' column
     $sql = "SELECT * FROM activity_log";
     $whereClauses = [];
 
-    // --- FIXED FILTERS (Using the 'status' column) ---
+    // --- FILTERS (Now Case-Insensitive) ---
     if (isset($_POST['log_type_filter']) && !empty($_POST['log_type_filter'])) {
         $filter = $con->real_escape_string($_POST['log_type_filter']);
         
-        // We check BOTH the 'status' column AND the 'message' column to be safe
+        // We use LOWER(...) to ensure uppercase DB data matches our lowercase search terms
         switch ($filter) {
             case 'LOGIN':
-                $whereClauses[] = "(status = 'login' OR message LIKE '%logged in%')";
+                $whereClauses[] = "(LOWER(status) = 'login' OR LOWER(message) LIKE '%logged in%' OR LOWER(message) LIKE '%login%')";
                 break;
             case 'LOGOUT':
-                $whereClauses[] = "(status = 'logout' OR message LIKE '%logged out%')";
+                $whereClauses[] = "(LOWER(status) = 'logout' OR LOWER(message) LIKE '%logged out%' OR LOWER(message) LIKE '%logout%')";
                 break;
             case 'UPDATE':
-                // Matches 'update' (edit) AND 'create' (add)
-                $whereClauses[] = "(status IN ('update', 'create', 'edit') OR message LIKE '%update%' OR message LIKE '%added%')";
+                // Matches 'update', 'create', 'edit', 'added', 'modified'
+                $whereClauses[] = "(LOWER(status) IN ('update', 'create', 'edit') OR LOWER(message) LIKE '%update%' OR LOWER(message) LIKE '%add%' OR LOWER(message) LIKE '%create%')";
                 break;
             case 'DELETE':
-                $whereClauses[] = "(status = 'delete' OR message LIKE '%deleted%' OR message LIKE '%archive%')";
+                $whereClauses[] = "(LOWER(status) = 'delete' OR LOWER(message) LIKE '%delete%' OR LOWER(message) LIKE '%remove%' OR LOWER(message) LIKE '%archive%')";
                 break;
         }
     }
 
-    // --- SEARCH BAR ---
+    // --- SEARCH BAR (Now Case-Insensitive) ---
     if (isset($_REQUEST['search']['value']) && !empty($_REQUEST['search']['value'])) {
         $searchValue = $con->real_escape_string($_REQUEST['search']['value']);
-        $whereClauses[] = "(message LIKE '%" . $searchValue . "%' OR date LIKE '%" . $searchValue . "%' OR status LIKE '%" . $searchValue . "%')";
+        // Search across message, date, AND status
+        $whereClauses[] = "(LOWER(message) LIKE LOWER('%" . $searchValue . "%') OR date LIKE '%" . $searchValue . "%' OR LOWER(status) LIKE LOWER('%" . $searchValue . "%'))";
     }
 
     // Apply Filters
@@ -59,10 +57,8 @@ try {
     $totalFiltered = $result_filtered->num_rows;
 
     // --- ORDERING ---
-    // Prevent SQL injection in ordering
     $orderColumnIndex = isset($_REQUEST['order'][0]['column']) ? intval($_REQUEST['order'][0]['column']) : 0;
     $orderDir = isset($_REQUEST['order'][0]['dir']) && strtolower($_REQUEST['order'][0]['dir']) === 'asc' ? 'ASC' : 'DESC';
-    // Map index 0->id, 1->message, 2->date
     $orderBy = isset($col[$orderColumnIndex]) ? $col[$orderColumnIndex] : 'id';
     
     $sql .= " ORDER BY " . $orderBy . " " . $orderDir;
@@ -86,16 +82,8 @@ try {
         $subdata = [];
         $subdata[] = $row['id'];
         
-        // Combine status and message for a better view? 
-        // Or just keep the message as requested. Let's append status nicely if it exists.
-        $displayMessage = htmlspecialchars($row['message']);
-        /* Optional: Uncomment this line if you want to see the status tag in the table
-           if(!empty($row['status'])) {
-               $displayMessage = '<span class="badge badge-info">' . strtoupper($row['status']) . '</span> ' . $displayMessage;
-           } 
-        */
-        
-        $subdata[] = $displayMessage;
+        // Display Message (we don't change the display, just the search logic)
+        $subdata[] = htmlspecialchars($row['message']);
         $subdata[] = htmlspecialchars($row['date']);
         $data[] = $subdata;
     }
@@ -115,12 +103,13 @@ try {
     ]);
 
 } catch (Exception $e) {
+    // Return error as JSON so DataTables alerts the user
     echo json_encode([
         'draw' => intval($_REQUEST['draw'] ?? 0),
         'recordsTotal' => 0,
         'recordsFiltered' => 0,
         'data' => [],
-        'error' => $e->getMessage()
+        'error' => "Server Error: " . $e->getMessage()
     ]);
 }
 ?>
