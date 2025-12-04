@@ -1,7 +1,7 @@
 <?php
-//index.php
-include_once 'connection.php';
 session_start();
+include_once 'connection.php';
+
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
 
 
@@ -1172,9 +1172,10 @@ $(document).ready(function(){
                 }
             },
             error: function(xhr, status, error){
-                console.error('AJAX Error:', error);
-                Swal.fire('ERROR','AJAX request failed: ' + error,'error');
-            }
+              console.error('AJAX Error:', error);
+              console.log('Server Response:', xhr.responseText); // This logs the actual text sent by server
+              Swal.fire('ERROR','AJAX request failed. Check console for details.','error');
+          }
         });
     }
 
