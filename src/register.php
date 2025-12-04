@@ -1,7 +1,7 @@
 <?php
-session_start();
+//index.php
 include_once 'connection.php';
-
+session_start();
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
 
 
@@ -636,7 +636,7 @@ $sql = "SELECT * FROM `barangay_information`";
       <div class="card-footer d-flex justify-content-between">
         <button type="button" id="btn-back" class="btn btn-secondary px-4 elevation-2" style="display:none;"> <i class="fas fa-arrow-left"></i> Back</button>
         <button type="button" id="btn-next" class="btn btn-primary px-4 elevation-2"> Next <i class="fas fa-arrow-right"></i></button>
-        <button type="submit" id="btn-submit" class="btn btn-success px-4 elevation-3" style="display:none;"> <i class="fas fa-user-plus"></i> REGISTER</button>
+        <button type="button" id="btn-submit" class="btn btn-success px-4 elevation-3" style="display:none;"> <i class="fas fa-user-plus"></i> REGISTER</button>
       </div> 
       <!-- /.card -->
     </div>
@@ -731,7 +731,7 @@ $sql = "SELECT * FROM `barangay_information`";
         
       </div>
       <div class="modal-footer">
-        <button type="button" id="agreeButton" class="btn btn-success">I Agree</button>
+        <button type="button" id="agreeButton" class="btn btn-success">Agree and Register</button>
       </div>
     </div>
   </div>
@@ -782,69 +782,9 @@ $sql = "SELECT * FROM `barangay_information`";
 
     })
  $(function () {
-        $.validator.setDefaults({
-          submitHandler: function (form) {
-
-            $.ajax({
-                    url: 'signup/newResidence.php',
-                    type: 'POST',
-                    data: new FormData(form),
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    success:function(data){
-
-                      if(data == 'errorPassword'){
-                          Swal.fire({
-                            title: '<strong class="text-danger">ERROR</strong>',
-                            type: 'error',
-                            html: '<b>Password not Match<b>',
-                            width: '400px',
-                            confirmButtonColor: '#6610f2',
-                          })
-                      }else if(data == 'errorUsername'){
-
-                        Swal.fire({
-                            title: '<strong class="text-danger">ERROR</strong>',
-                            type: 'error',
-                            html: '<b>Username is Already Taken<b>',
-                            width: '400px',
-                            confirmButtonColor: '#6610f2',
-                          })
-
-                      }else{
-
-                        Swal.fire({
-                          title: '<strong class="text-success">SUCCESS</strong>',
-                          type: 'success',
-                          html: '<b>Registered Residence has Successfully<b>',
-                          width: '400px',
-                          confirmButtonColor: '#6610f2',
-                          allowOutsideClick: false,
-                          showConfirmButton: false,
-                          timer: 2000,
-                        }).then(()=>{
-                          window.location.reload();
-                        })
-                      }
-
-                      
-                    }
-                }).fail(function(){
-                    Swal.fire({
-                      title: '<strong class="text-danger">Ooppss..</strong>',
-                      type: 'error',
-                      html: '<b>Something went wrong with ajax !<b>',
-                      width: '400px',
-                      confirmButtonColor: '#6610f2',
-                    })
-                })
-
-           
-          }
-        });
+      
       $('#registerResidentForm').validate({
-       ignore:[], // Changed to empty array to ensure hidden tabs can be validated if needed, but we validate step by step manually
+       ignore: ":hidden", // Changed from [] to ":hidden" to prevent validation on hidden/disabled fields (like hidden PWD info)
         rules: {
           add_first_name: {
             required: true,
@@ -956,7 +896,7 @@ $sql = "SELECT * FROM `barangay_information`";
             required: "This Field is required",
             minlength: "Password must be at least 8 characters long"
           },
-          add_confirm_password: { // Fixed key from add_password to add_confirm_password in messages
+          add_confirm_password: { 
             required: "This Field is required",
             minlength: "Confirm Password must be at least 8 characters long"
           },
@@ -1096,17 +1036,7 @@ $("#show_hide_password a").on('click', function(event) {
 
 $(document).ready(function(){
 
-  // Show the Data Privacy Modal on page load
-  $('#dataPrivacyModal').modal('show');
-
-  // Handle the "I Agree" button click
-  $('#agreeButton').click(function() {
-    $('#dataPrivacyModal').modal('hide');
-    $('#registrationContainer').css({
-      'pointer-events': 'auto',
-      'opacity': '1'
-    });
-  });
+  // REMOVED: $('#dataPrivacyModal').modal('show'); on page load
 
   // ============================================
   // WIZARD NAVIGATION LOGIC
@@ -1151,6 +1081,7 @@ $(document).ready(function(){
 
     // Check validity
     inputsToValidate.each(function() {
+      // This will now respect the ignore: ":hidden" rule, so hidden fields wont block
       if (!$(this).valid()) {
         isValid = false;
       }
@@ -1175,14 +1106,95 @@ $(document).ready(function(){
     }
   });
 
+  // Handle "Register" Button Click (Account Tab)
+  $('#btn-submit').click(function() {
+    // Validate the Account tab inputs
+    var inputsToValidate = $('#account').find('input, select, textarea');
+    var isValid = true;
+
+    inputsToValidate.each(function() {
+      if (!$(this).valid()) {
+        isValid = false;
+      }
+    });
+
+    if (isValid) {
+      // Show Data Privacy Modal only if valid
+      $('#dataPrivacyModal').modal('show');
+    } else {
+      inputsToValidate.filter('.is-invalid').first().focus();
+    }
+  });
+
+  // Handle "Agree and Register" Click (Inside Modal)
+  $('#agreeButton').click(function() {
+    // Get the form element
+    var form = $('#registerResidentForm')[0];
+    
+    // Close modal
+    $('#dataPrivacyModal').modal('hide');
+
+    // Execute AJAX Registration
+    $.ajax({
+        url: 'signup/newResidence.php',
+        type: 'POST',
+        data: new FormData(form),
+        processData: false,
+        contentType: false,
+        cache: false,
+        success:function(data){
+
+          if(data == 'errorPassword'){
+              Swal.fire({
+                title: '<strong class="text-danger">ERROR</strong>',
+                type: 'error',
+                html: '<b>Password not Match<b>',
+                width: '400px',
+                confirmButtonColor: '#6610f2',
+              })
+          }else if(data == 'errorUsername'){
+
+            Swal.fire({
+                title: '<strong class="text-danger">ERROR</strong>',
+                type: 'error',
+                html: '<b>Username is Already Taken<b>',
+                width: '400px',
+                confirmButtonColor: '#6610f2',
+              })
+
+          }else{
+
+            Swal.fire({
+              title: '<strong class="text-success">SUCCESS</strong>',
+              type: 'success',
+              html: '<b>Registered Residence has Successfully<b>',
+              width: '400px',
+              confirmButtonColor: '#6610f2',
+              allowOutsideClick: false,
+              showConfirmButton: false,
+              timer: 2000,
+            }).then(()=>{
+              window.location.reload();
+            })
+          }
+        }
+    }).fail(function(){
+        Swal.fire({
+          title: '<strong class="text-danger">Ooppss..</strong>',
+          type: 'error',
+          html: '<b>Something went wrong with ajax !<b>',
+          width: '400px',
+          confirmButtonColor: '#6610f2',
+        })
+    });
+  });
+
   // Initialize buttons
   updateButtons();
 
   // Prevent default tab clicking just in case CSS fails, though pointer-events:none handles it
   $('.nav-link.tab-nav-link').on('click', function(e) {
      e.preventDefault();
-     // If you want to allow clicking previously visited tabs, logic would go here, 
-     // but requirements say "users can't click it"
      return false;
   });
 
