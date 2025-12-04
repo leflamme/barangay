@@ -3,17 +3,16 @@ include_once '../connection.php';
 
 try{
   if(isset($_REQUEST['id'])){
-    // 1. Clean the ID
     $blotter_id = $con->real_escape_string($_REQUEST['id']);
 
-    // 2. Create the Log (This is fine to keep here)
+    // 1. Log the deletion (This part is fine)
     $sql_blotter = "SELECT * FROM blotter_record WHERE blotter_id IN ($blotter_id)";
     $stmt_blotter = $con->prepare($sql_blotter) or die ($con->error);
     $stmt_blotter->execute();
     $result_blotter = $stmt_blotter->get_result();
     $row_blotter = $result_blotter->fetch_assoc();
 
-    if($row_blotter) {
+    if($row_blotter){
         $old_date_incident = $row_blotter['date_incident'];
         $old_date_reported = $row_blotter['date_reported'];
         $old_location_incident = $row_blotter['location_incident'];
@@ -28,20 +27,21 @@ try{
         $stmt_activity_log->close();
     }
 
-    // --- START OF FIX ---
-    
-    // STEP 1: Delete from CHILD tables FIRST (Complainant and Status)
+    // --- FIX START: Delete Children First ---
+
+    // 2. Delete Complainants FIRST
     $sql_record_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
     $con->query($sql_record_complainant) or die ($con->error);
 
+    // 3. Delete Status/Person Involved SECOND
     $sql_blotter_person = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
     $con->query($sql_blotter_person) or die ($con->error);
 
-    // STEP 2: Delete from PARENT table LAST (Blotter Record)
+    // 4. Delete Main Record LAST
     $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
     $con->query($sql_delete_record) or die ($con->error);
 
-    // --- END OF FIX ---
+    // --- FIX END ---
   }
 
 }catch(Exception $e){
