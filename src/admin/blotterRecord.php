@@ -1,9 +1,11 @@
+
 <?php 
 session_start();
 include_once '../connection.php';
 
 try{
   if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'){
+
     $user_id = $_SESSION['user_id'];
     $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
     $stmt_user = $con->prepare($sql_user) or die ($con->error);
@@ -15,8 +17,6 @@ try{
     $last_name_user = $row_user['last_name']?? '';
     $user_type = $row_user['user_type']?? '';
     $user_image = $row_user['image']?? '';
-
-
 
     $sql = "SELECT * FROM `barangay_information`";
     $query = $con->prepare($sql) or die ($con->error);
@@ -31,8 +31,6 @@ try{
         $id = $row['id'];
     }
 
-   
-
   }else{
    echo '<script>
           window.location.href = "../login.php";
@@ -43,9 +41,6 @@ try{
   echo $e->getMessage();
 }
 
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -53,8 +48,8 @@ try{
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>List: Record of Blotters</title>
-  <!-- Website Logo -->
+  <title>Blotter Records</title>
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
   <!-- Google Fonts DONT FORGET-->
@@ -88,58 +83,8 @@ try{
   border-radius: 0 0 10px 10px;
 }
 
-/* Navbar */
-.main-header.navbar {
-  background-color: #050C9C !important;
-  border-bottom: none;
-}
 
-.navbar .nav-link,
-.navbar .nav-link:hover {
-  color: #ffffff !important;
-}
-
-/* Sidebar */
-.main-sidebar {
-  background-color: #050C9C !important;
-}
-
-.brand-link {
-  background-color: transparent !important;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.sidebar .nav-link {
-  color: #A7E6FF !important;
-  transition: all 0.3s;
-}
-
-.sidebar .nav-link.active,
-.sidebar .nav-link:hover {
-  background-color: #3572EF !important;
-  color: #ffffff !important;
-}
-
-.sidebar .nav-icon {
-  color: #3ABEF9 !important;
-}
-
-.dropdown-menu {
-  border-radius: 10px;
-  border: none;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.dropdown-item {
-  font-weight: 600;
-  transition: 0.2s ease-in-out;
-}
-
-.dropdown-item:hover {
-  background-color: #F5587B;
-  color: white;
-}
-
+/* Card Header */
 /* CARD HEADER */
 .card-header {
   background-color: #050C9C !important;
@@ -564,7 +509,6 @@ try{
                   <p>Resident</p>
                 </a>
               </li>
-              <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
               <li class="nav-item">
                 <a href="userAdministrator.php" class="nav-link">
                   <i class="fas fa-circle nav-icon text-red"></i>
@@ -627,7 +571,14 @@ try{
               </p>
             </a>
           </li>
-          
+          <li class="nav-item">
+            <a href="settings.php" class="nav-link">
+              <i class="nav-icon fas fa-cog"></i>
+              <p>
+                Settings
+              </p>
+            </a>
+          </li>
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
@@ -636,7 +587,14 @@ try{
               </p>
             </a>
           </li>
-          
+          <li class="nav-item">
+            <a href="backupRestore.php" class="nav-link">
+              <i class="nav-icon fas fa-database"></i>
+              <p>
+                Backup/Restore
+              </p>
+            </a>
+          </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -671,7 +629,11 @@ try{
             <div class="card">
               <div class="card-header border-transparent">
                 <h3 class="card-title">List of Records</h3>
-                
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool bg-black btn-flat" id="addRecord" data-toggle="modal" data-target="#blotterRecordModal">
+                    <i class="fas fa-plus"></i> New Record
+                  </button>
+                </div>
               </div>
               <!-- /.card-header -->
               <div class="card-body ">

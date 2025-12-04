@@ -23,29 +23,20 @@ try{
     $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
     $stmt_activity_log->execute();
     $stmt_activity_log->close();
- 
 
     $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
     $stmt_delete_record = $con->query($sql_delete_record) or die ($con->error);
- 
 
     $sql_record_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
     $stmt_record_complainant = $con->query($sql_record_complainant) or die ($con->error);
 
-
-
     $sql_blotter_person = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
     $stmt_blotter_person = $con->query($sql_blotter_person) or die ($con->error);
 
-
   }
-
 
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
-
 
 ?>

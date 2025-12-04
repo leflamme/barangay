@@ -2,6 +2,7 @@
 include_once '../connection.php';
 
 try{
+
   $edit_residence_id = $con->real_escape_string($_REQUEST['edit_residence_id']);
 
   $sql_blooter_check = "SELECT blotter_record.*, blotter_status.*, blotter_complainant.*, blotter_record.blotter_id AS gago FROM `blotter_record` 
@@ -14,7 +15,7 @@ try{
   $totalDataBlotter = $result_blotter_check->num_rows;
   $totalFilteredBlotter = $totalDataBlotter;
 
-$data= [];
+  $data= [];
 
   while($row_blotter_check = $result_blotter_check->fetch_assoc()){
 
@@ -45,8 +46,6 @@ $data= [];
       $delete_record = '<i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteRecordPerson" data-id="'.$row_blotter_check['person_id'].'" id="'.$row_blotter_check['blotter_main'].'"></i>';
     }
 
-    
-
     $subdata = [];
 
     $subdata[] = $color;
@@ -62,9 +61,7 @@ $data= [];
 
    $data[] = $subdata;
     
-  
   }
-
 
   $json_data = [
     'draw' => intval($_REQUEST['draw']),
@@ -75,16 +72,7 @@ $data= [];
 
   echo json_encode($json_data);
 
-
-
-
-
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
-
-
-
 ?>
