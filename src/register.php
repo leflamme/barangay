@@ -1,7 +1,7 @@
 <?php
-//index.php
-include_once 'connection.php';
 session_start();
+include_once 'connection.php';
+
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
 
 
@@ -260,11 +260,15 @@ $sql = "SELECT * FROM `barangay_information`";
   width: 100%;
 }
 
+/* WIZARD TABS STYLING */
 .tab-nav-link {
   background-color: #ffffff !important;  /* Default: white background */
   color: #003366 !important;            /* Default: dark text */
   border: 1px solid #cccccc !important;
   font-weight: 600;
+  /* LOCK TABS: Disable pointer events so they can't be clicked directly */
+  pointer-events: none;
+  cursor: default;
 }
 
 .tab-nav-link.active {
@@ -542,7 +546,8 @@ $sql = "SELECT * FROM `barangay_information`";
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
-                      <label>Email Address</label>
+                      <!-- ADDED REQUIRED INDICATOR HERE -->
+                      <label>Email Address <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_email_address" name="add_email_address" >
                     </div>
                   </div>
@@ -627,8 +632,11 @@ $sql = "SELECT * FROM `barangay_information`";
           </div>
         </div>
       </div>
-      <div class="card-footer">
-        <button type="submit"  class="btn btn-success px-4 elevation-3"> <i class="fas fa-user-plus"></i> REGISTER</button>
+      <!-- MODIFIED FOOTER WITH NAVIGATION BUTTONS -->
+      <div class="card-footer d-flex justify-content-between">
+        <button type="button" id="btn-back" class="btn btn-secondary px-4 elevation-2" style="display:none;"> <i class="fas fa-arrow-left"></i> Back</button>
+        <button type="button" id="btn-next" class="btn btn-primary px-4 elevation-2"> Next <i class="fas fa-arrow-right"></i></button>
+        <button type="submit" id="btn-submit" class="btn btn-success px-4 elevation-3" style="display:none;"> <i class="fas fa-user-plus"></i> REGISTER</button>
       </div> 
       <!-- /.card -->
     </div>
@@ -836,7 +844,7 @@ $sql = "SELECT * FROM `barangay_information`";
           }
         });
       $('#registerResidentForm').validate({
-       ignore:'',
+       ignore:[], // Changed to empty array to ensure hidden tabs can be validated if needed, but we validate step by step manually
         rules: {
           add_first_name: {
             required: true,
@@ -855,6 +863,10 @@ $sql = "SELECT * FROM `barangay_information`";
           add_contact_number: {
             required: true,
             minlength: 11
+          },
+          add_email_address: {
+            required: true,
+            email: true
           },
           add_voters: {
             required: true,
@@ -918,6 +930,10 @@ $sql = "SELECT * FROM `barangay_information`";
             required: "This Field is required",
             minlength: "Input Exact Contact Number"
           },
+          add_email_address: {
+            required: "This Field is required",
+            email: "Please enter a valid email address"
+          },
             add_birth_date: {
             required: "This Field is required",
           },
@@ -940,7 +956,7 @@ $sql = "SELECT * FROM `barangay_information`";
             required: "This Field is required",
             minlength: "Password must be at least 8 characters long"
           },
-          add_password: {
+          add_confirm_password: { // Fixed key from add_password to add_confirm_password in messages
             required: "This Field is required",
             minlength: "Confirm Password must be at least 8 characters long"
           },
@@ -1091,6 +1107,85 @@ $(document).ready(function(){
       'opacity': '1'
     });
   });
+
+  // ============================================
+  // WIZARD NAVIGATION LOGIC
+  // ============================================
+  var navTabs = ['#basic-info-tab', '#other-info-tab', '#guardian-tab', '#account-tab'];
+  var tabPanes = ['#basic-info', '#other-info', '#guardian', '#account'];
+  var currentTabIndex = 0;
+
+  function updateButtons() {
+    // Hide all buttons first
+    $('#btn-back').hide();
+    $('#btn-next').hide();
+    $('#btn-submit').hide();
+
+    // Show Back button if not on first step
+    if(currentTabIndex > 0) {
+      $('#btn-back').show();
+    }
+
+    // Show Next button if not on last step, otherwise show Submit
+    if(currentTabIndex < navTabs.length - 1) {
+      $('#btn-next').show();
+    } else {
+      $('#btn-submit').show();
+    }
+  }
+
+  $('#btn-next').click(function() {
+    // Validate current tab's inputs specifically
+    var currentTabId = tabPanes[currentTabIndex];
+    var isValid = true;
+
+    // Select all inputs, selects in the current tab pane
+    // Also include sidebar inputs if we are on the first tab (Basic Info)
+    var inputsToValidate = $(currentTabId).find('input, select, textarea');
+    
+    if (currentTabIndex === 0) {
+      // Add sidebar inputs to validation list for step 1
+      var sidebarInputs = $('.col-sm-4').find('input, select');
+      inputsToValidate = inputsToValidate.add(sidebarInputs);
+    }
+
+    // Check validity
+    inputsToValidate.each(function() {
+      if (!$(this).valid()) {
+        isValid = false;
+      }
+    });
+
+    if (isValid) {
+      // Move to next tab
+      currentTabIndex++;
+      $(navTabs[currentTabIndex]).tab('show'); // Bootstrap 4 tab show
+      updateButtons();
+    } else {
+      // Focus on first invalid element
+      inputsToValidate.filter('.is-invalid').first().focus();
+    }
+  });
+
+  $('#btn-back').click(function() {
+    if (currentTabIndex > 0) {
+      currentTabIndex--;
+      $(navTabs[currentTabIndex]).tab('show');
+      updateButtons();
+    }
+  });
+
+  // Initialize buttons
+  updateButtons();
+
+  // Prevent default tab clicking just in case CSS fails, though pointer-events:none handles it
+  $('.nav-link.tab-nav-link').on('click', function(e) {
+     e.preventDefault();
+     // If you want to allow clicking previously visited tabs, logic would go here, 
+     // but requirements say "users can't click it"
+     return false;
+  });
+
 });
 </script>
 
