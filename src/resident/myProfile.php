@@ -32,11 +32,22 @@ try {
         
         // Set variables
         $username = $row_user['username'];
+
         $first_name = $row_resident['first_name'];
         $middle_name = $row_resident['middle_name'];
         $last_name = $row_resident['last_name'];
+        $house_number = $row_resident['house_number'] ?? ''; // <-- Added Part
+        $street = $row_resident['street'] ?? '';
+        $barangay_name = $row_resident['barangay'] ?? '';
+        $municipality = $row_resident['municipality'] ?? '';
+        $full_address = $house_number . ', ' . $street . ', ' . $barangay_name . ', ' . $municipality;
+
         $contact_number = $row_resident['contact_number'];
         $email = $row_resident['email_address'];
+        $image = $row_resident['image_path'] ?: '../assets/dist/img/image.png'; // <-- Added Part
+        $barangay = $row_barangay['barangay'] ?? '';
+        $zone = $row_barangay['zone'] ?? '';
+        $district = $row_barangay['district'] ?? '';
         
         // --- FIXED IMAGE PATH ---
         $image_to_display = '../assets/dist/img/image.png'; // Default
@@ -89,11 +100,12 @@ try {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Profile</title>
+    <!-- Website Logo -->
     <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
-   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
@@ -102,77 +114,78 @@ try {
     <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
     <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
     <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-     <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-  <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
-  <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    
     <style>
 
-      body {
-      font-family: 'Poppins', sans-serif;
-  background-color: #ffffff; /* Changed to white */
-}
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #ffffff; /* Changed to white */
+    }
 
-/* Added for white background */
-.wrapper,
-.content-wrapper,
-.main-footer,
-.content,
-.content-header {
-  background-color: #ffffff !important;
-  color: #050C9C;
-}
+    /* Added for white background */
+    .wrapper,
+    .content-wrapper,
+    .main-footer,
+    .content,
+    .content-header {
+        background-color: #ffffff !important;
+        color: #050C9C;
+    }
 
     /* Navbar */
-.main-header.navbar {
-  background-color: #050C9C !important;
-  border-bottom: none;
-}
+    .main-header.navbar {
+        background-color: #050C9C !important;
+        border-bottom: none;
+    }
 
-.navbar .nav-link,
-.navbar .nav-link:hover {
-  color: #ffffff !important;
-}
+    .navbar .nav-link,
+    .navbar .nav-link:hover {
+        color: #ffffff !important;
+    }
 
-/* Sidebar */
-.main-sidebar {
-  background-color: #050C9C !important;
-}
+    /* Sidebar */
+    .main-sidebar {
+        background-color: #050C9C !important;
+    }
 
-.brand-link {
-  background-color: transparent !important;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
+    .brand-link {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
 
-.sidebar .nav-link {
-  color: #A7E6FF !important;
-  transition: all 0.3s;
-}
+    .sidebar .nav-link {
+        color: #A7E6FF !important;
+        transition: all 0.3s;
+    }
 
-.sidebar .nav-link.active,
-.sidebar .nav-link:hover {
-  background-color: #3572EF !important;
-  color: #ffffff !important;
-}
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+        background-color: #3572EF !important;
+        color: #ffffff !important;
+    }
 
-.sidebar .nav-icon {
-  color: #3ABEF9 !important;
-}
+    .sidebar .nav-icon {
+        color: #3ABEF9 !important;
+    }
 
-.dropdown-menu {
-  border-radius: 10px;
-  border: none;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
+    .dropdown-menu {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
 
-.dropdown-item {
-  font-weight: 600;
-  transition: 0.2s ease-in-out;
-}
+    .dropdown-item {
+        font-weight: 600;
+        transition: 0.2s ease-in-out;
+    }
 
-.dropdown-item:hover {
-  background-color: #F5587B;
-  color: white;
-}
+    .dropdown-item:hover {
+        background-color: #F5587B;
+        color: white;
+    }
 
         .profile-image-container {
             position: relative;
@@ -200,13 +213,16 @@ try {
         }
     </style>
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed">
 <div class="wrapper">
 
+    <!-- Preloader -->
     <div class="preloader flex-column justify-content-center align-items-center">
         <img class="animation__wobble" src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
     </div>
 
+    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-dark">
         <ul class="navbar-nav">
             <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
@@ -217,6 +233,7 @@ try {
             <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white"><?= htmlspecialchars($district) ?></h5></li>
         </ul>
 
+        <!-- User Account Menu / Right Navbar Links -->
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
@@ -235,9 +252,14 @@ try {
             </li>
         </ul>
     </nav>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
+        <!-- Barangay Logo -->
         <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
+        <!-- Sidebar -->
         <div class="sidebar">
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
@@ -252,6 +274,7 @@ try {
         </div>
     </aside>
 
+    <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <div class="content-header">
             <div class="container-fluid">
@@ -263,6 +286,7 @@ try {
             </div>
         </div>
 
+        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -272,68 +296,68 @@ try {
                                 <h3 class="card-title">Personal Information</h3>
                             </div>
                             <form id="profileForm" method="post" enctype="multipart/form-data">
-                                <div class="card-body">
-                                    <div class="text-center">
-                                        <div class="profile-image-container">
-                                            <img src="<?= $image_to_display ?>" id="profileImage" class="profile-image" alt="Profile Image" <?= $is_editable ? 'style="cursor: pointer;"' : 'style="cursor: not-allowed;"' ?>>
-                                            <input type="file" id="imageUpload" name="image" class="file-input" <?= $is_editable ? '' : 'disabled' ?>>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>First Name</label>
-                                        <input type="text" class="form-control" name="first_name" 
-                                               value="<?= htmlspecialchars($first_name) ?>" 
-                                               <?= $edit_attr ?> required>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Middle Name</label>
-                                        <input type="text" class="form-control" name="middle_name" 
-                                               value="<?= htmlspecialchars($middle_name) ?>" 
-                                               <?= $edit_attr ?>>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Last Name</label>
-                                        <input type="text" class="form-control" name="last_name" 
-                                               value="<?= htmlspecialchars($last_name) ?>" 
-                                               <?= $edit_attr ?> required>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Contact Number</label>
-                                        <input type="text" class="form-control" name="contact_number" 
-                                               value="<?= htmlspecialchars($contact_number) ?>" 
-                                               <?= $edit_attr ?> required>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <input type="email" class="form-control" name="email" 
-                                               value="<?= htmlspecialchars($email) ?>" 
-                                               <?= $edit_attr ?>>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Username</label>
-                                        <input type="text" class="form-control" 
-                                               value="<?= htmlspecialchars($username) ?>" readonly>
-                                    </div>
+                        <div class="card-body">
+                            <div class="text-center">
+                                <div class="profile-image-container">
+                                    <img src="<?= $image ?>" id="profileImage" class="profile-image" alt="Profile Image">
+                                    <input type="file" id="imageUpload" name="image" class="file-input">
                                 </div>
-                                
-                                <div class="card-footer">
-                                    <?php if ($edit_status == 'APPROVED'): ?>
-                                        <button type="submit" class="btn btn-success"><i class="fas fa-edit"></i> Update Profile</button>
-                                    
-                                    <?php elseif ($edit_status == 'PENDING'): ?>
-                                        <button type="button" class="btn btn-warning" disabled><i class="fas fa-clock"></i> Request Pending</button>
-                                    
-                                    <?php else: // $edit_status == 'LOCKED' ?>
-                                        <button type="button" class="btn btn-primary" id="requestEditButton"><i class="fas fa-lock-open"></i> Request Access to Edit</button>
-                                    <?php endif; ?>
-                                </div>
-                            </form>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" class="form-control" name="first_name" 
+                                    value="<?= htmlspecialchars($first_name) ?>" 
+                                    <?= !empty($first_name) ? 'readonly' : '' ?> required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Middle Name</label>
+                                <input type="text" class="form-control" name="middle_name" 
+                                    value="<?= htmlspecialchars($middle_name) ?>" 
+                                    <?= !empty($middle_name) ? 'readonly' : '' ?>>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control" name="last_name" 
+                                    value="<?= htmlspecialchars($last_name) ?>" 
+                                    <?= !empty($last_name) ? 'readonly' : '' ?> required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Full Address</label>
+                                <input type="text" class="form-control" name="address" 
+                                    value="<?= htmlspecialchars($full_address ?? '') ?>" 
+                                    <?= !empty($full_address) ? 'readonly' : '' ?> required>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <label>Contact Number</label>
+                                <input type="text" class="form-control" name="contact_number" 
+                                    value="<?= htmlspecialchars($contact_number) ?>" 
+                                    <?= !empty($contact_number) ? 'readonly' : '' ?> required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" name="email" 
+                                    value="<?= htmlspecialchars($email) ?>" 
+                                    <?= !empty($email) ? 'readonly' : '' ?>>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" class="form-control" 
+                                    value="<?= htmlspecialchars($username) ?>" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
 
                         </div>
                     </div>
@@ -342,6 +366,7 @@ try {
         </section>
     </div>
 
+    <!--
     <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -361,6 +386,7 @@ try {
         </div>
         </div>
     </div>
+    -->
 
     <footer class="main-footer">
         <strong>Copyright &copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')) ?></strong>
