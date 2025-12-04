@@ -52,7 +52,7 @@ try {
         $types = str_repeat('s', 5);
     }
 
-    // Base query for household monitoring - CORRECTED JOIN
+    // Base query for household monitoring - CORRECTED
     $base_sql = "SELECT 
                     h.id as household_id,
                     h.household_number,
@@ -90,7 +90,17 @@ try {
                 LEFT JOIN users u ON h.household_head_id = u.id
                 LEFT JOIN residence_information ri ON u.id = ri.residence_id
                 WHERE 1=1 {$search_where}
-                GROUP BY h.id, h.household_number, h.address, h.barangay, h.municipality, h.zip_code, h.date_created, h.household_head_id, ri.first_name, ri.last_name
+                GROUP BY 
+                    h.id, 
+                    h.household_number, 
+                    h.address, 
+                    h.barangay, 
+                    h.municipality, 
+                    h.zip_code, 
+                    h.date_created, 
+                    h.household_head_id,
+                    ri.first_name,   /* ADDED THIS LINE */
+                    ri.last_name     /* ADDED THIS LINE */
                 ORDER BY h.date_created DESC";
 
     // Prepare and execute query
@@ -184,8 +194,9 @@ try {
     }
 
 } catch (Exception $e) {
+    // This will show you exactly what went wrong
     error_log($e->getMessage());
-    echo "<script>alert('An error occurred. Please try again.');</script>";
+    echo "<script>alert('Error Details: " . addslashes($e->getMessage()) . "');</script>";
 }
 ?>
 
@@ -1029,4 +1040,3 @@ $(document).on('click', '.view-members', function(e) {
 
 </body>
 </html>
-
