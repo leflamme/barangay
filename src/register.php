@@ -41,11 +41,7 @@ $sql = "SELECT * FROM `barangay_information`";
       $id = $row['id'];
       $postal_address = $row['postal_address'];
   }
-
- 
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,13 +51,10 @@ $sql = "SELECT * FROM `barangay_information`";
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Barangay Registration Portal</title>
-  <!-- Website Icon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- CSS Libraries -->
   <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="assets/plugins/bs-stepper/css/bs-stepper.min.css">
   <link rel="stylesheet" href="assets/plugins/phone code/intlTelInput.min.css">
@@ -69,7 +62,6 @@ $sql = "SELECT * FROM `barangay_information`";
   <link rel="stylesheet" href="assets/plugins/step-wizard/css/smart_wizard_all.min.css">
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
 
-  <!-- Custom CSS -->
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -91,15 +83,15 @@ $sql = "SELECT * FROM `barangay_information`";
     }
 
     .navbar-brand img {
-  height: 50px;
-  width: 50px;
-  object-fit: cover;
-  border-radius: 50%;
-  padding: 5px;
-  background-color: white;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-  aspect-ratio: 1 / 1; /* Keeps it a perfect circle */
-}
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+      padding: 5px;
+      background-color: white;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      aspect-ratio: 1 / 1; /* Keeps it a perfect circle */
+    }
 
     .navbar-brand span {
       color: #A7E6FF;
@@ -199,90 +191,87 @@ $sql = "SELECT * FROM `barangay_information`";
     }
       /* Navbar Design from Homepage */
 
-.navbar {
-  background-color: #050C9C !important;
-  padding: 1.2rem 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-}
+    .navbar {
+      background-color: #050C9C !important;
+      padding: 1.2rem 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
 
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-.navbar-brand img {
-  height: 50px;
-  width: 50px;
-  object-fit: cover;
-  border-radius: 50%;
-  padding: 5px;
-  background-color: white;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-  aspect-ratio: 1 / 1; /* Keeps it a perfect circle */
-}
+    .navbar-brand img {
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+      padding: 5px;
+      background-color: white;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      aspect-ratio: 1 / 1; /* Keeps it a perfect circle */
+    }
 
-.navbar-brand span {
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: #A7E6FF !important;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+    .navbar-brand span {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #A7E6FF !important;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-.navbar-nav .nav-link {
-  color: #A7E6FF !important;
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 14px;
-  transition: 0.3s ease;
-  position: relative;
-}
+    .navbar-nav .nav-link {
+      color: #A7E6FF !important;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 14px;
+      transition: 0.3s ease;
+      position: relative;
+    }
 
-.navbar-nav .nav-link:hover {
-  color: #FFF591 !important;
-}
+    .navbar-nav .nav-link:hover {
+      color: #FFF591 !important;
+    }
 
-.navbar-nav .nav-link::after {
-  content: '';
-  display: block;
-  width: 0%;
-  height: 3px;
-  background: #E41749;
-  transition: 0.3s ease;
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-}
+    .navbar-nav .nav-link::after {
+      content: '';
+      display: block;
+      width: 0%;
+      height: 3px;
+      background: #E41749;
+      transition: 0.3s ease;
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+    }
 
-.navbar-nav .nav-link:hover::after {
-  width: 100%;
-}
+    .navbar-nav .nav-link:hover::after {
+      width: 100%;
+    }
 
-/* WIZARD TABS STYLING */
-.tab-nav-link {
-  background-color: #ffffff !important;  /* Default: white background */
-  color: #003366 !important;            /* Default: dark text */
-  border: 1px solid #cccccc !important;
-  font-weight: 600;
-  /* LOCK TABS: Disable pointer events so they can't be clicked directly */
-  pointer-events: none;
-  cursor: default;
-}
+    /* WIZARD TABS STYLING */
+    .tab-nav-link {
+      background-color: #ffffff !important;  /* Default: white background */
+      color: #003366 !important;            /* Default: dark text */
+      border: 1px solid #cccccc !important;
+      font-weight: 600;
+      /* LOCK TABS: Disable pointer events so they can't be clicked directly */
+      pointer-events: none;
+      cursor: default;
+    }
 
-.tab-nav-link.active {
-  background-color: #003366 !important; /* Active: dark blue background */
-  color: #ffffff !important;           /* Active: white text */
-}
+    .tab-nav-link.active {
+      background-color: #003366 !important; /* Active: dark blue background */
+      color: #ffffff !important;           /* Active: white text */
+    }
 
-.tab-nav-link:hover {
-  background-color: #f0f0f0 !important; /* Light gray on hover */
-  color: #003366 !important;
-}
-
-
-
+    .tab-nav-link:hover {
+      background-color: #f0f0f0 !important; /* Light gray on hover */
+      color: #003366 !important;
+    }
   </style>
 </head>
 <body  class="hold-transition layout-top-nav">
@@ -290,7 +279,6 @@ $sql = "SELECT * FROM `barangay_information`";
 
 <div class="wrapper">
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand-md" style="background-color: #0037af">
     <div class="container">
       <a href="" class="navbar-brand">
@@ -303,13 +291,8 @@ $sql = "SELECT * FROM `barangay_information`";
       </button>
 
       <div class="collapse navbar-collapse order-3" id="navbarCollapse">
-        <!-- Left navbar links -->
-
-
-       
       </div>
 
-      <!-- Right navbar links -->
       <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto " >
           <li class="nav-item">
             <a href="index.php" class="nav-link text-white rightBar" >HOME</a>
@@ -323,334 +306,292 @@ $sql = "SELECT * FROM `barangay_information`";
       </ul>
     </div>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper double" id="backGround">
-    <!-- Content Header (Page header) -->
- 
     
-  
-    <!-- /.content-header -->
-
-    <!-- Main content -->
     <div class="content" >
 
-  
+      <div class="container-fluid py-5">
 
+      <form id="registerResidentForm" method="POST" enctype="multipart/form-data" autocomplete="off">
+      <div class="row mb-3">
+        <div class="col-sm-4">
+          <div class="card  h-100 transparent-card shadow-card">
+            <div class="card-body" >
+              <div class="text-center">
+                <img class="profile-user-img img-fluid img-thumbnail" src="assets/dist/img/blank_image.png" alt="User profile picture" style="cursor: pointer;" id="image_residence">
+                <input type="file" name="add_image_residence" id="add_image_residence" style="display: none;">
+              </div>
 
+              <h3 class="profile-username text-center "><span id="keyup_first_name"></span> <span id="keyup_last_name"></span></h3>
 
-    
-       
-              <div class="container-fluid py-5">
-
-<form id="registerResidentForm" method="POST" enctype="multipart/form-data" autocomplete="off">
-<div class="row mb-3">
-  <div class="col-sm-4">
-    <div class="card  h-100 transparent-card shadow-card">
-      <div class="card-body" >
-        <div class="text-center">
-          <img class="profile-user-img img-fluid img-thumbnail" src="assets/dist/img/blank_image.png" alt="User profile picture" style="cursor: pointer;" id="image_residence">
-          <input type="file" name="add_image_residence" id="add_image_residence" style="display: none;">
-        </div>
-
-        <h3 class="profile-username text-center "><span id="keyup_first_name"></span> <span id="keyup_last_name"></span></h3>
-
-        <div class="row">
-         <!-- <div class="col-sm-12">
-            <div class="form-group">
-              <label>Voters <span class="text-danger">*</span></label>
-              <select name="add_voters" id="add_voters" class="form-control">
-                <option value=""></option>
-                <option value="NO">NO</option>
-                <option value="YES">YES</option>
-              </select>
-            </div>
-          </div> -->
-          <div class="col-sm-12">
-            <div class="form-group ">
-              <label >Gender</label>
-              <select name="add_gender" id="add_gender" class="form-control">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-          
-              </select>
-            </div>
-          </div>
-          <div class="col-sm-12">
-            <div class="form-group ">
-              <label >Date of Birth <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" id="add_birth_date" name="add_birth_date">
-            </div>
-          </div>
-          <div class="col-sm-12">
-            <div class="form-group ">
-              <label >Place of Birth</label>
-              <input type="text" class="form-control" id="add_birth_place" name="add_birth_place">
-            </div>
-          </div>
-          <div class="col-sm-12">
-                    <div class="form-group ">
-                      <label >PWD <span class="text-danger">*</span></label>
-                      <select name="add_pwd" id="add_pwd" class="form-control">
-                      <option value=""></option>
-                        <option value="NO">NO</option>
-                        <option value="YES">YES</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-sm-12" id="pwd_check" style="display: none;">
-                    <div class="form-group ">
-                      <label >TYPE OF PWD</label>
-                        <input type="text" class="form-control" id="add_pwd_info" name="add_pwd_info">
-                    </div>
-                  </div>
-                  <div class="col-sm-12">
-                    <div class="form-group ">
-                      <label >Single Parent</label>
-                      <select name="add_single_parent" id="add_single_parent" class="form-control">
-                        <option value=""></option>
-                        <option value="NO">NO</option>
-                        <option value="YES">YES</option>
-                      </select>
-                    </div>
-                  </div>
-        </div>
-
-
-
-       
-      </div>
-      <!-- /.card-body -->
-    </div>
-  </div>
-  <div class="col-sm-8">
-    <div class="card  card-tabs h-100 transparent-card shadow-card">
-      <div class="card-header p-0 pt-1">
-<ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link tab-nav-link" id="account-tab" data-toggle="pill" href="#account">Account</a>
-  </li>
-</ul>
-
-      </div>
-      <div class="card-body" >
-        <div class="tab-content" id="custom-tabs-one-tabContent">
-          <div class="tab-pane fade active show" id="basic-info" role="tabpanel" aria-labelledby="basic-info-tab">
-              <p class="lead text-center lead-bold">Personal Details</p>
               <div class="row">
                 <div class="col-sm-12">
                   <div class="form-group ">
-                    <label>First Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="add_first_name" name="add_first_name" >
+                    <label >Gender</label>
+                    <select name="add_gender" id="add_gender" class="form-control">
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                
+                    </select>
                   </div>
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group ">
-                    <label>Middle Name</label>
-                    <input type="text" class="form-control" id="add_middle_name" name="add_middle_name" >
+                    <label >Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="add_birth_date" name="add_birth_date">
                   </div>
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group ">
-                    <label>Last Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="add_last_name" name="add_last_name" >
-                  </div>  
-                </div>
-              </div>
-                <div class="row">
-                  <div class="col-sm-6">
-                    <div class="form-group ">
-                      <label >Suffix</label>
-                      <input type="text" class="form-control" id="add_suffix" name="add_suffix" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group ">
-                      <label >Civil Status</label>
-                      <select name="add_civil_status" id="add_civil_status" class="form-control">
-                        <option value="Single">Single</option>
-                        <option value="Married">Married</option>
-                        <option value="Widowed">Widowed</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div class="col-sm-6">
-                    <div class="form-group ">
-                      <label >Religion</label>
-                      <input type="text" class="form-control" id="add_religion" name="add_religion">
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group ">
-                      <label >Nationality</label>
-                      <input type="text" class="form-control" id="add_nationality" name="add_nationality">
-                    </div>
-                  </div>                              
-                </div>
-          </div>
-          <div class="tab-pane fade" id="other-info" role="tabpanel" aria-labelledby="other-info-tab">
-                <p class="lead text-center lead-bold">Address</p>
-                <div class="row">
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                      <label>Municipality <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="add_municipality" name="add_municipality">
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                      <label>Zip</label>
-                      <input type="text" class="form-control" id="add_zip" name="add_zip" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                      <label>Barangay <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="add_barangay" name="add_barangay" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                      <label>House Number <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="add_house_number" name="add_house_number" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                    <label>Street <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="add_street" name="add_street" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <!-- <div class="form-group">
-                      <label>Address <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="add_address" name="add_address" >
-                    </div> -->
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                      <label >Contact Number <span class="text-danger">*</span></label>
-                      <input type="text" maxlength="11" class="form-control" id="add_contact_number" name="add_contact_number" >
-                    </div>
-                  </div>
-                  <div class="col-sm-6">
-                    <div class="form-group">
-                      <!-- ADDED REQUIRED INDICATOR HERE -->
-                      <label>Email Address <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" id="add_email_address" name="add_email_address" >
-                    </div>
-                  </div>
-                </div>
-          </div>
-          <div class="tab-pane fade" id="guardian" role="tabpanel" aria-labelledby="guardian-tab">
-           
-              <p class="lead text-center lead-bold">Guardian</p>
-              <div class="row">
-
-                <div class="col-sm-12">
-                  <div class="form-group">
-                    <label>Father's Name</label>
-                    <input type="text" class="form-control" id="add_fathers_name" name="add_fathers_name" >
+                    <label >Place of Birth</label>
+                    <input type="text" class="form-control" id="add_birth_place" name="add_birth_place">
                   </div>
                 </div>
                 <div class="col-sm-12">
-                  <div class="form-group">
-                    <label>Mother's Name</label>
-                    <input type="text" class="form-control" id="add_mothers_name" name="add_mothers_name" >
-                  </div>
-                </div>
-                <div class="col-sm-12">
-                  <div class="form-group">
-                    <label>Guardian</label>
-                    <input type="text" class="form-control" id="add_guardian" name="add_guardian" >
-                  </div>
-                </div>
-                <div class="col-sm-12">
-                  <div class="form-group">
-                    <label>Guardian Contact</label>
-                    <input type="text" class="form-control" maxlength="11" id="add_guardian_contact" name="add_guardian_contact" >
-                  </div>
-                </div>
-
-              </div>
-            
-          </div>
-          <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
-           
-              <p class="lead text-center lead-bold">Account</p>
-                          <div class="row">
-                            
-                            <div class="col-sm-12 ">
-                              <div class="form-group">
-                                <div class="input-group mb-3">
-                                  <div class="input-group-prepend">
-                                    <span class="input-group-text bg-transparent"><i class="fas fa-user"></i></span>
-                                  </div>
-                                  <input type="text" id="add_username" name="add_username" class="form-control" placeholder="USERNAME" >
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-sm-12 ">
-                              <div  class="form-group">
-                                <div class="input-group mb-3" id="show_hide_password">
-                                  <div class="input-group-prepend">
-                                    <span class="input-group-text bg-transparent"><i class="fas fa-key"></i></span>
-                                  </div>
-                                  <input type="password"  id="add_password" name="add_password" class="form-control" placeholder="PASSWORD"  style="border-right: none;" >
-                                  <div class="input-group-append bg">
-                                    <span class="input-group-text bg-transparent"> <a href="" style=" text-decoration:none;"><i class="fas fa-eye-slash" aria-hidden="true"></i></a></span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-sm-12 ">
-                              <div  class="form-group">
-                                <div class="input-group mb-3" id="show_hide_password_confirm">
-                                  <div class="input-group-prepend">
-                                    <span class="input-group-text bg-transparent"><i class="fas fa-key"></i></span>
-                                  </div>
-                                  <input type="password"  id="add_confirm_password" name="add_confirm_password" class="form-control" placeholder="CONFIRM PASSWORD"  style="border-right: none;" >
-                                  <div class="input-group-append bg">
-                                    <span class="input-group-text bg-transparent"> <a href="" style=" text-decoration:none;"><i class="fas fa-eye-slash" aria-hidden="true"></i></a></span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                          <div class="form-group ">
+                            <label >PWD <span class="text-danger">*</span></label>
+                            <select name="add_pwd" id="add_pwd" class="form-control">
+                            <option value=""></option>
+                              <option value="NO">NO</option>
+                              <option value="YES">YES</option>
+                            </select>
                           </div>
-            
-          </div>
+                        </div>
+                        <div class="col-sm-12" id="pwd_check" style="display: none;">
+                          <div class="form-group ">
+                            <label >TYPE OF PWD</label>
+                              <input type="text" class="form-control" id="add_pwd_info" name="add_pwd_info">
+                          </div>
+                        </div>
+                        <div class="col-sm-12">
+                          <div class="form-group ">
+                            <label >Single Parent</label>
+                            <select name="add_single_parent" id="add_single_parent" class="form-control">
+                              <option value=""></option>
+                              <option value="NO">NO</option>
+                              <option value="YES">YES</option>
+                            </select>
+                          </div>
+                        </div>
+              </div>
+            </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="card  card-tabs h-100 transparent-card shadow-card">
+            <div class="card-header p-0 pt-1">
+            <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info">Basic Info</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info">Other Info</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian">Guardian</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link tab-nav-link" id="account-tab" data-toggle="pill" href="#account">Account</a>
+              </li>
+            </ul>
+
+            </div>
+            <div class="card-body" >
+              <div class="tab-content" id="custom-tabs-one-tabContent">
+                <div class="tab-pane fade active show" id="basic-info" role="tabpanel" aria-labelledby="basic-info-tab">
+                    <p class="lead text-center lead-bold">Personal Details</p>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div class="form-group ">
+                          <label>First Name <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="add_first_name" name="add_first_name" >
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-group ">
+                          <label>Middle Name</label>
+                          <input type="text" class="form-control" id="add_middle_name" name="add_middle_name" >
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-group ">
+                          <label>Last Name <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="add_last_name" name="add_last_name" >
+                        </div>  
+                      </div>
+                    </div>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <div class="form-group ">
+                            <label >Suffix</label>
+                            <input type="text" class="form-control" id="add_suffix" name="add_suffix" >
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group ">
+                            <label >Civil Status</label>
+                            <select name="add_civil_status" id="add_civil_status" class="form-control">
+                              <option value="Single">Single</option>
+                              <option value="Married">Married</option>
+                              <option value="Widowed">Widowed</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                          <div class="form-group ">
+                            <label >Religion</label>
+                            <input type="text" class="form-control" id="add_religion" name="add_religion">
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group ">
+                            <label >Nationality</label>
+                            <input type="text" class="form-control" id="add_nationality" name="add_nationality">
+                          </div>
+                        </div>                              
+                      </div>
+                </div>
+                <div class="tab-pane fade" id="other-info" role="tabpanel" aria-labelledby="other-info-tab">
+                      <p class="lead text-center lead-bold">Address</p>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Municipality <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_municipality" name="add_municipality">
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Zip</label>
+                            <input type="text" class="form-control" id="add_zip" name="add_zip" >
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Barangay <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_barangay" name="add_barangay" >
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>House Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_house_number" name="add_house_number" >
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                          <label>Street <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="add_street" name="add_street" >
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label >Contact Number <span class="text-danger">*</span></label>
+                            <input type="text" maxlength="11" class="form-control" id="add_contact_number" name="add_contact_number" >
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Email Address <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_email_address" name="add_email_address" >
+                          </div>
+                        </div>
+                      </div>
+                </div>
+                <div class="tab-pane fade" id="guardian" role="tabpanel" aria-labelledby="guardian-tab">
+                 
+                    <p class="lead text-center lead-bold">Guardian</p>
+                    <div class="row">
+
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label>Father's Name</label>
+                          <input type="text" class="form-control" id="add_fathers_name" name="add_fathers_name" >
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label>Mother's Name</label>
+                          <input type="text" class="form-control" id="add_mothers_name" name="add_mothers_name" >
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label>Guardian</label>
+                          <input type="text" class="form-control" id="add_guardian" name="add_guardian" >
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label>Guardian Contact</label>
+                          <input type="text" class="form-control" maxlength="11" id="add_guardian_contact" name="add_guardian_contact" >
+                        </div>
+                      </div>
+
+                    </div>
+                  
+                </div>
+                <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+                 
+                    <p class="lead text-center lead-bold">Account</p>
+                                <div class="row">
+                                  
+                                  <div class="col-sm-12 ">
+                                    <div class="form-group">
+                                      <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text bg-transparent"><i class="fas fa-user"></i></span>
+                                        </div>
+                                        <input type="text" id="add_username" name="add_username" class="form-control" placeholder="USERNAME" >
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-12 ">
+                                    <div  class="form-group">
+                                      <div class="input-group mb-3" id="show_hide_password">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text bg-transparent"><i class="fas fa-key"></i></span>
+                                        </div>
+                                        <input type="password"  id="add_password" name="add_password" class="form-control" placeholder="PASSWORD"  style="border-right: none;" >
+                                        <div class="input-group-append bg">
+                                          <span class="input-group-text bg-transparent"> <a href="" style=" text-decoration:none;"><i class="fas fa-eye-slash" aria-hidden="true"></i></a></span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-12 ">
+                                    <div  class="form-group">
+                                      <div class="input-group mb-3" id="show_hide_password_confirm">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text bg-transparent"><i class="fas fa-key"></i></span>
+                                        </div>
+                                        <input type="password"  id="add_confirm_password" name="add_confirm_password" class="form-control" placeholder="CONFIRM PASSWORD"  style="border-right: none;" >
+                                        <div class="input-group-append bg">
+                                          <span class="input-group-text bg-transparent"> <a href="" style=" text-decoration:none;"><i class="fas fa-eye-slash" aria-hidden="true"></i></a></span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                  
+                </div>
+              </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+              <button type="button" id="btn-back" class="btn btn-secondary px-4 elevation-2" style="display:none;"> <i class="fas fa-arrow-left"></i> Back</button>
+              <button type="button" id="btn-next" class="btn btn-primary px-4 elevation-2"> Next <i class="fas fa-arrow-right"></i></button>
+              <button type="button" id="btn-submit" class="btn btn-success px-4 elevation-3" style="display:none;"> <i class="fas fa-user-plus"></i> REGISTER</button>
+            </div> 
+            </div>
+
         </div>
       </div>
-      <!-- MODIFIED FOOTER WITH NAVIGATION BUTTONS -->
-      <div class="card-footer d-flex justify-content-between">
-        <button type="button" id="btn-back" class="btn btn-secondary px-4 elevation-2" style="display:none;"> <i class="fas fa-arrow-left"></i> Back</button>
-        <button type="button" id="btn-next" class="btn btn-primary px-4 elevation-2"> Next <i class="fas fa-arrow-right"></i></button>
-        <button type="button" id="btn-submit" class="btn btn-success px-4 elevation-3" style="display:none;"> <i class="fas fa-user-plus"></i> REGISTER</button>
-      </div> 
-      <!-- /.card -->
-    </div>
+      </form>
 
-  </div>
-</div>
-</form>
-    
-
-
-</div><!--/. container-fluid -->
-          
-     <!-- Data Privacy Modal -->
-<div class="modal fade" id="dataPrivacyModal" tabindex="-1" aria-labelledby="dataPrivacyModalLabel" aria-hidden="true">
+      </div><div class="modal fade" id="dataPrivacyModal" tabindex="-1" aria-labelledby="dataPrivacyModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-primary">
@@ -672,59 +613,6 @@ $sql = "SELECT * FROM `barangay_information`";
         <h2>1. Introduction</h2>
         <p>The Barangay Kalusugan is committed to protecting the privacy and security of your personal information. This notice outlines how we collect, use, and safeguard your data in compliance with the Data Privacy Act of 2012 (Republic Act No. 10173) and its implementing rules and regulations.</p>
 
-        <h2>2. Personal Information We Collect</h2>
-        <p>We may collect the following types of personal information:</p>
-        <ul>
-            <li>Full Name</li>
-            <li>Address</li>
-            <li>Date of Birth</li>
-            <li>Contact Information (e.g., phone number, email address)</li>
-            <li>Identification Documents (e.g., government-issued ID)</li>
-            <li>Other relevant information necessary for barangay services</li>
-        </ul>
-
-        <h2>3. Purpose of Data Collection</h2>
-        <p>Your personal information is collected for the following purposes:</p>
-        <ul>
-            <li>To provide and improve barangay services</li>
-            <li>To maintain accurate records of residents</li>
-            <li>To facilitate communication regarding barangay activities and announcements</li>
-        </ul>
-
-        <h2>4. Data Sharing and Disclosure</h2>
-        <p>We may share your personal information with:</p>
-        <ul>
-            <li>Government agencies as required by law</li>
-            <li>Third-party service providers who assist us in delivering services (with appropriate safeguards)</li>
-            <li>Other entities with your consent</li>
-        </ul>
-
-        <h2>5. Data Security</h2>
-        <p>We implement reasonable and appropriate security measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction. These measures include:</p>
-        <ul>
-            <li>Secure storage of physical and electronic records</li>
-            <li>Access controls to limit data access to authorized personnel only</li>
-            <li>Regular training for staff on data privacy and security</li>
-        </ul>
-        <h2>6. Your Rights</h2>
-        <p>As a data subject, you have the following rights under the Data Privacy Act:</p>
-        <ul>
-            <li>The right to be informed about the collection and processing of your personal data</li>
-            <li>The right to access your personal data</li>
-            <li>The right to correct any inaccuracies in your personal data</li>
-            <li>The right to object to the processing of your personal data</li>
-            <li>The right to data portability</li>
-            <li>The right to erasure or blocking of your personal data</li>
-        </ul>
-
-        <h2>7. How to Exercise Your Rights</h2>
-        <div class="contact-info">
-            <p>To exercise your rights or for any inquiries regarding your personal information, please contact:</p>
-            <p><strong>Barangay Kalusugan Data Protection Officer or Secretay</strong><br>
-            
-        </div>
-        <h2>8. Changes to This Notice</h2>
-        <p>We may update this Data Privacy Act Notice from time to time. Any changes will be posted on our official bulletin board and website. We encourage you to review this notice periodically.</p>
         <h2>9. Acknowledgment</h2>
         <p>By providing your personal information to Barangay Kalusugan, you acknowledge that you have read and understood this Data Privacy Act Notice.</p>
 
@@ -736,29 +624,56 @@ $sql = "SELECT * FROM `barangay_information`";
     </div>
   </div>
 </div>
-          
 
-     
-          
-               
-      
+<div class="modal fade" id="householdModal" tabindex="-1" aria-labelledby="householdModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title" id="householdModalLabel">
+          <i class="fas fa-home"></i> Household Verification
+        </h5>
+      </div>
+      <div class="modal-body">
+        <p class="lead">We found an existing household at this address!</p>
+        
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> 
+          <strong>Existing Household:</strong>
+          <div id="existingHouseholdInfo" class="mt-2">
+            </div>
+        </div>
+        
+        <p>Are you part of this household or are you a new household?</p>
+        
+        <div class="form-group" id="relationshipField" style="display: none;">
+          <label>Your relationship to the household head:</label>
+          <select class="form-control" id="relationship_to_head">
+            <option value="Spouse">Spouse</option>
+            <option value="Child">Child</option>
+            <option value="Parent">Parent</option>
+            <option value="Sibling">Sibling</option>
+            <option value="Relative">Relative</option>
+            <option value="Tenant">Tenant</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="newHouseholdBtn">
+          <i class="fas fa-plus-circle"></i> New Household
+        </button>
+        <button type="button" class="btn btn-primary" id="joinHouseholdBtn">
+          <i class="fas fa-user-plus"></i> Join Household
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
      
     </div>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
-
-
-
-
-
-
-<!-- jQuery -->
-<script src="assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
+    </div>
+  <script src="assets/plugins/jquery/jquery.min.js"></script>
 <script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
 <script src="assets/dist/js/adminlte.js"></script>
 <script src="assets/plugins/bs-stepper/js/bs-stepper.min.js"></script>
 <script src="assets/plugins/jquery-validation/jquery.validate.min.js"></script>
@@ -768,6 +683,10 @@ $sql = "SELECT * FROM `barangay_information`";
 <script src="assets/plugins/step-wizard/js/jquery.smartWizard.min.js"></script>
 <script>
   $(document).ready(function(){
+    
+    // Store if we're in household modal mode
+    let householdModalShown = false;
+    let existingHouseholdData = null;
  
     $("#add_pwd").change(function(){
       var pwd_check = $(this).val();
@@ -784,7 +703,7 @@ $sql = "SELECT * FROM `barangay_information`";
  $(function () {
       
       $('#registerResidentForm').validate({
-       ignore: ":hidden", // Changed from [] to ":hidden" to prevent validation on hidden/disabled fields (like hidden PWD info)
+       ignore: ":hidden", 
         rules: {
           add_first_name: {
             required: true,
@@ -837,7 +756,7 @@ $sql = "SELECT * FROM `barangay_information`";
             required: true,
           },
           add_pwd_info:{
-            required: true,
+             required: function(){ return $("#add_pwd").val() === 'YES'; }
           },
           add_address: {
             required: true,
@@ -921,41 +840,27 @@ $sql = "SELECT * FROM `barangay_information`";
       
     })
 
-
-
-
-
-
-
-$("#show_hide_password a").on('click', function(event) {
-        event.preventDefault();
-        if($('#show_hide_password input').attr("type") == "text"){
-            $('#show_hide_password input').attr('type', 'password');
-            $('#show_hide_password i').addClass( "fa-eye-slash" );
-            $('#show_hide_password i').removeClass( "fa-eye" );
-        }else if($('#show_hide_password input').attr("type") == "password"){
-            $('#show_hide_password input').attr('type', 'text');
-            $('#show_hide_password i').removeClass( "fa-eye-slash" );
-            $('#show_hide_password i').addClass( "fa-eye" );
+    function togglePasswordVisibility(wrapper){
+        $(wrapper + " a").on('click', function(e){
+        e.preventDefault();
+        var input = $(wrapper + " input");
+        var icon = $(wrapper + " i");
+        if(input.attr("type") === "text"){
+            input.attr('type','password');
+            icon.addClass("fa-eye-slash").removeClass("fa-eye");
+        } else {
+            input.attr('type','text');
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
         }
-    });
-    $("#show_hide_password_confirm a").on('click', function(event) {
-        event.preventDefault();
-        if($('#show_hide_password_confirm input').attr("type") == "text"){
-            $('#show_hide_password_confirm input').attr('type', 'password');
-            $('#show_hide_password_confirm i').addClass( "fa-eye-slash" );
-            $('#show_hide_password_confirm i').removeClass( "fa-eye" );
-        }else if($('#show_hide_password_confirm input').attr("type") == "password"){
-            $('#show_hide_password_confirm input').attr('type', 'text');
-            $('#show_hide_password_confirm i').removeClass( "fa-eye-slash" );
-            $('#show_hide_password_confirm i').addClass( "fa-eye" );
-        }
-    });
+        });
+    }
+    togglePasswordVisibility("#show_hide_password");
+    togglePasswordVisibility("#show_hide_password_confirm");
+
 
     $("#image_residence").click(function(){
           $("#add_image_residence").click();
       });
-
 
       function displayImge(input){
       if(input.files && input.files[0]){
@@ -991,9 +896,16 @@ $("#show_hide_password a").on('click', function(event) {
     $("#add_image_residence").change(function(){
       displayImge(this);
     })
-
-
-
+    
+     // ------------------------------
+    // Name display in profile
+    // ------------------------------
+    $('#add_first_name, #add_last_name').keyup(function() {
+        var firstName = $('#add_first_name').val();
+        var lastName = $('#add_last_name').val();
+        $('#keyup_first_name').text(firstName);
+        $('#keyup_last_name').text(lastName);
+    });
 
   });
 
@@ -1035,8 +947,6 @@ $("#show_hide_password a").on('click', function(event) {
 
 
 $(document).ready(function(){
-
-  // REMOVED: $('#dataPrivacyModal').modal('show'); on page load
 
   // ============================================
   // WIZARD NAVIGATION LOGIC
@@ -1106,7 +1016,7 @@ $(document).ready(function(){
     }
   });
 
-  // Handle "Register" Button Click (Account Tab)
+  // Handle "Register" Button Click (Account Tab) - WIZARD STEP
   $('#btn-submit').click(function() {
     // Validate the Account tab inputs
     var inputsToValidate = $('#account').find('input, select, textarea');
@@ -1126,67 +1036,22 @@ $(document).ready(function(){
     }
   });
 
-  // Handle "Agree and Register" Click (Inside Modal)
+  // Handle "Agree and Register" Click (Inside Privacy Modal)
   $('#agreeButton').click(function() {
     // Get the form element
     var form = $('#registerResidentForm')[0];
     
-    // Close modal
+    // Close privacy modal
     $('#dataPrivacyModal').modal('hide');
 
-    // Execute AJAX Registration
-    $.ajax({
-        url: 'signup/newResidence.php',
-        type: 'POST',
-        data: new FormData(form),
-        processData: false,
-        contentType: false,
-        cache: false,
-        success:function(data){
+    // If household modal was already shown and we have household data, show modal again
+    if (typeof householdModalShown !== 'undefined' && householdModalShown && existingHouseholdData) {
+        showHouseholdModal(existingHouseholdData);
+        return false;
+    }
 
-          if(data == 'errorPassword'){
-              Swal.fire({
-                title: '<strong class="text-danger">ERROR</strong>',
-                type: 'error',
-                html: '<b>Password not Match<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
-          }else if(data == 'errorUsername'){
-
-            Swal.fire({
-                title: '<strong class="text-danger">ERROR</strong>',
-                type: 'error',
-                html: '<b>Username is Already Taken<b>',
-                width: '400px',
-                confirmButtonColor: '#6610f2',
-              })
-
-          }else{
-
-            Swal.fire({
-              title: '<strong class="text-success">SUCCESS</strong>',
-              type: 'success',
-              html: '<b>Registered Residence has Successfully<b>',
-              width: '400px',
-              confirmButtonColor: '#6610f2',
-              allowOutsideClick: false,
-              showConfirmButton: false,
-              timer: 2000,
-            }).then(()=>{
-              window.location.reload();
-            })
-          }
-        }
-    }).fail(function(){
-        Swal.fire({
-          title: '<strong class="text-danger">Ooppss..</strong>',
-          type: 'error',
-          html: '<b>Something went wrong with ajax !<b>',
-          width: '400px',
-          confirmButtonColor: '#6610f2',
-        })
-    });
+    // Execute AJAX Registration using the new Function
+    submitFormData(new FormData(form));
   });
 
   // Initialize buttons
@@ -1197,6 +1062,248 @@ $(document).ready(function(){
      e.preventDefault();
      return false;
   });
+
+
+  // ============================================
+  // NEW FUNCTIONS FROM register(new).php
+  // ============================================
+
+    // ------------------------------
+    // Main form submission function
+    // ------------------------------
+    function submitFormData(formData, householdAction = null, householdId = null, relationship = null) {
+        console.log('submitFormData called with:', { householdAction, householdId, relationship });
+        
+        // Re-capture form data to ensure we have the latest (including hidden fields added dynamically if any)
+        var newFormData = new FormData($('#registerResidentForm')[0]);
+        
+        // Add household parameters if provided
+        if (householdAction) {
+            newFormData.append('household_action', householdAction);
+        }
+        if (householdId) {
+            newFormData.append('household_id', householdId);
+        }
+        if (relationship) {
+            newFormData.append('relationship_to_head', relationship);
+        }
+        
+        $.ajax({
+            url: 'signup/newResidence.php',
+            type: 'POST',
+            data: newFormData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function(){
+                // Visual feedback on the register button in modal or wizard
+                // Since we trigger this from modal mostly, we can use SweetAlert loading or change modal btn
+                // But for now, we leave visual feedback to SweetAlert or existing buttons
+            },
+            success: function(response){
+                console.log('Raw Response:', response);
+                
+                try {
+                    var res = (typeof response === 'object') ? response : JSON.parse(response);
+                    
+                    if(res.status === 'success'){
+                        // Registration successful
+                        let message = 'Registration Successful!';
+                        if (res.action === 'join') {
+                            message += '<br>You have joined the existing household.';
+                        } else {
+                            message += '<br>You are now the head of a new household.';
+                        }
+                        
+                        Swal.fire({
+                            title: 'SUCCESS!',
+                            html: '<div class="text-center">' +
+                                '<i class="fas fa-check-circle text-success fa-3x mb-3"></i>' +
+                                '<h4>' + message + '</h4>' +
+                                '<p class="text-muted">Your Household Number: <strong>' + (res.household_number || '') + '</strong></p>' +
+                                '</div>',
+                            type: 'success',
+                            confirmButtonText: 'Go to Login',
+                            showCancelButton: false,
+                            allowOutsideClick: false
+                        }).then((result) => {
+                            if (result.value) { // Sweetalert2 uses result.value or isConfirmed
+                                window.location.href = 'login.php';
+                            }
+                        });
+                    } 
+                    else if(res.status === 'showHouseholdModal'){
+                        // Show household modal
+                        householdModalShown = true;
+                        existingHouseholdData = res.household;
+                        
+                        if (res.household) {
+                            showHouseholdModal(res.household);
+                        }
+                    } 
+                    else if(res.status === 'errorPassword'){
+                        Swal.fire('ERROR','Password does not match','error');
+                    } 
+                    else if(res.status === 'errorUsername'){
+                        Swal.fire('ERROR','Username already taken','error');
+                    } 
+                    else {
+                        Swal.fire('ERROR', res.message || 'An unexpected error occurred', 'error');
+                    }
+                } catch(e) {
+                    // Fallback for non-JSON responses (legacy support if backend sends plain text)
+                    if(response == 'errorPassword'){
+                         Swal.fire('ERROR','Password does not match','error');
+                    } else if (response == 'errorUsername'){
+                         Swal.fire('ERROR','Username already taken','error');
+                    } else {
+                        console.error('JSON Parse Error:', e, 'Response:', response);
+                        Swal.fire('ERROR','Invalid server response format','error');
+                    }
+                }
+            },
+            error: function(xhr, status, error){
+                console.error('AJAX Error:', error);
+                Swal.fire('ERROR','AJAX request failed: ' + error,'error');
+            }
+        });
+    }
+
+    // ------------------------------
+    // Household Modal Functions
+    // ------------------------------
+    function showHouseholdModal(household){
+        if (!household) return;
+        
+        console.log('Showing household modal with:', household);
+        
+        // Format head name
+        let headFirstName = household.head_first_name || 'Not assigned';
+        let headLastName = household.head_last_name || '';
+        let headName = (headFirstName === 'Not assigned' && headLastName === '') ? 
+                    'No head assigned yet' : `${headFirstName} ${headLastName}`;
+        
+        // Create modal content
+        let modalContent = `
+            <div class="household-details">
+                <p><strong>Address:</strong> ${household.address || 'N/A'}</p>
+                <p><strong>Head of Household:</strong> ${headName}</p>
+        `;
+        
+        // Add household number if available
+        if (household.household_number) {
+            modalContent += `<p><strong>Household #:</strong> ${household.household_number}</p>`;
+        }
+        
+        modalContent += `
+            </div>
+            <input type="hidden" id="existing_household_id" value="${household.id || ''}">
+            <input type="hidden" id="existing_household_head_id" value="${household.household_head_id || ''}">
+        `;
+        
+        $('#existingHouseholdInfo').html(modalContent);
+        
+        // Reset relationship field
+        $('#relationshipField').hide();
+        $('#relationship_to_head').val('Spouse');
+        
+        // Show modal
+        $('#householdModal').modal({
+            backdrop: 'static', 
+            keyboard: false,
+            show: true
+        });
+    }
+
+    // Join household button
+    $(document).on('click', '#joinHouseholdBtn', function(){
+        
+        var householdId = $('#existing_household_id').val();
+        var headId = $('#existing_household_head_id').val();
+        var relationship = $('#relationship_to_head').val();
+        
+        if (!householdId || householdId === '') {
+            Swal.fire('Error', 'No household selected', 'error');
+            return;
+        }
+        
+        // Show relationship field first
+        $('#relationshipField').show();
+        
+        // Focus on relationship dropdown
+        $('#relationship_to_head').focus();
+        
+        // Show confirmation with relationship selection
+        Swal.fire({
+            title: 'Join Household?',
+            html: 'You will be added as a member of this household.<br><br>' +
+                '<strong>Your Relationship:</strong> ' + 
+                '<select id="swalRelationship" class="form-control mt-2">' +
+                '<option value="Spouse">Spouse</option>' +
+                '<option value="Child">Child</option>' +
+                '<option value="Parent">Parent</option>' +
+                '<option value="Sibling">Sibling</option>' +
+                '<option value="Relative">Relative</option>' +
+                '<option value="Tenant">Tenant</option>' +
+                '<option value="Other">Other</option>' +
+                '</select>',
+            type: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Join Household',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            preConfirm: () => {
+                return {
+                    relationship: document.getElementById('swalRelationship').value
+                };
+            }
+        }).then((result) => {
+            if (result.value) {
+                var relationshipValue = result.value.relationship;
+                
+                // Clear modal state
+                householdModalShown = false;
+                existingHouseholdData = null;
+                
+                // Submit with join action
+                $('#householdModal').modal('hide');
+                
+                // Create FormData and submit
+                var formData = new FormData($('#registerResidentForm')[0]);
+                submitFormData(formData, 'join', householdId, relationshipValue);
+            }
+        });
+    });
+
+    // New household button
+    $(document).on('click', '#newHouseholdBtn', function(){
+        
+        Swal.fire({
+            title: 'Create New Household?',
+            html: 'You will be registered as the <strong>head of a new household</strong>.<br><br>' +
+                'This is recommended if you are not related to the existing household.',
+            type: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Create New Household',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33'
+        }).then((result) => {
+            if (result.value) {
+                // Clear modal state
+                householdModalShown = false;
+                existingHouseholdData = null;
+                
+                // Submit with new action
+                $('#householdModal').modal('hide');
+                
+                // Create FormData and submit
+                var formData = new FormData($('#registerResidentForm')[0]);
+                submitFormData(formData, 'new', 0);
+            }
+        });
+    });
 
 });
 </script>
