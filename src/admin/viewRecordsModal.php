@@ -4,9 +4,14 @@ include_once '../connection.php';
 try{
   if(isset($_REQUEST['record_id'])){
     $record_id = $con->real_escape_string(trim($_REQUEST['record_id']));
-    $sql_record = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id FROM blotter_record
-    INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
-    INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_status.blotter_main WHERE blotter_record.blotter_id = ?";
+    
+    // --- FIX 1: LEFT JOIN prevents the query from failing if status/complainant is missing ---
+    $sql_record = "SELECT blotter_record.*, blotter_status.person_id, blotter_complainant.complainant_id 
+    FROM blotter_record
+    LEFT JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main
+    LEFT JOIN blotter_complainant ON blotter_record.blotter_id = blotter_complainant.blotter_main 
+    WHERE blotter_record.blotter_id = ?";
+    
     $stmt_record = $con->prepare($sql_record) or die ($con->error);
     $stmt_record->bind_param('s',$record_id);
     $stmt_record->execute();
@@ -19,11 +24,12 @@ try{
 }
 ?>
 
-<!-- Modal -->
 <div class="modal " id="viewBlotterRecordModal" data-backdrop="static" data-keyboard="false"  role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
         <form id="editRecordForm" method="post">
+        
+        <input type="hidden" name="record_id" value="<?= $record_id ?>">
 
       <div class="modal-body">
         <div class="container-fluid">
@@ -31,14 +37,8 @@ try{
           <div class="row">
               <div class="col-sm-12">
              
-                
-                
-        
-                  <input type="hidden" name="blotter_id" value="<?=$row_record_blotter['blotter_id']?>">
+                  <input type="hidden" name="blotter_id" value="<?=$row_record_blotter['blotter_id'] ?? ''?>">
               
-              
-              
-                 
               </div>
                 <div class="col-sm-12">
                     <div class="form-group form-group-sm">
@@ -108,19 +108,19 @@ try{
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Complainant Not Resident</label>
-                      <textarea name="edit_complainant_not_residence"  id="edit_complainant_not_residence" cols="57"  class="bg-transparent text-white form-control"><?= $row_record_blotter['complainant_not_residence'] ?></textarea>
+                      <textarea name="edit_complainant_not_residence"  id="edit_complainant_not_residence" cols="57"  class="bg-transparent text-white form-control"><?= $row_record_blotter['complainant_not_residence'] ?? '' ?></textarea>
                     </div>
                   </div>
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Complainant Statement</label>
-                      <textarea name="edit_complainant_statement" id="edit_complainant_statement" cols="57" rows="3" class="bg-transparent text-white form-control"><?= $row_record_blotter['statement'] ?></textarea>
+                      <textarea name="edit_complainant_statement" id="edit_complainant_statement" cols="57" rows="3" class="bg-transparent text-white form-control"><?= $row_record_blotter['statement'] ?? '' ?></textarea>
                     </div>
                   </div>
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Respodent</label>
-                        <input name="edit_respodent" value="<?= $row_record_blotter['respodent'] ?>" id="edit_respodent"  class=" form-control">
+                        <input name="edit_respodent" value="<?= $row_record_blotter['respodent'] ?? '' ?>" id="edit_respodent"  class=" form-control">
                     </div>
                   </div>
                   <div class="col-sm-12">
@@ -189,54 +189,56 @@ try{
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Person Involved Not Resident</label>
-                      <textarea name="edit_person_involevd_not_resident"  id="edit_person_involevd_not_resident" cols="57"  class="bg-transparent text-white form-control"><?= $row_record_blotter['involved_not_resident'] ?></textarea>
+                      <textarea name="edit_person_involevd_not_resident"  id="edit_person_involevd_not_resident" cols="57"  class="bg-transparent text-white form-control"><?= $row_record_blotter['involved_not_resident'] ?? '' ?></textarea>
                     </div>
                   </div> 
                   <div class="col-sm-12 ">
                     <div class="form-group form-group-sm">
                       <label>Person Involved Statement</label>
-                      <textarea name="edit_person_statement" id="edit_person_statement" cols="57" rows="3" class="bg-transparent text-white form-control"><?= $row_record_blotter['statement_person'] ?></textarea>
+                      <textarea name="edit_person_statement" id="edit_person_statement" cols="57" rows="3" class="bg-transparent text-white form-control"><?= $row_record_blotter['statement_person'] ?? '' ?></textarea>
                     </div>
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group form-group-sm">
                       <label>Location of Incident</label>
-                        <input name="edit_location_incident" value="<?= $row_record_blotter['location_incident'] ?>" id="edit_location_incident"  class=" form-control">
+                        <input name="edit_location_incident" value="<?= $row_record_blotter['location_incident'] ?? '' ?>" id="edit_location_incident"  class=" form-control">
                     </div>
                   </div>   
                   <div class="col-sm-6">
                     <div class="form-group form-group-sm">
                       <label>Date of Incident</label>
-                        <input type="datetime-local" name="edit_date_of_incident" id="edit_date_of_incident" value="<?= $row_record_blotter['date_incident']; ?>"  class=" form-control">
+                        <input type="datetime-local" name="edit_date_of_incident" id="edit_date_of_incident" value="<?= $row_record_blotter['date_incident'] ?? '' ?>"  class=" form-control">
                     </div>
                   </div>  
                   <div class="col-sm-6">
                     <div class="form-group form-group-sm">
                       <label>Incident</label>
-                        <input name="edit_incident" id="edit_incident"  class=" form-control" value="<?= $row_record_blotter['type_of_incident']; ?>">
+                        <input name="edit_incident" id="edit_incident"  class=" form-control" value="<?= $row_record_blotter['type_of_incident'] ?? '' ?>">
                     </div>
                   </div>   
+                  
                   <div class="col-sm-6">
                     <div class="form-group form-group-sm">
                       <label>Status</label>
                         <select name="edit_status" id="edit_status" class="form-control">
-                          <option value="NEW" <?= $row_record_blotter['status'] == 'NEW' ? 'selected': '' ?>>NEW</option>
-                          <option value="ONGOING"  <?= $row_record_blotter['status'] == 'ONGOING' ? 'selected': '' ?>>ONGOING</option>
+                          <option value="NEW" <?= ($row_record_blotter['status'] ?? '') == 'NEW' ? 'selected': '' ?>>NEW</option>
+                          <option value="ONGOING"  <?= ($row_record_blotter['status'] ?? '') == 'ONGOING' ? 'selected': '' ?>>ONGOING</option>
+                          <option value="SETTLED"  <?= ($row_record_blotter['status'] ?? '') == 'SETTLED' ? 'selected': '' ?>>SETTLED</option>
                         </select>
                     </div>
                   </div> 
                   <div class="col-sm-6">
                     <div class="form-group form-group-sm">
                       <label>Date Reported</label>
-                        <input  type="datetime-local" name="edit_date_reported" id="edit_date_reported"  class=" form-control" value="<?= $row_record_blotter['date_reported']; ?>">
+                        <input  type="datetime-local" name="edit_date_reported" id="edit_date_reported"  class=" form-control" value="<?= $row_record_blotter['date_reported'] ?? '' ?>">
                     </div>
                   </div>   
                   <div class="col-sm-6">
                     <div class="form-group form-group-sm">
                       <label>Remarks</label>
                         <select name="edit_remarks" id="edit_remarks" class="form-control">
-                          <option value="OPEN" <?= $row_record_blotter['remarks'] == 'OPEN' ? 'selected': '' ?>>OPEN</option>
-                          <option value="CLOSED" <?= $row_record_blotter['remarks'] == 'CLOSED' ? 'selected': '' ?>>CLOSED</option>
+                          <option value="OPEN" <?= ($row_record_blotter['remarks'] ?? '') == 'OPEN' ? 'selected': '' ?>>OPEN</option>
+                          <option value="CLOSED" <?= ($row_record_blotter['remarks'] ?? '') == 'CLOSED' ? 'selected': '' ?>>CLOSED</option>
                         </select>
                     </div>
                   </div>      
@@ -316,28 +318,33 @@ try{
             }
 
             $.ajax({
-              url: 'editBlotterRecord.php',
+              // FIX 3: Pointing to the NEW file (updateBlotterRecord.php)
+              url: 'updateBlotterRecord.php',
               type: 'POST',
               data: $(form).serialize(),
               cache: false,
-              success:function(){
-                $("#viewBlotterRecordModal").modal('hide');
-                Swal.fire({
-                  title: '<strong class="text-success">SUCCESS</strong>',
-                  type: 'success',
-                  html: '<b>Added Record Blotter has Successfully<b>',
-                  width: '400px',
-                  confirmButtonColor: '#6610f2',
-                  allowOutsideClick: false,
-                  showConfirmButton: false,
-                  timer: 2000,
-                }).then(()=>{
-                  $("#blotterRecordTable").DataTable().ajax.reload();
-                 
-                  $('#edit_complainant_residence').empty();
-                 $('#edit_person_involed').empty();
-                })
-
+              dataType: 'json', // Expecting JSON from the new update file
+              success:function(response){
+                // Using the response format from updateBlotterRecord.php
+                if(response.status == 'success') {
+                    $("#viewBlotterRecordModal").modal('hide');
+                    Swal.fire({
+                    title: '<strong class="text-success">SUCCESS</strong>',
+                    type: 'success',
+                    html: '<b>' + response.message + '<b>',
+                    width: '400px',
+                    confirmButtonColor: '#6610f2',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    }).then(()=>{
+                    $("#blotterRecordTable").DataTable().ajax.reload();
+                    $('#edit_complainant_residence').empty();
+                    $('#edit_person_involed').empty();
+                    })
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
               }
             }).fail(function(){
               Swal.fire({
