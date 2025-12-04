@@ -522,7 +522,7 @@ $sql = "SELECT * FROM `barangay_information`";
                   </div>
                   <div class="col-sm-6">
                     <div class="form-group">
-                      <label>House Number</label>
+                      <label>House Number <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add_house_number" name="add_house_number" >
                     </div>
                   </div>
