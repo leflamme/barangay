@@ -440,11 +440,7 @@ try{
                       <br>
                       <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['street'] ?>"  id="edit_street"  name="edit_street"  size="30"  <?= $edit_attr ?>>
                     </td>
-                    <td colspan="2">
-                      ADDRESS
-                      <br>
-                      <input type="text"  class="editInfo form-control form-control-sm"  value="<?= $row_resident['address'] ?>"  id="edit_address"  name="edit_address"  size="30"  <?= $edit_attr ?>>
-                    </td>      
+                        
                   </tr>
 
                   <tr>
