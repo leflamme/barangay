@@ -11,29 +11,31 @@ ob_clean();
 header('Content-Type: application/json');
 
 try {
+    // Columns that DataTables expects
     $col = ['id', 'message', 'date'];
+    
+    // Select everything so we can access the 'status' column
     $sql = "SELECT * FROM activity_log";
     $whereClauses = [];
 
-    // --- IMPROVED FILTERS ---
+    // --- FIXED FILTERS (Using the 'status' column) ---
     if (isset($_POST['log_type_filter']) && !empty($_POST['log_type_filter'])) {
         $filter = $con->real_escape_string($_POST['log_type_filter']);
+        
+        // We check BOTH the 'status' column AND the 'message' column to be safe
         switch ($filter) {
             case 'LOGIN':
-                // Matches "User Login", "Admin Logged In", "Successfully Logged In"
-                $whereClauses[] = "(message LIKE '%login%' OR message LIKE '%logged in%')";
+                $whereClauses[] = "(status = 'login' OR message LIKE '%logged in%')";
                 break;
             case 'LOGOUT':
-                // Matches "User Logout", "Logged Out"
-                $whereClauses[] = "(message LIKE '%logout%' OR message LIKE '%logged out%')";
+                $whereClauses[] = "(status = 'logout' OR message LIKE '%logged out%')";
                 break;
             case 'UPDATE':
-                // Matches "Updated profile", "Added new user", "Modified"
-                $whereClauses[] = "(message LIKE '%update%' OR message LIKE '%add%' OR message LIKE '%register%' OR message LIKE '%create%')";
+                // Matches 'update' (edit) AND 'create' (add)
+                $whereClauses[] = "(status IN ('update', 'create', 'edit') OR message LIKE '%update%' OR message LIKE '%added%')";
                 break;
             case 'DELETE':
-                // Matches "Deleted user", "Remove", "Archive"
-                $whereClauses[] = "(message LIKE '%delete%' OR message LIKE '%remove%' OR message LIKE '%archive%')";
+                $whereClauses[] = "(status = 'delete' OR message LIKE '%deleted%' OR message LIKE '%archive%')";
                 break;
         }
     }
@@ -41,9 +43,10 @@ try {
     // --- SEARCH BAR ---
     if (isset($_REQUEST['search']['value']) && !empty($_REQUEST['search']['value'])) {
         $searchValue = $con->real_escape_string($_REQUEST['search']['value']);
-        $whereClauses[] = "(message LIKE '%" . $searchValue . "%' OR date LIKE '%" . $searchValue . "%')";
+        $whereClauses[] = "(message LIKE '%" . $searchValue . "%' OR date LIKE '%" . $searchValue . "%' OR status LIKE '%" . $searchValue . "%')";
     }
 
+    // Apply Filters
     if (!empty($whereClauses)) {
         $sql .= " WHERE " . implode(' AND ', $whereClauses);
     }
@@ -56,10 +59,13 @@ try {
     $totalFiltered = $result_filtered->num_rows;
 
     // --- ORDERING ---
+    // Prevent SQL injection in ordering
     $orderColumnIndex = isset($_REQUEST['order'][0]['column']) ? intval($_REQUEST['order'][0]['column']) : 0;
-    $orderDir = isset($_REQUEST['order'][0]['dir']) ? $_REQUEST['order'][0]['dir'] : 'DESC';
+    $orderDir = isset($_REQUEST['order'][0]['dir']) && strtolower($_REQUEST['order'][0]['dir']) === 'asc' ? 'ASC' : 'DESC';
+    // Map index 0->id, 1->message, 2->date
     $orderBy = isset($col[$orderColumnIndex]) ? $col[$orderColumnIndex] : 'id';
-    $sql .= " ORDER BY " . $orderBy . " " . ($orderDir === 'asc' ? 'ASC' : 'DESC');
+    
+    $sql .= " ORDER BY " . $orderBy . " " . $orderDir;
 
     // --- PAGINATION ---
     $start = isset($_REQUEST['start']) ? intval($_REQUEST['start']) : 0;
@@ -79,7 +85,17 @@ try {
     while ($row = $result->fetch_assoc()) {
         $subdata = [];
         $subdata[] = $row['id'];
-        $subdata[] = htmlspecialchars($row['message']);
+        
+        // Combine status and message for a better view? 
+        // Or just keep the message as requested. Let's append status nicely if it exists.
+        $displayMessage = htmlspecialchars($row['message']);
+        /* Optional: Uncomment this line if you want to see the status tag in the table
+           if(!empty($row['status'])) {
+               $displayMessage = '<span class="badge badge-info">' . strtoupper($row['status']) . '</span> ' . $displayMessage;
+           } 
+        */
+        
+        $subdata[] = $displayMessage;
         $subdata[] = htmlspecialchars($row['date']);
         $data[] = $subdata;
     }
