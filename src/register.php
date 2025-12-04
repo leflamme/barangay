@@ -1229,49 +1229,37 @@ $(document).ready(function(){
     $(document).on('click', '#joinHouseholdBtn', function(){
         
         var householdId = $('#existing_household_id').val();
-        var headId = $('#existing_household_head_id').val();
-        // 1. Get the value the user selected in the first modal
-        var relationship = $('#relationship_to_head').val(); 
         
         if (!householdId || householdId === '') {
             Swal.fire('Error', 'No household selected', 'error');
             return;
         }
+
+        // STEP 1: If the dropdown is hidden, show it first
+        if ($('#relationshipField').is(':hidden')) {
+            $('#relationshipField').slideDown(); // Show the dropdown
+            $('#relationship_to_head').focus();  // Focus on it
+            
+            // Change button text to guide the user
+            $(this).html('<i class="fas fa-check-circle"></i> Confirm & Join');
+            return; // STOP here. Wait for user to select and click button again.
+        }
+
+        // STEP 2: User clicked "Confirm & Join" -> Get the value they selected
+        var selectedRelationship = $('#relationship_to_head').val(); 
         
-        // Show confirmation with relationship selection
+        // STEP 3: Show simple confirmation (No dropdown here to avoid bugs)
         Swal.fire({
-            title: 'Join Household?',
-            html: 'You will be added as a member of this household.<br><br>' +
-                '<strong>Your Relationship:</strong> ' + 
-                '<select id="swalRelationship" class="form-control mt-2">' +
-                '<option value="Spouse">Spouse</option>' +
-                '<option value="Child">Child</option>' +
-                '<option value="Parent">Parent</option>' +
-                '<option value="Sibling">Sibling</option>' +
-                '<option value="Relative">Relative</option>' +
-                '<option value="Tenant">Tenant</option>' +
-                '<option value="Other">Other</option>' +
-                '</select>',
-            type: 'question', // Note: In newer SweetAlert2 versions this is 'icon': 'question'
+            title: 'Confirm Join?',
+            html: 'You will join this household as the: <br><strong style="font-size: 1.2em; color: #007bff">' + selectedRelationship + '</strong>',
+            type: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Yes, Join Household',
+            confirmButtonText: 'Yes, Register Me',
             cancelButtonText: 'Cancel',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            // 2. THIS IS THE FIX: Set the value when the modal opens
-            didOpen: () => {
-                $('#swalRelationship').val(relationship);
-            },
-            preConfirm: () => {
-                return {
-                    relationship: document.getElementById('swalRelationship').value
-                };
-            }
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33'
         }).then((result) => {
-            // Check result.value because SweetAlert2 uses that for preConfirm data
             if (result.value) {
-                var relationshipValue = result.value.relationship;
-                
                 // Clear modal state
                 householdModalShown = false;
                 existingHouseholdData = null;
@@ -1281,10 +1269,52 @@ $(document).ready(function(){
                 
                 // Create FormData and submit
                 var formData = new FormData($('#registerResidentForm')[0]);
-                submitFormData(formData, 'join', householdId, relationshipValue);
+                submitFormData(formData, 'join', householdId, selectedRelationship);
             }
         });
     });
+
+    // Reset the modal whenever it opens (Update your showHouseholdModal function)
+    function showHouseholdModal(household){
+        if (!household) return;
+        
+        // Format head name
+        let headFirstName = household.head_first_name || 'Not assigned';
+        let headLastName = household.head_last_name || '';
+        let headName = (headFirstName === 'Not assigned' && headLastName === '') ? 
+                    'No head assigned yet' : `${headFirstName} ${headLastName}`;
+        
+        // Create modal content
+        let modalContent = `
+            <div class="household-details">
+                <p><strong>Address:</strong> ${household.address || 'N/A'}</p>
+                <p><strong>Head of Household:</strong> ${headName}</p>
+        `;
+        
+        if (household.household_number) {
+            modalContent += `<p><strong>Household #:</strong> ${household.household_number}</p>`;
+        }
+        
+        modalContent += `
+            </div>
+            <input type="hidden" id="existing_household_id" value="${household.id || ''}">
+            <input type="hidden" id="existing_household_head_id" value="${household.household_head_id || ''}">
+        `;
+        
+        $('#existingHouseholdInfo').html(modalContent);
+        
+        // RESET STATE: Hide field and reset button text
+        $('#relationshipField').hide();
+        $('#relationship_to_head').val('Spouse'); // Default value
+        $('#joinHouseholdBtn').html('<i class="fas fa-user-plus"></i> Join Household'); // Reset button text
+        
+        // Show modal
+        $('#householdModal').modal({
+            backdrop: 'static', 
+            keyboard: false,
+            show: true
+        });
+    }
 
     // New household button
     $(document).on('click', '#newHouseholdBtn', function(){
