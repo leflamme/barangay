@@ -543,24 +543,25 @@ try {
   <script>
     $(document).ready(function() {
     
-      var systemLogsTable = systemLogsTable();
+      // FIX: Rename the variable to 'dataTable' to avoid conflict with the function name
+      var dataTable = initSystemLogsTable();
 
-      function systemLogsTable() {
-        // Initialize and return the DataTable object
+      function initSystemLogsTable() {
         var table = $("#systemLogsTable").DataTable({
           processing: true,
           serverSide: true,
           autoWidth: false,
-          order: [],
+          order: [[0, "desc"]], // Default order by ID desc
           ajax: {
             url: 'systemLogsTable.php',
             type: 'POST',
-            // START: New code to send filter data
             data: function(d) {
-              // Add the selected filter value to the data sent to the server
+              // Send the filter value to PHP
               d.log_type_filter = $('#logTypeFilter').val();
+            },
+            error: function (xhr, error, code) {
+                console.log("DataTables Error:", xhr.responseText); // Debugging
             }
-           
           },
           pagingType: "full_numbers",
           language: {
@@ -570,41 +571,33 @@ try {
               first: '<i class="fa fa-angle-double-left text-white"></i>',
               last: '<i class="fa fa-angle-double-right text-white"></i>'
             },
-            // START: Modified code to add the filter dropdown
             lengthMenu: '<div class="d-inline-flex align-items-center">' +
-              '<div class="pr-3"> <span class="text-sm mb-3 pr-2">Rows per page:</span> <select class="form-control form-control-sm">' +
+              '<div class="pr-3"> <span class="text-sm mb-3 pr-2">Rows:</span> <select class="form-control form-control-sm">' +
               '<option value="10">10</option>' +
               '<option value="20">20</option>' +
-              '<option value="30">30</option>' +
-              '<option value="40">40</option>' +
               '<option value="50">50</option>' +
-              '<option value="-1">All</option>' +
               '</select></div>' +
-              '<div> <span class="text-sm mb-3 pr-2">Filter by Action:</span> <select id="logTypeFilter" class="form-control form-control-sm">' +
-              '<option value="">All</option>' +
+              '<div> <span class="text-sm mb-3 pr-2">Filter:</span> <select id="logTypeFilter" class="form-control form-control-sm">' +
+              '<option value="">All Actions</option>' +
               '<option value="LOGIN">Login</option>' +
               '<option value="LOGOUT">Logout</option>' +
               '<option value="UPDATE">Update / Add</option>' +
               '<option value="DELETE">Delete</option>' +
               '</select></div>' +
               '</div>',
-            
-            search: 'SEARCH:',
+            search: 'Search:',
           },
         });
         return table;
       }
 
-      
+      // FIX: Use the correct variable name 'dataTable' here
       $('#systemLogsTable_wrapper').on('change', '#logTypeFilter', function() {
-        systemLogsTable.ajax.reload();
+        dataTable.ajax.reload();
       });
-      
 
     });
   </script>
-
-
 
 </body>
 
