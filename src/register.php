@@ -365,7 +365,7 @@ $sql = "SELECT * FROM `barangay_information`";
                         </div>
                         <div class="col-sm-12">
                           <div class="form-group ">
-                            <label >Single Parent</label>
+                            <label >Single Parent <span class="text-danger">*</span></label>
                             <select name="add_single_parent" id="add_single_parent" class="form-control">
                               <option value=""></option>
                               <option value="NO">NO</option>
