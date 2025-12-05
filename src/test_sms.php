@@ -1,12 +1,12 @@
 <?php
-// test_sms.php - Debugging Tool
+// test_sms.php - Debugging Tool (FIXED)
 // RUN THIS IN YOUR BROWSER
 
 // 1. CONFIGURATION
 $PHILSMS_URL = "https://dashboard.philsms.com/api/v3/";
-$PHILSMS_KEY = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f"; // Your Key
-$TEST_NUMBER = "09274176508"; // <--- PUT YOUR REAL NUMBER HERE
-$MESSAGE     = "This is a test message from Barangay Kalusugan System.";
+$PHILSMS_KEY = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f"; 
+$TEST_NUMBER = "09274176508"; // <--- PUT YOUR REAL NUMBER HERE!
+$message     = "This is a test message from Barangay Kalusugan System."; // Changed to lowercase variable
 
 // 2. FORMAT NUMBER
 $clean_phone = preg_replace('/[^0-9]/', '', $TEST_NUMBER);
@@ -16,7 +16,7 @@ else $final_phone = $clean_phone;
 
 echo "<h2>SMS Debugger</h2>";
 echo "<strong>Target:</strong> $final_phone <br>";
-echo "<strong>Message:</strong> $MESSAGE <br><hr>";
+echo "<strong>Message:</strong> $message <br><hr>";
 
 // 3. SEND REQUEST
 $ch = curl_init($PHILSMS_URL);
@@ -25,14 +25,14 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
     "recipient" => $final_phone,
     "sender_id" => "PhilSMS",
-    "message"   => $message
+    "message"   => $message // Now this matches the variable above
 ]));
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Authorization: Bearer $PHILSMS_KEY",
     "Content-Type: application/json"
 ]);
 
-// DISABLE SSL CHECK (Fix for Localhost/XAMPP issues)
+// DISABLE SSL CHECK (Fix for Localhost/XAMPP)
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
@@ -48,15 +48,19 @@ if ($curl_error) {
 } else {
     echo "<h3>API Response (HTTP $http_code):</h3>";
     echo "<pre style='background:#eee; padding:10px; border:1px solid #999;'>";
-    var_dump($response); // Show the raw reply from PhilSMS
+    var_dump($response); 
     echo "</pre>";
     
     $json = json_decode($response, true);
+    
+    // Check specific PhilSMS success/error fields
     if (isset($json['status']) && $json['status'] == 'error') {
         echo "<h3 style='color:red'>API REJECTED THE MESSAGE:</h3>";
         echo "Reason: " . ($json['message'] ?? 'Unknown');
     } elseif ($http_code == 200) {
         echo "<h3 style='color:green'>SUCCESS! Check your phone.</h3>";
+    } else {
+        echo "<h3 style='color:orange'>Status Unknown (Check response above)</h3>";
     }
 }
 ?>
