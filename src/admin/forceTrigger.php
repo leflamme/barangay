@@ -110,7 +110,7 @@ try {
     <!-- Website Logo -->
     <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
     <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* Navbar */
         .main-header.navbar {
@@ -205,19 +205,24 @@ try {
             <a href="myProfile.php" class="dropdown-item">
                 <!-- Message Start -->
                 <div class="media">
-                <?php 
-                    if($user_image != '' || $user_image != null || !empty($user_image)){
-                    echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle alt="User Image">';
-                    }else{
-                    echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle alt="User Image">';
-                    }
-                ?>
-                
-                <div class="media-body">
-                    <h3 class="dropdown-item-title py-3">
-                    <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
-                    </h3>
-                </div>
+                    <?php 
+                        // Ensure variables are set to avoid "Undefined Variable" warnings
+                        $u_img = isset($user_image) ? $user_image : ''; 
+                        
+                        if($u_img != '' && $u_img != null){
+                            // FIXED QUOTES BELOW
+                            echo '<img src="../assets/dist/img/'.$u_img.'" class="img-size-50 mr-3 img-circle" alt="User Image">';
+                        } else {
+                            // FIXED QUOTES BELOW
+                            echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">';
+                        }
+                    ?>
+
+                    <div class="media-body">
+                        <h3 class="dropdown-item-title py-3">
+                        <?= ucfirst($first_name_user ?? 'Admin') .' '. ucfirst($last_name_user ?? 'User') ?>
+                        </h3>
+                    </div>
                 </div>
                 <!-- Message End -->
             </a>         
