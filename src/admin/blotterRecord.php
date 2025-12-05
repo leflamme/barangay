@@ -74,275 +74,215 @@ try{
   <style>
     /* ========== BLOTTER RECORD REVAMP COLORS ========== */
 
-/* Main Card Styling */
-/* Make card body white with dark text */
-.card-body {
-  background-color: #fff !important;
-  color: #000 !important;
-  border-radius: 0 0 10px 10px;
-}
+    /* Main Card Styling */
+    .card-body {
+      background-color: #fff !important;
+      color: #000 !important;
+      border-radius: 0 0 10px 10px;
+    }
 
+    /* CARD HEADER */
+    .card-header {
+      background-color: #050C9C !important;
+      color: #fff !important;
+      border-bottom: 2px solid #3572EF;
+      border-radius: 10px 10px 0 0;
+      padding: 15px 20px;
+    }
 
-/* Card Header */
-/* CARD HEADER */
-.card-header {
-  background-color: #050C9C !important;
-  color: #fff !important;
-  border-bottom: 2px solid #3572EF;
-  border-radius: 10px 10px 0 0;
-  padding: 15px 20px;
-}
+    .card-header h3 {
+      font-weight: 600;
+      color:rgb(255, 255, 255);
+    }
 
-.card-header h3 {
-  font-weight: 600;
-  color:rgb(255, 255, 255);
-}
+    .card-tools .btn {
+      background-color: #3ABEF9;
+      color: #fff;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
 
-.card-tools .btn {
-  background-color: #3ABEF9;
-  color: #fff;
-  border: none;
-  transition: background-color 0.3s ease;
-}
+    .card-tools .btn:hover {
+      background-color: #3572EF;
+      color: #FFF591;
+    }
 
-.card-tools .btn:hover {
-  background-color: #3572EF;
-  color: #FFF591;
-}
+    /* DataTable Table Styling */
+    #blotterRecordTable thead {
+      background-color: #050C9C;
+      color: #FAF9F6;
+      border-bottom: 2px solid #A7E6FF;
+    }
 
-/* DataTable Table Styling */
-#blotterRecordTable thead {
-  background-color: #3572EF;
-  color: white;
-  border-bottom: 2px solid #A7E6FF;
-}
+    #blotterRecordTable tbody tr {
+      background-color: #FAF9F6;
+      color: #000;
+      transition: background-color 0.3s ease;
+      border-bottom: 1px solid #ddd;
+    }
 
-#blotterRecordTable tbody tr {
-  background-color: #0A174E;
-  color: #fff;
-  transition: background-color 0.3s ease;
-}
+    #blotterRecordTable tbody tr:hover {
+      background-color: #cce5ff; /* Light blue hover for table rows */
+    }
 
-#blotterRecordTable tbody tr:hover {
-  background-color: #1E3F8A;
-}
+    #blotterRecordTable th,
+    #blotterRecordTable td {
+      vertical-align: middle;
+      padding: 12px;
+      font-size: 0.95rem;
+    }
 
-#blotterRecordTable th,
-#blotterRecordTable td {
-  vertical-align: middle;
-}
+    /* DATATABLE PAGINATION */
+    .dataTables_wrapper .dataTables_paginate .page-link {
+      background-color: #3ABEF9 !important;
+      color: #FFF !important;
+      border-radius: 15px !important;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
 
-/* Table header */
-#certificateTable thead {
-  background-color: #050C9C; /* deep blue header */
-  color: #ffffff;
-  font-weight: 600;
-}
+    .dataTables_wrapper .dataTables_paginate .page-link:hover {
+      background-color: #3572EF !important;
+      color: #fff !important;
+    }
 
-/* BLOTTER TABLE - MATCH archiveResidence DESIGN */
+    /* Checkbox Styling */
+    #blotterRecordTable input[type="checkbox"] {
+      accent-color: #3572EF;
+    }
 
-/* Table container body */
-.card-body {
-  background-color: #fff !important;
-  color: #000 !important;
-  border-radius: 0 0 10px 10px;
-}
+    /* Footer Delete Button */
+    .card-footer .btn.bg-danger {
+      background-color: #E41749 !important;
+      border: none;
+      color: white;
+    }
 
-/* Table Header */
-#blotterRecordTable thead {
-  background-color: #050C9C;
-  color: #FAF9F6;
-}
+    .card-footer .btn.bg-danger:hover {
+      background-color: #F5587B !important;
+    }
 
-/* Table Rows */
-#blotterRecordTable tbody tr {
-  background-color: #FAF9F6;
-  color: #000;
-  transition: background-color 0.3s ease;
-  border-bottom: 1px solid #ddd;
-}
+    .badge.bg-indigo {
+      background-color: #FF8A5C !important;
+      color: #000;
+    }
 
-/* Row Hover Effect */
-#blotterRecordTable tbody tr:hover {
-  background-color: #0047ab;
-}
+    /* Modal Styling */
+    .modal-content {
+      background: linear-gradient(135deg, #050C9C, #3572EF);
+      color: #fff;
+      border-radius: 10px;
+    }
 
-/* Table Cells */
-#blotterRecordTable th,
-#blotterRecordTable td {
-  vertical-align: middle;
-  padding: 12px;
-  font-size: 0.95rem;
-}
+    .modal-body label {
+      color: #A7E6FF;
+      font-weight: 500;
+    }
 
-/* DATATABLE PAGINATION */
-.dataTables_wrapper .dataTables_paginate .page-link {
-  background-color: #3ABEF9 !important;
-  color: #FFF !important;
-  border-radius: 15px !important;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
-}
+    .modal-footer .btn {
+      border: none;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
 
-.dataTables_wrapper .dataTables_paginate .page-link:hover {
-  background-color: #3572EF !important;
-  color: #fff !important;
-}
+    .modal-footer .btn.btn-primary {
+      background-color: #3ABEF9;
+      color: #fff;
+    }
 
+    .modal-footer .btn.btn-primary:hover {
+      background-color: #3572EF;
+      color: #FFF591;
+    }
 
-/* Checkbox Styling */
-#blotterRecordTable input[type="checkbox"] {
-  accent-color: #3572EF;
-}
+    /* Form Controls */
+    .modal-body .form-control {
+      background-color: #ffffff !important;
+      border: 1px solid #ced4da !important;
+      color: #000 !important;
+    }
 
-/* Paginate / DataTable Controls */
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate,
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter {
-  color: #000;
-}
+    .modal-body .form-control::placeholder {
+      color: #6c757d !important;
+      opacity: 1;
+    }
 
-/* Select2 Inside Form */
-.select2-container--bootstrap4 .select2-selection {
-  background-color: #fff !important;
-  border: 1px solid #ced4da !important;
-  color: #000 !important;
-}
+    /* Select2 Inside Form */
+    .select2-container--bootstrap4 .select2-selection {
+      background-color: #ffffff !important;
+      border: 1px solid #ced4da !important;
+      color: #000 !important;
+    }
 
-.select2-container--bootstrap4 .select2-selection__rendered {
-  color: #000 !important;
-}
+    .select2-container--bootstrap4 .select2-selection__rendered {
+      color: #000 !important;
+    }
 
+    /* --- BLUE NAVBAR & SIDEBAR SETTINGS (NEW) --- */
 
-/* Checkbox */
-#blotterRecordTable input[type="checkbox"] {
-  accent-color: #3ABEF9;
-}
+    /* 1. TOP NAVBAR */
+    .main-header {
+      background-color: #3572EF !important; /* Medium Blue */
+      border-bottom: none !important;
+    }
+    
+    .main-header .nav-link {
+      color: #ffffff !important; /* Make navbar icons white */
+    }
 
-/* Footer Delete Button */
-.card-footer .btn.bg-danger {
-  background-color: #E41749 !important;
-  border: none;
-  color: white;
-}
+    /* 2. SIDEBAR CONTAINER */
+    .main-sidebar {
+      background-color: #050C9C !important; /* Deep Blue Background */
+    }
 
-.card-footer .btn.bg-danger:hover {
-  background-color: #F5587B !important;
-}
+    /* 3. SIDEBAR LOGO AREA */
+    .brand-link {
+      background-color: #050C9C !important;
+      border-bottom: 1px solid #3572EF !important;
+    }
+    .brand-link .brand-text {
+      color: #ffffff !important;
+    }
 
-.badge.bg-indigo {
-  background-color: #FF8A5C !important;
-  color: #000;
-}
+    /* 4. SIDEBAR LINKS */
+    .nav-sidebar .nav-link p,
+    .nav-sidebar .nav-link i {
+      color: #ffffff !important; /* Default Text Color: White */
+    }
 
-/* Modal Styling */
-.modal-content {
-  background: linear-gradient(135deg, #050C9C, #3572EF);
-  color: #fff;
-  border-radius: 10px;
-}
+    /* Sidebar Hover State */
+    .nav-sidebar .nav-link:hover {
+      background-color: #3ABEF9 !important; /* Light Blue Hover */
+      color: #000 !important; /* Black Text on Hover */
+    }
+    .nav-sidebar .nav-link:hover i, 
+    .nav-sidebar .nav-link:hover p {
+      color: #000 !important;
+    }
 
-.modal-body label {
-  color: #A7E6FF;
-  font-weight: 500;
-}
+    /* Sidebar Active State */
+    .nav-sidebar .nav-link.active {
+      background-color: #3572EF !important; /* Lighter Blue for active tab */
+      color: #fff !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
 
-.modal-footer .btn {
-  border: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
+    /* User Panel Divider */
+    .user-panel {
+      border-bottom: 1px solid #3572EF !important;
+    }
 
-.modal-footer .btn.btn-primary {
-  background-color: #3ABEF9;
-  color: #fff;
-}
-
-.modal-footer .btn.btn-primary:hover {
-  background-color: #3572EF;
-  color: #FFF591;
-}
-
-/* Form Controls */
-.modal-body .form-control {
-  background-color: #0A174E;
-  border: 1px solid #3ABEF9;
-  color: #fff;
-}
-
-.modal-body .form-control::placeholder {
-  color: #A7E6FF;
-  opacity: 0.8;
-}
-
-/* Select2 Dropdown Customization */
-.select2-container--bootstrap4 .select2-selection {
-  background-color: #0A174E !important;
-  border: 1px solid #3ABEF9 !important;
-  color: #fff !important;
-}
-
-.select2-container--bootstrap4 .select2-selection__rendered {
-  color: #A7E6FF !important;
-}
-
-.select2-container--bootstrap4 .select2-selection__arrow b {
-  border-color: #3ABEF9 transparent transparent transparent !important;
-}
-
-/* Responsive Fix */
-@media (max-width: 768px) {
-  .card-header h3,
-  .card-tools .btn {
-    font-size: 0.9rem;
-  }
-
-  .modal-body label {
-    font-size: 0.85rem;
-  }
-
-  .form-control {
-    font-size: 0.9rem;
-  }
-}
-
-/* Form-group controls (New Record) */
-#blotterRecordModal .form-control {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid #ced4da !important;
-}
-
-#blotterRecordModal .form-control::placeholder {
-  color: #6c757d !important;
-  opacity: 1;
-}
-
-#blotterRecordModal textarea.form-control {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-}
-
-/* Fix select2 inside the modal to match white inputs */
-#blotterRecordModal .select2-container--bootstrap4 .select2-selection {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid #ced4da !important;
-}
-
-#blotterRecordModal .select2-container--bootstrap4 .select2-selection__rendered {
-  color: #000000 !important;
-}
-
-#blotterRecordModal .select2-container--bootstrap4 .select2-selection__arrow b {
-  border-color: #000000 transparent transparent transparent !important;
-}
-
+    /* Responsive Fix */
+    @media (max-width: 768px) {
+      .card-header h3,
+      .card-tools .btn {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 
 </head>
-<body class="hold-transition sidebar-mini   layout-footer-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed">
 <div class="wrapper">
 
    <!-- Preloader -->
