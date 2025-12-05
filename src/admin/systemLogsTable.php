@@ -29,23 +29,21 @@ try {
         $sql .= " WHERE " . implode(' AND ', $whereClauses);
     }
 
-    // --- COUNT FILTERED ---
+    // --- COUNT & ORDER ---
     $stmt_filtered = $con->prepare($sql);
     $stmt_filtered->execute();
     $totalFiltered = $stmt_filtered->get_result()->num_rows;
 
-    // --- ORDERING ---
     $orderIndex = $_REQUEST['order'][0]['column'] ?? 0;
     $orderDir = $_REQUEST['order'][0]['dir'] ?? 'DESC';
     $orderBy = $col[$orderIndex] ?? 'id';
     $sql .= " ORDER BY " . $orderBy . " " . $orderDir;
 
-    // --- PAGINATION ---
     $start = $_REQUEST['start'] ?? 0;
     $length = $_REQUEST['length'] ?? 10;
     if ($length != -1) $sql .= " LIMIT $start, $length";
 
-    // --- FETCH DATA ---
+    // --- FETCH ---
     $stmt = $con->prepare($sql);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -56,61 +54,62 @@ try {
         $rawMessage = $row['message'];
         $status = strtolower($row['status']);
 
-        // --- 1. IDENTIFY USER TYPE ---
+        // --- 1. DETERMINE BADGE / TYPE ---
         $userType = 'RESIDENT'; // Default
         if (stripos($rawMessage, 'ADMIN:') !== false) $userType = 'ADMIN';
         elseif (stripos($rawMessage, 'OFFICIAL:') !== false) $userType = 'OFFICIAL';
 
-        // --- 2. CLEAN PREFIX ---
-        // Remove "ADMIN:", "OFFICIAL:", "RESIDENT:" to get the clean content
+        // Clean the message prefix
         $cleanMsg = preg_replace('/^(ADMIN:|OFFICIAL:|RESIDENT:)\s*/i', '', $rawMessage);
 
-        // --- 3. INTELLIGENT PARSING ---
-        $userName = '-';
+        // --- 2. PARSING LOGIC ---
+        // Defaults
+        $userName = '-'; 
         $finalMessage = $cleanMsg;
 
-        // CHECK A: Does it start with an ACTION VERB? (e.g. "ADDED", "DELETED", "REGISTER", "UPDATED")
-        // If yes, the first part is the MESSAGE, not the name.
-        if (preg_match('/^(ADDED|DELETED|UPDATED|REGISTER)/i', $cleanMsg)) {
-            
-            // Special Case: "REGISTER RESIDENT... | Name"
-            // For registration, the name is usually at the end (after the pipe).
-            if (stripos($cleanMsg, 'REGISTER') !== false && strpos($cleanMsg, '|') !== false) {
+        // RULE 1: Login / Logout (Structure is always: NAME | ACTION)
+        if ($status == 'login' || $status == 'logout') {
+            if (strpos($cleanMsg, '|') !== false) {
                 $parts = explode('|', $cleanMsg, 2);
-                $finalMessage = trim($parts[0]); // "REGISTER RESIDENT - ID"
-                $userName = trim($parts[1]);     // "Lara Croft"
-            } else {
-                // Standard Admin Action (e.g. "DELETED BLOTTER RECORD...")
-                // In these cases, the User is the Admin (represented as '-'), and the whole text is the message.
-                $userName = '-';
-                $finalMessage = $cleanMsg;
+                $userName = trim($parts[0]);
+                $finalMessage = trim($parts[1]);
             }
-
-        } 
-        // CHECK B: Standard "Name | Action" format (Login, Logout, Requests)
-        elseif (strpos($cleanMsg, '|') !== false) {
+        }
+        // RULE 2: Registration (Structure is always: ACTION | NAME)
+        elseif (stripos($cleanMsg, 'REGISTER') !== false) {
+            if (strpos($cleanMsg, '|') !== false) {
+                $parts = explode('|', $cleanMsg, 2);
+                $finalMessage = trim($parts[0]);
+                $userName = trim($parts[1]);
+            }
+        }
+        // RULE 3: Certificate Requests (Structure is usually: NAME | REQUEST)
+        elseif (stripos($cleanMsg, 'REQUEST') !== false && strpos($cleanMsg, '|') !== false) {
             $parts = explode('|', $cleanMsg, 2);
-            $leftPart = trim($parts[0]);
-            $rightPart = trim($parts[1]);
-
-            // Clean up messy names (e.g. "RESIDENT - 1234 : Stella Carisma")
-            if (strpos($leftPart, ':') !== false) {
-                $namePieces = explode(':', $leftPart);
-                $userName = trim(end($namePieces)); // Takes "Stella Carisma"
+            // Handle complex ID prefixes like "RESIDENT - 875823: David Santos"
+            $leftSide = trim($parts[0]);
+            if (strpos($leftSide, ':') !== false) {
+                $nameParts = explode(':', $leftSide);
+                $userName = trim(end($nameParts));
             } else {
-                $userName = $leftPart;
+                $userName = $leftSide;
             }
-
-            $finalMessage = $rightPart;
+            $finalMessage = trim($parts[1]);
+        }
+        // RULE 4: Admin Actions (Delete, Add, Update)
+        // We DO NOT try to parse a name here. The "User" is just the Admin type.
+        // This prevents the "DELETED BLOTTER RECORD" error you saw.
+        else {
+            $userName = '-';
+            $finalMessage = $cleanMsg;
         }
 
-        // --- 4. BADGES ---
+        // --- 3. RENDER ---
         $badgeClass = 'badge-secondary';
         if ($userType === 'ADMIN') $badgeClass = 'badge-danger';
         if ($userType === 'RESIDENT') $badgeClass = 'badge-success';
         if ($userType === 'OFFICIAL') $badgeClass = 'badge-info';
 
-        // --- BUILD ROW ---
         $subdata[] = $row['id'];
         $subdata[] = "<span class='badge $badgeClass'>$userType</span>";
         $subdata[] = "<span class='font-weight-bold'>$userName</span>";
@@ -120,7 +119,6 @@ try {
         $data[] = $subdata;
     }
 
-    // Total count query
     $total_query = "SELECT COUNT(*) as total FROM `activity_log`";
     $total_res = $con->query($total_query)->fetch_assoc();
 
