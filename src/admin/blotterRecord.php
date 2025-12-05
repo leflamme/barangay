@@ -72,16 +72,16 @@ try{
   <link rel="stylesheet" href="../assets/dist/css/admin.css">
 
   <style>
-    /* ========== DASHBOARD THEME COLORS (EXACT MATCH) ========== */
-    
-    /* 1. GLOBAL TEXT & BACKGROUND */
+    /* ========== BLOTTER RECORD THEME (DEEP BLUE HEADER) ========== */
+
+    /* 1. GLOBAL SETTINGS */
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #ffffff;
     }
     .content-wrapper {
       background-color: #ffffff !important;
-      color: #050C9C; /* Deep Blue Text like Dashboard */
+      color: #050C9C;
     }
 
     /* 2. NAVBAR (Deep Blue #050C9C) */
@@ -98,7 +98,6 @@ try{
       background-color: #050C9C !important;
     }
     
-    /* Logo Area */
     .brand-link {
       background-color: transparent !important;
       border-bottom: 1px solid rgba(255,255,255,0.1) !important;
@@ -107,16 +106,15 @@ try{
       color: #ffffff !important;
     }
 
-    /* Sidebar Links */
     .sidebar .nav-link {
-      color: #A7E6FF !important; /* Pale Blue Text */
+      color: #A7E6FF !important; /* Pale Blue Text for inactive links */
       transition: all 0.3s;
     }
     .sidebar .nav-icon {
       color: #3ABEF9 !important; /* Cyan Icon */
     }
 
-    /* Active/Hover State (Royal Blue #3572EF) */
+    /* Active/Hover State */
     .sidebar .nav-link.active,
     .sidebar .nav-link:hover {
       background-color: #3572EF !important;
@@ -128,45 +126,52 @@ try{
       color: #ffffff !important;
     }
 
-    /* 4. MAIN CARD STYLING (Matches 'Official Members' Card) */
+    /* 4. MAIN CARD STYLING */
     .card {
       border: none;
       box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
       border-radius: 10px;
-      border-top: 4px solid #3572EF; /* Top Accent */
+      /* Optional: Top accent removed since header is now deep blue */
     }
 
+    /* --- THIS IS THE SECTION YOU WANTED TO CHANGE --- */
     .card-header {
-      background-color: #A7E6FF !important; /* Pale Blue Background */
-      color: #050C9C !important; /* Deep Blue Text */
-      border-bottom: 1px solid #3572EF;
+      background-color: #050C9C !important; /* Changed from Pale Blue to Deep Blue */
+      color: #ffffff !important;             /* Text White */
+      border-bottom: 2px solid #3572EF;
       border-radius: 10px 10px 0 0 !important;
       padding: 15px 20px;
     }
 
     .card-header h3 {
       font-weight: 700;
-      color: #050C9C;
+      color: #ffffff !important; /* Ensure Header Title is White */
       font-size: 1.1rem;
     }
 
-    /* Card Tools Buttons */
+    /* Card Tools (Buttons inside header) */
     .card-tools .btn {
-      color: #050C9C;
+      color: #ffffff !important; /* Buttons White */
     }
     .card-tools .btn:hover {
-      color: #3572EF;
+      color: #A7E6FF !important;
     }
 
-    /* New Record Button (Black/Dark as per your code, or Blue?) */
-    /* Let's make it Blue to match theme */
+    /* New Record Button Styling */
     .card-tools .btn.bg-black {
-      background-color: #3572EF !important;
+      background-color: #3572EF !important; /* Make button Royal Blue */
       color: white !important;
-      border: none;
+      border: 1px solid transparent;
     }
     .card-tools .btn.bg-black:hover {
-      background-color: #050C9C !important;
+      background-color: #ffffff !important;
+      color: #050C9C !important;
+    }
+    /* ----------------------------------------------- */
+
+    .card-body {
+      background-color: #fff !important;
+      color: #000 !important;
     }
 
     /* 5. TABLE STYLING */
@@ -179,6 +184,7 @@ try{
     #blotterRecordTable tbody tr {
       background-color: #ffffff;
       color: #000;
+      border-bottom: 1px solid #dee2e6;
     }
 
     #blotterRecordTable tbody tr:hover {
@@ -191,8 +197,8 @@ try{
       border-radius: 10px;
     }
     .modal-header {
-      background-color: #A7E6FF;
-      color: #050C9C;
+      background-color: #050C9C; /* Deep Blue Modal Header */
+      color: #ffffff;
     }
     .modal-footer .btn-primary {
       background-color: #3572EF;
@@ -206,6 +212,10 @@ try{
     .page-item.active .page-link {
       background-color: #3572EF !important;
       border-color: #3572EF !important;
+      color: #fff !important;
+    }
+    .page-link {
+        color: #050C9C;
     }
     
     /* Footer Delete Button (Red) */
@@ -218,9 +228,14 @@ try{
     .user-panel {
       border-bottom: 1px solid rgba(255,255,255,0.1) !important;
     }
+    
+    /* Form controls in modal */
+    .form-control {
+        border: 1px solid #ced4da;
+    }
   </style>
-
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed">
 <div class="wrapper">
 
@@ -494,9 +509,11 @@ try{
               <div class="card-header border-transparent">
                 <h3 class="card-title">List of Records</h3>
                 <div class="card-tools">
+                  <!--
                   <button type="button" class="btn btn-tool bg-black btn-flat" id="addRecord" data-toggle="modal" data-target="#blotterRecordModal">
                     <i class="fas fa-plus"></i> New Record
                   </button>
+                  -->
                 </div>
               </div>
               <!-- /.card-header -->
