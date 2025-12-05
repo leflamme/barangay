@@ -1,13 +1,10 @@
 <?php
-// systemLogsTable.php
-
 ob_start();
 include_once '../connection.php';
 ob_clean(); 
 header('Content-Type: application/json');
 
 try {
-    // Columns for DataTables sorting
     $col = ['id', 'status', 'message', 'message', 'date']; 
 
     $sql = "SELECT * FROM activity_log";
@@ -16,7 +13,6 @@ try {
     // --- FILTERS ---
     if (isset($_POST['log_type_filter']) && !empty($_POST['log_type_filter'])) {
         $filter = $con->real_escape_string($_POST['log_type_filter']);
-        
         if ($filter == 'LOGIN')  $whereClauses[] = "LOWER(status) = 'login'";
         if ($filter == 'LOGOUT') $whereClauses[] = "LOWER(status) = 'logout'";
         if ($filter == 'UPDATE') $whereClauses[] = "LOWER(status) IN ('update', 'create', 'edit')";
@@ -58,50 +54,57 @@ try {
     while ($row = $result->fetch_assoc()) {
         $subdata = [];
         $rawMessage = $row['message'];
-        $status = strtolower($row['status']); // login, logout, create, delete, update
+        $status = strtolower($row['status']);
 
         // --- 1. IDENTIFY USER TYPE ---
         $userType = 'RESIDENT'; // Default
-        if (stripos($rawMessage, 'ADMIN:') !== false) {
-            $userType = 'ADMIN';
-        } elseif (stripos($rawMessage, 'OFFICIAL:') !== false) {
-            $userType = 'OFFICIAL';
-        }
+        if (stripos($rawMessage, 'ADMIN:') !== false) $userType = 'ADMIN';
+        elseif (stripos($rawMessage, 'OFFICIAL:') !== false) $userType = 'OFFICIAL';
 
         // --- 2. CLEAN PREFIX ---
-        // Remove "ADMIN:", "OFFICIAL:", or "RESIDENT:" from the start of the string
+        // Remove "ADMIN:", "OFFICIAL:", "RESIDENT:" to get the clean content
         $cleanMsg = preg_replace('/^(ADMIN:|OFFICIAL:|RESIDENT:)\s*/i', '', $rawMessage);
 
-        // --- 3. PARSE NAME vs MESSAGE ---
+        // --- 3. INTELLIGENT PARSING ---
         $userName = '-';
         $finalMessage = $cleanMsg;
 
-        if (strpos($cleanMsg, '|') !== false) {
-            $parts = explode('|', $cleanMsg, 2);
-            $partA = trim($parts[0]); // Left of pipe
-            $partB = trim($parts[1]); // Right of pipe
+        // CHECK A: Does it start with an ACTION VERB? (e.g. "ADDED", "DELETED", "REGISTER", "UPDATED")
+        // If yes, the first part is the MESSAGE, not the name.
+        if (preg_match('/^(ADDED|DELETED|UPDATED|REGISTER)/i', $cleanMsg)) {
+            
+            // Special Case: "REGISTER RESIDENT... | Name"
+            // For registration, the name is usually at the end (after the pipe).
+            if (stripos($cleanMsg, 'REGISTER') !== false && strpos($cleanMsg, '|') !== false) {
+                $parts = explode('|', $cleanMsg, 2);
+                $finalMessage = trim($parts[0]); // "REGISTER RESIDENT - ID"
+                $userName = trim($parts[1]);     // "Lara Croft"
+            } else {
+                // Standard Admin Action (e.g. "DELETED BLOTTER RECORD...")
+                // In these cases, the User is the Admin (represented as '-'), and the whole text is the message.
+                $userName = '-';
+                $finalMessage = $cleanMsg;
+            }
 
-            // SCENARIO A: Login or Logout (Format: Name | Action)
-            if ($status == 'login' || $status == 'logout') {
-                $userName = $partA;
-                $finalMessage = $partB;
+        } 
+        // CHECK B: Standard "Name | Action" format (Login, Logout, Requests)
+        elseif (strpos($cleanMsg, '|') !== false) {
+            $parts = explode('|', $cleanMsg, 2);
+            $leftPart = trim($parts[0]);
+            $rightPart = trim($parts[1]);
+
+            // Clean up messy names (e.g. "RESIDENT - 1234 : Stella Carisma")
+            if (strpos($leftPart, ':') !== false) {
+                $namePieces = explode(':', $leftPart);
+                $userName = trim(end($namePieces)); // Takes "Stella Carisma"
+            } else {
+                $userName = $leftPart;
             }
-            // SCENARIO B: Resident Request (Format: Name | Request Type)
-            // Usually Resident logs don't start with "ADMIN:"
-            elseif ($userType == 'RESIDENT') {
-                $userName = $partA;
-                $finalMessage = $partB;
-            }
-            // SCENARIO C: Admin Actions (Add/Delete/Update)
-            // Format: ACTION - ID | Subject Name
-            // In this case, Part A is the ACTION, not the user name.
-            else {
-                $userName = '-'; // The Admin's specific name isn't in these logs
-                $finalMessage = $cleanMsg; // Show the full detail line
-            }
+
+            $finalMessage = $rightPart;
         }
 
-        // --- 4. BADGE COLORS ---
+        // --- 4. BADGES ---
         $badgeClass = 'badge-secondary';
         if ($userType === 'ADMIN') $badgeClass = 'badge-danger';
         if ($userType === 'RESIDENT') $badgeClass = 'badge-success';
