@@ -1,15 +1,14 @@
 <?php
 // systemLogsTable.php
 
-// 1. Start buffering
 ob_start();
 include_once '../connection.php';
 ob_clean(); 
 header('Content-Type: application/json');
 
 try {
-    // We only have one table, so we sort by its columns
-    $col = ['id', 'message', 'message', 'message', 'date']; // Map visual columns to DB columns for sorting
+    // Columns for DataTables sorting
+    $col = ['id', 'status', 'message', 'message', 'date']; 
 
     $sql = "SELECT * FROM activity_log";
     $whereClauses = [];
@@ -17,7 +16,7 @@ try {
     // --- FILTERS ---
     if (isset($_POST['log_type_filter']) && !empty($_POST['log_type_filter'])) {
         $filter = $con->real_escape_string($_POST['log_type_filter']);
-        // Maps to the 'status' column in your DB image
+        
         if ($filter == 'LOGIN')  $whereClauses[] = "LOWER(status) = 'login'";
         if ($filter == 'LOGOUT') $whereClauses[] = "LOWER(status) = 'logout'";
         if ($filter == 'UPDATE') $whereClauses[] = "LOWER(status) IN ('update', 'create', 'edit')";
@@ -59,48 +58,66 @@ try {
     while ($row = $result->fetch_assoc()) {
         $subdata = [];
         $rawMessage = $row['message'];
+        $status = strtolower($row['status']); // login, logout, create, delete, update
 
-        // --- PARSING LOGIC ---
-        // Default values
-        $userType = 'System';
+        // --- 1. IDENTIFY USER TYPE ---
+        $userType = 'RESIDENT'; // Default
+        if (stripos($rawMessage, 'ADMIN:') !== false) {
+            $userType = 'ADMIN';
+        } elseif (stripos($rawMessage, 'OFFICIAL:') !== false) {
+            $userType = 'OFFICIAL';
+        }
+
+        // --- 2. CLEAN PREFIX ---
+        // Remove "ADMIN:", "OFFICIAL:", or "RESIDENT:" from the start of the string
+        $cleanMsg = preg_replace('/^(ADMIN:|OFFICIAL:|RESIDENT:)\s*/i', '', $rawMessage);
+
+        // --- 3. PARSE NAME vs MESSAGE ---
         $userName = '-';
-        $actionMessage = $rawMessage;
+        $finalMessage = $cleanMsg;
 
-        // 1. Extract User Type (Before the first colon)
-        // Example: "ADMIN: Admin Admin | LOGIN" -> Type = ADMIN
-        if (strpos($rawMessage, ':') !== false) {
-            $parts = explode(':', $rawMessage, 2);
-            $userType = strtoupper(trim($parts[0])); 
-            $rest = trim($parts[1]);
+        if (strpos($cleanMsg, '|') !== false) {
+            $parts = explode('|', $cleanMsg, 2);
+            $partA = trim($parts[0]); // Left of pipe
+            $partB = trim($parts[1]); // Right of pipe
 
-            // 2. Extract User Name (If a pipe | exists AND it's a Login/Logout event)
-            // We verify it's login/logout because other logs (like ADD RESIDENT) might use | for data, not names.
-            if (strpos($rest, '|') !== false && (stripos($row['status'], 'log') !== false)) {
-                $nameParts = explode('|', $rest, 2);
-                $userName = trim($nameParts[0]); // "Admin Admin"
-                $actionMessage = trim($nameParts[1]); // "LOGIN"
-            } else {
-                // If no name is explicitly listed (common in "ADDED RESIDENT" logs), leave name as '-'
-                $actionMessage = $rest;
+            // SCENARIO A: Login or Logout (Format: Name | Action)
+            if ($status == 'login' || $status == 'logout') {
+                $userName = $partA;
+                $finalMessage = $partB;
+            }
+            // SCENARIO B: Resident Request (Format: Name | Request Type)
+            // Usually Resident logs don't start with "ADMIN:"
+            elseif ($userType == 'RESIDENT') {
+                $userName = $partA;
+                $finalMessage = $partB;
+            }
+            // SCENARIO C: Admin Actions (Add/Delete/Update)
+            // Format: ACTION - ID | Subject Name
+            // In this case, Part A is the ACTION, not the user name.
+            else {
+                $userName = '-'; // The Admin's specific name isn't in these logs
+                $finalMessage = $cleanMsg; // Show the full detail line
             }
         }
 
-        // --- BADGES ---
+        // --- 4. BADGE COLORS ---
         $badgeClass = 'badge-secondary';
         if ($userType === 'ADMIN') $badgeClass = 'badge-danger';
         if ($userType === 'RESIDENT') $badgeClass = 'badge-success';
+        if ($userType === 'OFFICIAL') $badgeClass = 'badge-info';
 
         // --- BUILD ROW ---
         $subdata[] = $row['id'];
         $subdata[] = "<span class='badge $badgeClass'>$userType</span>";
         $subdata[] = "<span class='font-weight-bold'>$userName</span>";
-        $subdata[] = htmlspecialchars($actionMessage);
+        $subdata[] = htmlspecialchars($finalMessage);
         $subdata[] = "<small>" . $row['date'] . "</small>";
 
         $data[] = $subdata;
     }
 
-    // Total count
+    // Total count query
     $total_query = "SELECT COUNT(*) as total FROM `activity_log`";
     $total_res = $con->query($total_query)->fetch_assoc();
 
