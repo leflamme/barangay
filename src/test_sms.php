@@ -5,7 +5,7 @@
 // 1. CONFIGURATION
 $PHILSMS_URL = "https://dashboard.philsms.com/api/v3/";
 $PHILSMS_KEY = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f"; // Your Key
-$TEST_NUMBER = "09123456789"; // <--- PUT YOUR REAL NUMBER HERE
+$TEST_NUMBER = "09274176508"; // <--- PUT YOUR REAL NUMBER HERE
 $MESSAGE     = "This is a test message from Barangay Kalusugan System.";
 
 // 2. FORMAT NUMBER
