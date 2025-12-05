@@ -144,38 +144,27 @@ try {
                 <li class="nav-item"><a href="newOfficial.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>New Official</p></a></li>
                 <li class="nav-item"><a href="allOfficial.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>List of Official</p></a></li>
                 <li class="nav-item"><a href="officialEndTerm.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>Official End Term</p></a></li>
+                <li class="nav-item"><a href="position.php" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Position</p></a></li>
               </ul>
             </li>
 
             <li class="nav-item"><a href="#" class="nav-link "><i class="nav-icon fas fa-users"></i><p>Residence<i class="right fas fa-angle-left"></i></p></a>
               <ul class="nav nav-treeview">
                 <li class="nav-item"><a href="newResidence.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>New Residence</p></a></li>
-                <li class="nav-item"><a href="allResidence.php" class="nav-link bg-indigo"><i class="fas fa-circle nav-icon text-red"></i><p>All Residence</p></a></li>
+                <li class="nav-item"><a href="allResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>All Residence</p></a></li>
                 <li class="nav-item"><a href="archiveResidence.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>Archive Residence</p></a></li>
               </ul>
             </li>
 
-            <li class="nav-item "><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
-            
             <li class="nav-item "><a href="#" class="nav-link"><i class="nav-icon fas fa-user-shield"></i><p>Users<i class="right fas fa-angle-left"></i></p></a>
               <ul class="nav nav-treeview">
                 <li class="nav-item"><a href="usersResident.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>Resident</p></a></li>
                 <li class="nav-item"><a href="userAdministrator.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Administrator</p></a></li>
               </ul>
             </li>
-
-            <!-- DRM Part   (START)   -->
-            <li class="nav-item has-treeview"><a href="#" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>DRRM<i class="right fas fa-angle-left"></i></p></a> 
-              <ul class="nav nav-treeview">
-                <li class="nav-item"><a href="drrmHousehold.php" class="nav-link"><i class="fas fa-users nav-icon text-red"></i><p>Household Members</p></a></li>
-                <li class="nav-item"><a href="drrmEvacuation.php" class="nav-link"><i class="fas fa-house-damage nav-icon text-red"></i><p>Evacuation Center</p></a></li>
-              </ul>
-            </li>
-            <!-- End of DRM Part -->
-
-            <li class="nav-item"><a href="position.php" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Position</p></a></li>
+            <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Masterlist Report</p></a></li>
+            <li class="nav-item "><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
             <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
-            <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Reports</p></a></li>
             <li class="nav-item"><a href="systemLog.php" class="nav-link bg-indigo"><i class="nav-icon fas fa-history"></i><p>System Logs</p></a></li>
             
           </ul>
