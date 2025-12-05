@@ -72,7 +72,7 @@ try {
 
     // --- 3. UPDATE `edit_requests` TABLE ---
     // Set the request status to 'USED' so they must request again
-    $sql_req = "UPDATE `edit_requests` SET `status` = 'USED' WHERE `user_id` = ? AND `status` = 'APPROVED'";
+    $sql_req = "UPDATE `edit_requests` SET `status` = 'COMPLETED' WHERE `user_id` = ? AND `status` = 'APPROVED'";
     $stmt_req = $con->prepare($sql_req);
     $stmt_req->bind_param('s', $user_id);
     $stmt_req->execute();
