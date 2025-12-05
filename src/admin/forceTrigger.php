@@ -168,11 +168,6 @@ try {
 
 <body class="hold-transition sidebar-mini layout-footer-fixed">
 <div class="wrapper">
-    
-    <!-- Preloader -->
-    <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
-    </div>
 
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-dark">
