@@ -36,6 +36,59 @@ try {
         $image = $row['image'];
         $image_path = $row['image_path'];
 
+        // ... (Existing code fetching user details) ...
+
+        // --- NEW LOGIC: CALCULATE NEAREST EVACUATION CENTER ---
+        
+        // 1. Get Current User's Location
+        $my_lat = $row_resident['latitude'];
+        $my_long = $row_resident['longitude'];
+        $assigned_center = null;
+
+        // 2. Helper Function (Haversine)
+        function getDistance($lat1, $lon1, $lat2, $lon2) {
+            if (empty($lat1) || empty($lon1) || empty($lat2) || empty($lon2)) return 9999;
+            $R = 6371; // Earth Radius in KM
+            $dLat = deg2rad($lat2 - $lat1);
+            $dLon = deg2rad($lon2 - $lon1);
+            $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
+            $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+            return $R * $c;
+        }
+
+        // 3. Process Centers if User has Location
+        if (!empty($my_lat) && !empty($my_long)) {
+            $centers_sql = "SELECT * FROM evacuation_centers";
+            $centers_query = $con->query($centers_sql);
+            $centers_list = [];
+
+            while ($c = $centers_query->fetch_assoc()) {
+                $dist = getDistance($my_lat, $my_long, $c['latitude'], $c['longitude']);
+                $c['calc_distance'] = $dist;
+                $centers_list[] = $c;
+            }
+
+            // 4. Sort by Nearest Distance
+            usort($centers_list, function($a, $b) {
+                return $a['calc_distance'] <=> $b['calc_distance'];
+            });
+
+            // 5. Select the best one (Logic: Nearest + Not Full)
+            foreach ($centers_list as $c) {
+                if ($c['current_occupancy'] < $c['max_capacity']) {
+                    $assigned_center = $c;
+                    break; 
+                }
+            }
+            
+            // Fallback: If all are full, still show the closest one but mark it red in UI later
+            if (!$assigned_center && count($centers_list) > 0) {
+                $assigned_center = $centers_list[0];
+                $assigned_center['is_full'] = true;
+            }
+        }
+        // ---------------------------------------------------------
+
     } else {
         echo '<script>
                 window.location.href = "../login.php";
@@ -294,11 +347,54 @@ try {
                   <strong>Tip:</strong> Save these numbers on your phone and share with your family members.
                 </div>
               </div>
-              <div class="col-md-5 text-center">
-                <h5 class="font-weight-bold mb-3">Evacuation Map</h5>
-                <img src="../assets/logo/brgy_map.png" alt="Barangay Evacuation Map" class="img-fluid rounded shadow" style="max-height: 350px;">
-                <p class="mt-2 text-muted">Locate your home and the nearest evacuation center on the map above.</p>
+
+              <!-- UPDATED SECTION -->
+              <div class="col-md-5">
+                <h5 class="font-weight-bold mb-3 text-center">Your Designated Safe Zone</h5>
+                
+                <?php if ($assigned_center): ?>
+                    <div class="card shadow-sm border-left-primary" style="border-left: 5px solid #007bff;">
+                        <div class="card-body">
+                            <span class="badge badge-success mb-2">NEAREST AVAILABLE</span>
+                            
+                            <?php if(isset($assigned_center['is_full'])): ?>
+                                <span class="badge badge-danger mb-2">CURRENTLY FULL</span>
+                            <?php endif; ?>
+
+                            <h4 class="text-primary font-weight-bold">
+                                <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($assigned_center['name']) ?>
+                            </h4>
+                            
+                            <p class="text-muted mb-1">
+                                <strong>Distance:</strong> <?= number_format($assigned_center['calc_distance'], 2) ?> km away
+                            </p>
+                            <p class="text-muted mb-3">
+                                <strong>Status:</strong> 
+                                <?= $assigned_center['current_occupancy'] ?> / <?= $assigned_center['max_capacity'] ?> Occupied
+                            </p>
+
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=<?= $assigned_center['latitude'] ?>,<?= $assigned_center['longitude'] ?>" 
+                               target="_blank" 
+                               class="btn btn-primary btn-block">
+                                <i class="fas fa-directions"></i> Get Directions (Google Maps)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <small class="text-muted">General Overview Map</small><br>
+                        <img src="../assets/logo/brgy_map.png" alt="Barangay Map" class="img-fluid rounded mt-1" style="max-height: 150px; opacity: 0.7;">
+                    </div>
+
+                <?php else: ?>
+                    <div class="alert alert-warning">
+                        <h5><i class="icon fas fa-exclamation-triangle"></i> Location Not Found!</h5>
+                        We cannot calculate your route because your address coordinates are missing. 
+                        Please contact the Barangay Secretary to update your profile location.
+                    </div>
+                <?php endif; ?>
               </div>
+
             </div>
           </div>
         </div>
