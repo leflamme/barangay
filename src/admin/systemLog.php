@@ -209,16 +209,21 @@ try {
                     </div>
                   </div>
 
-                  <table class="table table-bordered table-hover table-striped text-sm font-weight-bolder" id="systemLogsTable" style="width:100%">
+              <!-- UPDATED PART -->
+                  <table class="table table-hover text-nowrap" id="systemLogsTable" style="width:100%">
                     <thead>
                       <tr>
-                        <th>#</th>
-                        <th>Message</th>
-                        <th>Date</th>
+                        <th width="5%">#</th>
+                        <th width="10%">User Type</th>
+                        <th width="20%">User</th>
+                        <th width="45%">Message</th>
+                        <th width="20%">Date</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
                   </table>
+              <!-- END OF UPDATE -->
+
                 </div>
               </div>
             </div>
@@ -244,39 +249,45 @@ try {
   <script>
     $(document).ready(function() {
       
-      // Initialize DataTable standardly
       var dataTable = $("#systemLogsTable").DataTable({
           processing: true,
           serverSide: true,
           autoWidth: false,
-          order: [[0, "desc"]],
+          order: [[0, "desc"]], // Sort by ID (column 0)
           ajax: {
             url: 'systemLogsTable.php',
             type: 'POST',
             data: function(d) {
-              // Send the filter value to PHP
               d.log_type_filter = $('#logTypeFilter').val();
-            },
-            error: function (xhr, error, code) {
-                console.log("DataTables Error:", xhr.responseText);
             }
           },
-          // Use standard page length menu
+          // Define columns to ensure data maps correctly
+          columns: [
+              { data: 0 }, // ID
+              { data: 1 }, // User Type
+              { data: 2 }, // User Name
+              { data: 3 }, // Message
+              { data: 4 }  // Date
+          ],
+          columnDefs: [
+              // Center align the first two columns (ID and Type)
+              { className: "text-center", targets: [0, 1] },
+              // Vertically align all content
+              { className: "align-middle", targets: "_all" }
+          ],
           lengthMenu: [[10, 20, 50], [10, 20, 50]], 
           pagingType: "full_numbers",
-          // Use standard DOM layout: 
-          // 'l' = length menu, 'f' = search, 'tr' = table, 'p' = pagination
           dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-               "<'row'<'col-sm-12'tr>>" +
-               "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+              "<'row'<'col-sm-12'tr>>" +
+              "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
       });
 
-      // Reload table when Filter changes
       $('#logTypeFilter').change(function() {
         dataTable.ajax.reload();
       });
 
     });
   </script>
+
 </body>
 </html>
