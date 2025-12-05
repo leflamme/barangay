@@ -195,7 +195,10 @@ if ($weather_json) {
     curl_close($ch);
     
     // Get Prediction
-    $pred = $ai_resp['prediction'] ?? 'normal';
+    // $pred = $ai_resp['prediction'] ?? 'normal';
+
+    // TESTING OVERRIDE
+    $pred = 'evacuate'; // Force Evacuate for testing
     
     // Check Status Change
     $curr_status = $con->query("SELECT status FROM current_alert_status WHERE id = 1")->fetch_assoc()['status'];
