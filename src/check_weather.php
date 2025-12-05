@@ -18,7 +18,7 @@ $resend_api_key = getenv('RESEND_API_KEY');
 $flask_api_url = 'http://barangay_api.railway.internal:8080/predict'; // Your AI URL
 
 // PhilSMS
-$PHILSMS_URL = "https://dashboard.philsms.com/api/v3/";
+$PHILSMS_URL = "https://dashboard.philsms.com/api/v3/sms/send";
 $PHILSMS_KEY = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f";
 
 // ==========================================
