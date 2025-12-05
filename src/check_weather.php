@@ -165,57 +165,43 @@ if ($quake_json) {
 }
 
 // ==========================================
-//   LOGIC 2: WEATHER DETECTION (UPDATED)
+//   LOGIC 2: WEATHER DETECTION (DEBUG MODE)
 // ==========================================
-$stmt_history = $con->prepare("SELECT flood_history FROM barangay_information LIMIT 1");
-$stmt_history->execute();
-$flood_history = $stmt_history->get_result()->fetch_assoc()['flood_history'] ?? 'rare';
 
-// Call Weather API
-$owm_url = "https://api.openweathermap.org/data/2.5/weather?lat={$USER_LAT}&lon={$USER_LON}&appid={$owm_api_key}&units=metric";
-$weather_json = @file_get_contents($owm_url);
+// 1. Enable Error Reporting (So we see if it crashes)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-if ($weather_json) {
-    $weather_data = json_decode($weather_json, true);
-    $rain_mm = $weather_data['rain']['1h'] ?? 0;
-    
-    // Categorize Rain
-    $cat = 'light';
-    if ($rain_mm > 50) $cat = 'heavy';
-    elseif ($rain_mm > 7.5) $cat = 'moderate';
+echo "<h3>🔎 DEBUG MODE STARTED...</h3>";
 
-    // Call Your Python ML Model
-    $payload = json_encode(['rainfall_category' => $cat, 'rainfall_amount_mm' => (float)$rain_mm, 'flood_history' => $flood_history]);
-    $ch = curl_init($flask_api_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    $ai_resp = json_decode(curl_exec($ch), true);
-    curl_close($ch);
-    
-    // Get Prediction
-    // $pred = $ai_resp['prediction'] ?? 'normal';
+// 2. Force the Prediction
+$pred = 'evacuate'; 
+echo "<strong>Forced Prediction:</strong> $pred <br>";
 
-    // TESTING OVERRIDE
-    $pred = 'evacuate'; // Force Evacuate for testing
+// 3. Check Database Status
+$status_query = $con->query("SELECT status FROM current_alert_status WHERE id = 1");
+$curr_status = $status_query->fetch_assoc()['status'];
+echo "<strong>Current DB Status:</strong> $curr_status <br>";
+
+// 4. BYPASS THE 'IF' CHECK (Run logic regardless of status)
+// if ($pred != $curr_status) {  <--- COMMENTED OUT FOR TESTING
+
+    echo "<strong>Status Update:</strong> Simulating update to '$pred'...<br>";
     
-    // Check Status Change
-    $curr_status = $con->query("SELECT status FROM current_alert_status WHERE id = 1")->fetch_assoc()['status'];
+    // Update DB (Optional for test, but good to keep)
+    $con->query("UPDATE current_alert_status SET status = '$pred' WHERE id = 1");
     
-    if ($pred != $curr_status) {
-        // Update DB Status
-        $con->query("UPDATE current_alert_status SET status = '$pred' WHERE id = 1");
-        echo "Weather Update: $pred\n";
-        
-        // --- DECISION POINT ---
-        if ($pred == 'evacuate') {
-            // TRIGGER SMART ROUTING
-            processSmartEvacuation($con);
-        } elseif ($pred == 'warn') {
-            // TRIGGER STANDARD BROADCAST
-            broadcastToResidents($con, "WEATHER", "WARNING {$barangay_name}: Heavy rain detected. Prepare for potential flooding.");
-        }
+    if ($pred == 'evacuate') {
+        echo "<hr><h4>🚀 TRIGGERING SMART EVACUATION...</h4>";
+        processSmartEvacuation($con);
+    } elseif ($pred == 'warn') {
+        echo "Triggering Warning Broadcast...<br>";
+        broadcastToResidents($con, "WEATHER", "WARNING: Heavy rain detected.");
+    } else {
+        echo "Weather is Normal.<br>";
     }
-}
+
+// } <--- COMMENTED OUT FOR TESTING
+
+echo "<hr><h3>✅ END OF TEST</h3>";
 ?>
