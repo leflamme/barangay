@@ -3,7 +3,7 @@
 // RUN THIS IN YOUR BROWSER
 
 // 1. CONFIGURATION
-$PHILSMS_URL = "https://dashboard.philsms.com/api/v3/";
+$PHILSMS_URL = "https://dashboard.philsms.com/api/v3/sms/send";
 $PHILSMS_KEY = "554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f"; 
 $TEST_NUMBER = "09274176508"; // <--- PUT YOUR REAL NUMBER HERE!
 $message     = "This is a test message from Barangay Kalusugan System."; // Changed to lowercase variable
