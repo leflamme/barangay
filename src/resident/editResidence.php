@@ -10,13 +10,12 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'resident'){
 try {
     $user_id = $_SESSION['user_id'];
     
-    // --- 1. CAPTURE ALL INPUTS (Including Residency Type) ---
-    $edit_residency_type = $con->real_escape_string($_POST['edit_residency_type']); // <--- Added this
+    // --- 1. CAPTURE ALL INPUTS ---
+    $edit_residency_type = $con->real_escape_string($_POST['edit_residency_type']);
     $edit_residence_id = $con->real_escape_string(trim($_POST['edit_residence_id']));
     $edit_voters = $con->real_escape_string($_POST['edit_voters']);
     $edit_pwd = $con->real_escape_string($_POST['edit_pwd']);
     
-    // Handle optional fields
     $edit_pwd_info = isset($_POST['edit_pwd_info']) ? $con->real_escape_string($_POST['edit_pwd_info']) : '';
     $edit_single_parent = isset($_POST['edit_single_parent']) ? $con->real_escape_string($_POST['edit_single_parent']) : 'NO';
 
@@ -44,10 +43,6 @@ try {
     $edit_guardian_contact = $con->real_escape_string($_POST['edit_guardian_contact']);
 
     // --- Image Handling ---
-    $new_edit_image_name = ""; 
-    $new_edit_image_path = "";
-    
-    // Get current image first
     $sql_check_image = "SELECT `image`, `image_path` FROM `residence_information` WHERE `residence_id` = ?";
     $stmt_check_image = $con->prepare($sql_check_image);
     $stmt_check_image->bind_param('s', $edit_residence_id);
@@ -69,7 +64,6 @@ try {
         move_uploaded_file($_FILES['edit_image_residence']['tmp_name'], $new_edit_image_path);
     }
 
-    // Calculate Age
     $today = date("Y/m/d");
     $age = date_diff(date_create($edit_birth_date), date_create($today));
     $edit_age_date = $age->format("%y");
@@ -96,11 +90,9 @@ try {
     $stmt_edit_residence->execute();
     $stmt_edit_residence->close();
 
-    // --- 3. UPDATE RESIDENCE STATUS (Includes Residency Type) ---
-    // Added `residency_type` = ? to this query
+    // --- 3. UPDATE RESIDENCE STATUS ---
     $sql_edit_residence_status = "UPDATE `residence_status` SET `voters` = ?, `senior` = ?, `pwd` = ?, `pwd_info`= ? , `single_parent` = ?, `residency_type` = ? WHERE `residence_id` = ?";
     $stmt_edit_residence_status = $con->prepare($sql_edit_residence_status) or die ($con->error);
-    // Added $edit_residency_type to bind params
     $stmt_edit_residence_status->bind_param('sssssss', $edit_voters, $senior, $edit_pwd, $edit_pwd_info, $edit_single_parent, $edit_residency_type, $edit_residence_id);
     $stmt_edit_residence_status->execute();
     $stmt_edit_residence_status->close();
@@ -112,8 +104,22 @@ try {
     $stmt_edit_residence_users->execute();
     $stmt_edit_residence_users->close();
 
-    // --- 5. LOGGING ---
-    // (Kept simple for brevity, logic remains the same as your original)
+    // ============================================================
+    // --- 5. CLOSE THE EDIT REQUEST (THIS WAS MISSING) ---
+    // ============================================================
+    $status_completed = 'COMPLETED';
+    $status_approved = 'APPROVED';
+    
+    // We only close requests that are currently marked as APPROVED
+    $sql_close_request = "UPDATE `edit_requests` SET `status` = ? WHERE `user_id` = ? AND `status` = ?";
+    $stmt_close = $con->prepare($sql_close_request);
+    $stmt_close->bind_param('sss', $status_completed, $user_id, $status_approved);
+    $stmt_close->execute();
+    $stmt_close->close();
+    // ============================================================
+
+
+    // --- 6. LOGGING ---
     if(isset($_POST['edit_first_name_check']) && ($_POST['edit_first_name_check'] == 'true')){
          $date_activity = date("j-n-Y g:i A");  
          $admin = 'RESIDENT: ' .$edit_first_name.' '.$edit_last_name. ' UPDATED INFO';
