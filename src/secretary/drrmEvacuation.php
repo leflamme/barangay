@@ -28,9 +28,10 @@ try{
         $district = $row['district'];
     }
 
-    // 3. Helper Function: Get Families by Center (Grouped by Last Name)
-    // This looks at the 'assigned_center' column you just filled via check_weather.php
+    // 3. Helper Function: Get Families by Center Name
     function getFamiliesByCenter($con, $centerName) {
+        // We use LIKE here just in case of small spaces differences, but exact match is better
+        // This looks for the exact string saved in 'assigned_center'
         $sql = "SELECT 
                   last_name,
                   COUNT(*) as total_members,
@@ -147,13 +148,13 @@ try{
           <div class="card-header p-0 pt-1 border-bottom-0">
             <ul class="nav nav-tabs" id="evacuationTabs" role="tablist">
               <li class="nav-item">
-                <a class="nav-link active" id="tab-a" data-toggle="pill" href="#center-a" role="tab">Evacuation Center A</a>
+                <a class="nav-link active" id="tab-a" data-toggle="pill" href="#center-a" role="tab">Elem. School</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="tab-b" data-toggle="pill" href="#center-b" role="tab">Evacuation Center B</a>
+                <a class="nav-link" id="tab-b" data-toggle="pill" href="#center-b" role="tab">Basketball Court</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="tab-c" data-toggle="pill" href="#center-c" role="tab">Evacuation Center C</a>
+                <a class="nav-link" id="tab-c" data-toggle="pill" href="#center-c" role="tab">High School Annex</a>
               </li>
             </ul>
           </div>
@@ -162,18 +163,28 @@ try{
             <div class="tab-content">
               
               <div class="tab-pane fade show active" id="center-a" role="tabpanel">
-                <h4>Families in Center A</h4>
-                <?php $resultFamilies = getFamiliesByCenter($con, 'A'); include 'evacuation_table_template.php'; ?>
+                <h4>Barangay Kalusugan Elementary School</h4>
+                <?php 
+                  // MUST MATCH DATABASE NAME EXACTLY
+                  $resultFamilies = getFamiliesByCenter($con, 'Barangay Kalusugan Elementary School'); 
+                  include 'evacuation_table_template.php'; 
+                ?>
               </div>
 
               <div class="tab-pane fade" id="center-b" role="tabpanel">
-                <h4>Families in Center B</h4>
-                <?php $resultFamilies = getFamiliesByCenter($con, 'B'); include 'evacuation_table_template.php'; ?>
+                <h4>Kalusugan Open Basketball Court</h4>
+                <?php 
+                  $resultFamilies = getFamiliesByCenter($con, 'Kalusugan Open Basketball Court'); 
+                  include 'evacuation_table_template.php'; 
+                ?>
               </div>
 
               <div class="tab-pane fade" id="center-c" role="tabpanel">
-                <h4>Families in Center C</h4>
-                <?php $resultFamilies = getFamiliesByCenter($con, 'C'); include 'evacuation_table_template.php'; ?>
+                <h4>Quezon City High School Annex</h4>
+                <?php 
+                  $resultFamilies = getFamiliesByCenter($con, 'Quezon City High School Annex'); 
+                  include 'evacuation_table_template.php'; 
+                ?>
               </div>
 
             </div>
@@ -224,7 +235,7 @@ $(document).ready(function() {
         $('#familyModalBody').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
         $('#familyModal').modal('show');
 
-        // Calls the member list file
+        // Calls the NEW file we created
         $.ajax({
             url: 'get_evacuation_family.php',
             type: 'POST',
@@ -235,7 +246,7 @@ $(document).ready(function() {
         });
     });
 
-    // Toggle Status Logic (Arrived/Missing)
+    // Toggle Status Logic
     $(document).on('click', '.toggle-status-btn', function() {
         var btn = $(this);
         var residence_id = btn.data('id');
@@ -252,6 +263,8 @@ $(document).ready(function() {
                 btn.prop('disabled', false);
                 btn.data('status', new_status);
                 btn.text(new_status);
+                // Update button color immediately
+                btn.html( (new_status === 'Arrived' ? '<i class="fas fa-check"></i> ' : '<i class="fas fa-times"></i> ') + new_status );
                 
                 if(new_status === 'Arrived') {
                     btn.removeClass('btn-danger').addClass('btn-success');

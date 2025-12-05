@@ -72,7 +72,8 @@ function processSmartEvacuation($con) {
     $centers = [];
     while ($c = $centers_query->fetch_assoc()) { $centers[] = $c; }
 
-    $residents_query = $con->query("SELECT r.contact_number, r.latitude, r.longitude, u.first_name 
+    // [FIX 1]: Added r.residence_id to the SELECT list so we can update the database later
+    $residents_query = $con->query("SELECT r.residence_id, r.contact_number, r.latitude, r.longitude, u.first_name 
                                     FROM users u 
                                     JOIN residence_information r ON u.id = r.residence_id 
                                     WHERE u.user_type = 'resident'");
@@ -100,6 +101,13 @@ function processSmartEvacuation($con) {
                 if ($centers[$idx]['current_occupancy'] < $centers[$idx]['max_capacity']) {
                     $target_center = $centers[$idx];
                     $centers[$idx]['current_occupancy']++; // Reserve spot in memory
+                    
+                    // [FIX 2]: SAVE THE ASSIGNMENT TO DATABASE
+                    // Assuming your center names are 'A', 'B', 'C', or mapped to the Tabs
+                    $center_val = $centers[$idx]['name']; // Make sure this matches your Tab logic (A, B, or C)
+                    $res_id = $res['residence_id'];
+                    $con->query("UPDATE residence_information SET assigned_center = '$center_val' WHERE residence_id = '$res_id'");
+                    
                     break;
                 }
             }
@@ -110,6 +118,7 @@ function processSmartEvacuation($con) {
             $dist_str = number_format($target_center['calc_dist'], 2);
             $msg = "URGENT EVACUATION: Flood detected. Proceed to {$target_center['name']} ({$dist_str}km).";
         } else {
+            // Fallback if all centers are full
             $msg = "URGENT EVACUATION: Flood detected. Proceed to the nearest safe high ground.";
         }
         
