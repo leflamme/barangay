@@ -72,212 +72,151 @@ try{
   <link rel="stylesheet" href="../assets/dist/css/admin.css">
 
   <style>
-    /* ========== BLOTTER RECORD REVAMP COLORS ========== */
-
-    /* Main Card Styling */
-    .card-body {
-      background-color: #fff !important;
-      color: #000 !important;
-      border-radius: 0 0 10px 10px;
+    /* ========== DASHBOARD THEME COLORS (EXACT MATCH) ========== */
+    
+    /* 1. GLOBAL TEXT & BACKGROUND */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #ffffff;
+    }
+    .content-wrapper {
+      background-color: #ffffff !important;
+      color: #050C9C; /* Deep Blue Text like Dashboard */
     }
 
-    /* CARD HEADER */
-    .card-header {
+    /* 2. NAVBAR (Deep Blue #050C9C) */
+    .main-header.navbar {
       background-color: #050C9C !important;
-      color: #fff !important;
-      border-bottom: 2px solid #3572EF;
-      border-radius: 10px 10px 0 0;
-      padding: 15px 20px;
-    }
-
-    .card-header h3 {
-      font-weight: 600;
-      color:rgb(255, 255, 255);
-    }
-
-    .card-tools .btn {
-      background-color: #3ABEF9;
-      color: #fff;
-      border: none;
-      transition: background-color 0.3s ease;
-    }
-
-    .card-tools .btn:hover {
-      background-color: #3572EF;
-      color: #FFF591;
-    }
-
-    /* DataTable Table Styling */
-    #blotterRecordTable thead {
-      background-color: #050C9C;
-      color: #FAF9F6;
-      border-bottom: 2px solid #A7E6FF;
-    }
-
-    #blotterRecordTable tbody tr {
-      background-color: #FAF9F6;
-      color: #000;
-      transition: background-color 0.3s ease;
-      border-bottom: 1px solid #ddd;
-    }
-
-    #blotterRecordTable tbody tr:hover {
-      background-color: #cce5ff; /* Light blue hover for table rows */
-    }
-
-    #blotterRecordTable th,
-    #blotterRecordTable td {
-      vertical-align: middle;
-      padding: 12px;
-      font-size: 0.95rem;
-    }
-
-    /* DATATABLE PAGINATION */
-    .dataTables_wrapper .dataTables_paginate .page-link {
-      background-color: #3ABEF9 !important;
-      color: #FFF !important;
-      border-radius: 15px !important;
-      font-weight: 600;
-      transition: background-color 0.3s ease;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .page-link:hover {
-      background-color: #3572EF !important;
-      color: #fff !important;
-    }
-
-    /* Checkbox Styling */
-    #blotterRecordTable input[type="checkbox"] {
-      accent-color: #3572EF;
-    }
-
-    /* Footer Delete Button */
-    .card-footer .btn.bg-danger {
-      background-color: #E41749 !important;
-      border: none;
-      color: white;
-    }
-
-    .card-footer .btn.bg-danger:hover {
-      background-color: #F5587B !important;
-    }
-
-    .badge.bg-indigo {
-      background-color: #FF8A5C !important;
-      color: #000;
-    }
-
-    /* Modal Styling */
-    .modal-content {
-      background: linear-gradient(135deg, #050C9C, #3572EF);
-      color: #fff;
-      border-radius: 10px;
-    }
-
-    .modal-body label {
-      color: #A7E6FF;
-      font-weight: 500;
-    }
-
-    .modal-footer .btn {
-      border: none;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
-    }
-
-    .modal-footer .btn.btn-primary {
-      background-color: #3ABEF9;
-      color: #fff;
-    }
-
-    .modal-footer .btn.btn-primary:hover {
-      background-color: #3572EF;
-      color: #FFF591;
-    }
-
-    /* Form Controls */
-    .modal-body .form-control {
-      background-color: #ffffff !important;
-      border: 1px solid #ced4da !important;
-      color: #000 !important;
-    }
-
-    .modal-body .form-control::placeholder {
-      color: #6c757d !important;
-      opacity: 1;
-    }
-
-    /* Select2 Inside Form */
-    .select2-container--bootstrap4 .select2-selection {
-      background-color: #ffffff !important;
-      border: 1px solid #ced4da !important;
-      color: #000 !important;
-    }
-
-    .select2-container--bootstrap4 .select2-selection__rendered {
-      color: #000 !important;
-    }
-
-    /* --- BLUE NAVBAR & SIDEBAR SETTINGS (NEW) --- */
-
-    /* 1. TOP NAVBAR */
-    .main-header {
-      background-color: #3572EF !important; /* Medium Blue */
       border-bottom: none !important;
     }
-    
     .main-header .nav-link {
-      color: #ffffff !important; /* Make navbar icons white */
+      color: #ffffff !important;
     }
 
-    /* 2. SIDEBAR CONTAINER */
+    /* 3. SIDEBAR (Deep Blue #050C9C) */
     .main-sidebar {
-      background-color: #050C9C !important; /* Deep Blue Background */
-    }
-
-    /* 3. SIDEBAR LOGO AREA */
-    .brand-link {
       background-color: #050C9C !important;
-      border-bottom: 1px solid #3572EF !important;
+    }
+    
+    /* Logo Area */
+    .brand-link {
+      background-color: transparent !important;
+      border-bottom: 1px solid rgba(255,255,255,0.1) !important;
     }
     .brand-link .brand-text {
       color: #ffffff !important;
     }
 
-    /* 4. SIDEBAR LINKS */
-    .nav-sidebar .nav-link p,
-    .nav-sidebar .nav-link i {
-      color: #ffffff !important; /* Default Text Color: White */
+    /* Sidebar Links */
+    .sidebar .nav-link {
+      color: #A7E6FF !important; /* Pale Blue Text */
+      transition: all 0.3s;
+    }
+    .sidebar .nav-icon {
+      color: #3ABEF9 !important; /* Cyan Icon */
     }
 
-    /* Sidebar Hover State */
-    .nav-sidebar .nav-link:hover {
-      background-color: #3ABEF9 !important; /* Light Blue Hover */
-      color: #000 !important; /* Black Text on Hover */
+    /* Active/Hover State (Royal Blue #3572EF) */
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+      background-color: #3572EF !important;
+      color: #ffffff !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     }
-    .nav-sidebar .nav-link:hover i, 
-    .nav-sidebar .nav-link:hover p {
-      color: #000 !important;
-    }
-
-    /* Sidebar Active State */
-    .nav-sidebar .nav-link.active {
-      background-color: #3572EF !important; /* Lighter Blue for active tab */
-      color: #fff !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    .sidebar .nav-link:hover i, 
+    .sidebar .nav-link:hover p {
+      color: #ffffff !important;
     }
 
-    /* User Panel Divider */
+    /* 4. MAIN CARD STYLING (Matches 'Official Members' Card) */
+    .card {
+      border: none;
+      box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+      border-radius: 10px;
+      border-top: 4px solid #3572EF; /* Top Accent */
+    }
+
+    .card-header {
+      background-color: #A7E6FF !important; /* Pale Blue Background */
+      color: #050C9C !important; /* Deep Blue Text */
+      border-bottom: 1px solid #3572EF;
+      border-radius: 10px 10px 0 0 !important;
+      padding: 15px 20px;
+    }
+
+    .card-header h3 {
+      font-weight: 700;
+      color: #050C9C;
+      font-size: 1.1rem;
+    }
+
+    /* Card Tools Buttons */
+    .card-tools .btn {
+      color: #050C9C;
+    }
+    .card-tools .btn:hover {
+      color: #3572EF;
+    }
+
+    /* New Record Button (Black/Dark as per your code, or Blue?) */
+    /* Let's make it Blue to match theme */
+    .card-tools .btn.bg-black {
+      background-color: #3572EF !important;
+      color: white !important;
+      border: none;
+    }
+    .card-tools .btn.bg-black:hover {
+      background-color: #050C9C !important;
+    }
+
+    /* 5. TABLE STYLING */
+    #blotterRecordTable thead {
+      background-color: #050C9C; /* Deep Blue Header */
+      color: #ffffff;
+      border-bottom: 2px solid #3572EF;
+    }
+
+    #blotterRecordTable tbody tr {
+      background-color: #ffffff;
+      color: #000;
+    }
+
+    #blotterRecordTable tbody tr:hover {
+      background-color: #f1f8ff; /* Very light blue hover */
+    }
+
+    /* 6. MODAL STYLING */
+    .modal-content {
+      border-top: 4px solid #3572EF;
+      border-radius: 10px;
+    }
+    .modal-header {
+      background-color: #A7E6FF;
+      color: #050C9C;
+    }
+    .modal-footer .btn-primary {
+      background-color: #3572EF;
+      border-color: #3572EF;
+    }
+    .modal-footer .btn-primary:hover {
+      background-color: #050C9C;
+    }
+
+    /* 7. PAGINATION & BUTTONS */
+    .page-item.active .page-link {
+      background-color: #3572EF !important;
+      border-color: #3572EF !important;
+    }
+    
+    /* Footer Delete Button (Red) */
+    .btn.bg-danger {
+      background-color: #E41749 !important;
+      border: none;
+    }
+    
+    /* User Panel Line */
     .user-panel {
-      border-bottom: 1px solid #3572EF !important;
-    }
-
-    /* Responsive Fix */
-    @media (max-width: 768px) {
-      .card-header h3,
-      .card-tools .btn {
-        font-size: 0.9rem;
-      }
+      border-bottom: 1px solid rgba(255,255,255,0.1) !important;
     }
   </style>
 
