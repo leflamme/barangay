@@ -410,15 +410,6 @@ table thead {
               </li>
             </ul>
           </li>
-          
-          <li class="nav-item ">
-            <a href="requestCertificate.php" class="nav-link">
-              <i class="nav-icon fas fa-certificate"></i>
-              <p>
-                Certificate
-              </p>
-            </a>
-          </li>
           <li class="nav-item ">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-user-shield"></i>
@@ -434,9 +425,15 @@ table thead {
                   <p>Resident</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="editRequests.php" class="nav-link">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Edit Requests</p>
+                </a>
+              </li>
             </ul>
           </li>
-       
+  
           <!-- DRM Part   (START)   -->
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
@@ -460,32 +457,31 @@ table thead {
                     <p>Evacuation Center</p>
                   </a>
                 </li>
+                <li class="nav-item">
+                  <a href="report.php" class="nav-link">
+                    <i class="nav-icon fas fa-bookmark"></i>
+                    <p>
+                      Masterlist Report
+                    </p>
+                  </a>
+                </li>
               </ul>
           </li>
         <!-- End of DRM Part -->
 
+          <li class="nav-item ">
+            <a href="requestCertificate.php" class="nav-link">
+              <i class="nav-icon fas fa-certificate"></i>
+              <p>
+                Certificate
+              </p>
+            </a>
+          </li>
           <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
               <p>
                 Blotter Record
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="report.php" class="nav-link">
-              <i class="nav-icon fas fa-bookmark"></i>
-              <p>
-                Reports
-              </p>
-            </a>
-          </li>
-         
-          <li class="nav-item">
-            <a href="systemLog.php" class="nav-link">
-              <i class="nav-icon fas fa-history"></i>
-              <p>
-                System Logs
               </p>
             </a>
           </li>
