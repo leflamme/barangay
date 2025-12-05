@@ -335,11 +335,11 @@ try{
                         </div>
                       </td>
                     <td>
-                     VOTERS
+                     RESIDENCY TYPE
                       <br>
-                      <select name="edit_voters" id="edit_voters" class="form-control" <?= $disable_attr ?>>
-                        <option value="YES" <?= $row_resident['voters'] == 'YES'? 'selected': '' ?>>YES</option>
-                        <option value="NO" <?= $row_resident['voters'] != 'YES'? 'selected': '' ?>>NO</option>
+                        <select name="edit_residency_type" id="edit_residency_type" class="form-control" <?= $disable_attr ?>>
+                        <option value="Resident" <?= $row_resident['residency_type'] == 'Resident' ? 'selected' : '' ?>>Resident</option>
+                        <option value="Worker" <?= $row_resident['residency_type'] == 'Worker' ? 'selected' : '' ?>>Worker</option>
                       </select>
                     </td>
                   </tr>
