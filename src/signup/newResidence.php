@@ -62,6 +62,41 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     return ($httpCode >= 200 && $httpCode < 300);
 }
 
+/**
+ * ---------------------------------------------------------
+ * GEOCODING FUNCTION (Convert Address to Lat/Long)
+ * ---------------------------------------------------------
+ */
+function getCoordinatesFromAddress($address) {
+    // 1. Format Address
+    $formatted = urlencode($address . ", Quezon City, Philippines");
+    
+    // 2. Call API
+    $url = "https://nominatim.openstreetmap.org/search?q={$formatted}&format=json&limit=1";
+    
+    // 3. Set User Agent (Required)
+    $opts = [
+        "http" => [
+            "header" => "User-Agent: BarangayKalusuganSystem/1.0 (your_email@email.com)\r\n"
+        ]
+    ];
+    $context = stream_context_create($opts);
+    
+    // 4. Get Data
+    $result = @file_get_contents($url, false, $context);
+    
+    if ($result) {
+        $data = json_decode($result, true);
+        if (!empty($data) && isset($data[0])) {
+            return [
+                'lat' => $data[0]['lat'],
+                'lon' => $data[0]['lon']
+            ];
+        }
+    }
+    return null; // Return null if not found
+}
+
 // ---------------------------------------------------------
 // MAIN PROCESSING
 // ---------------------------------------------------------
@@ -232,24 +267,37 @@ try {
     $alias = $add_first_name . ' ' . $add_last_name; 
     $add_occupation = '';
 
+    // --- NEW: GENERATE COORDINATES ---
+    // Combine fields to make a search-friendly string
+    $full_search_address = "$add_house_number $add_street, $add_barangay, $add_municipality";
+    $coords = getCoordinatesFromAddress($full_search_address);
+
+    // Set values (or NULL if not found)
+    $latitude = ($coords) ? $coords['lat'] : null;
+    $longitude = ($coords) ? $coords['lon'] : null;
+    // ---------------------------------
+
+    // UPDATED SQL: Added 'latitude' and 'longitude' columns
     $sql = "INSERT INTO `residence_information`(
       `residence_id`, `first_name`, `middle_name`, `last_name`, `age`, 
       `suffix`, `gender`, `civil_status`, `religion`, `nationality`, 
       `contact_number`, `email_address`, `address`, `birth_date`, `birth_place`, 
       `municipality`, `zip`, `barangay`, `house_number`, `street`, 
       `fathers_name`, `mothers_name`, `guardian`, `guardian_contact`, `image`, 
-      `image_path`, `alias`, `occupation`
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      `image_path`, `alias`, `occupation`, `latitude`, `longitude`
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     
     $stmt = $con->prepare($sql);
     if (!$stmt) throw new Exception($con->error);
-    $stmt->bind_param('ssssssssssssssssssssssssssss', 
+
+    // UPDATED BIND: Added two 's' at the end for the new columns (Total 30 chars)
+    $stmt->bind_param('ssssssssssssssssssssssssssssss', 
       $number, $add_first_name, $add_middle_name, $add_last_name, $age_val,
       $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
       $add_contact_number, $add_email_address, $add_address, $add_birth_date, $add_birth_place,
       $add_municipality, $add_zip, $add_barangay, $add_house_number, $add_street,
       $add_fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name,
-      $new_image_path, $alias, $add_occupation
+      $new_image_path, $alias, $add_occupation, $latitude, $longitude
     );
     $stmt->execute();
     $stmt->close();
