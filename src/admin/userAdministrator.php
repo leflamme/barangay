@@ -487,6 +487,7 @@ thead.bg-black {
               </p>
             </a>
           </li>
+          <li class="nav-item"><a href="forceTrigger.php" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>Force Trigger Emergency</p></a></li>
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
@@ -512,11 +513,13 @@ thead.bg-black {
       <div class="container-fluid">
 
               <div class="card">
+                <!--
                   <div class="card-header">
                     <div class="card-title">
                       <button type="button" id="openModal" data-toggle="modal" data-target="#newAdministratorModal" class="btn btn-blue btn-flat elevation-5 px-3"><i class="fas fa-user-plus"></i>  NEW ADMINISTRATOR </button>
                     </div>
                   </div>
+                -->
                 <div class="card-body">
                     <fieldset>
                       <legend>NUMBER OF USERS ADMINISTRATOR <span id="total"></span></legend>

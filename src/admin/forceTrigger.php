@@ -104,11 +104,184 @@ try {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Profile</title>
+    <!-- Website Logo -->
+    <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
+    <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* Navbar */
+        .main-header.navbar {
+        background-color: #050C9C !important;
+        border-bottom: none;
+        }
+
+        .navbar .nav-link,
+        .navbar .nav-link:hover {
+        color: #ffffff !important;
+        }
+
+        /* Sidebar */
+        .main-sidebar {
+        background-color: #050C9C !important;
+        }
+
+        .brand-link {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar .nav-link {
+        color: #A7E6FF !important;
+        transition: all 0.3s;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+        background-color: #3572EF !important;
+        color: #ffffff !important;
+        }
+
+        .sidebar .nav-icon {
+        color: #3ABEF9 !important;
+        }
+
+        .dropdown-menu {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-item {
+        font-weight: 600;
+        transition: 0.2s ease-in-out;
+        }
+
+        .dropdown-item:hover {
+        background-color: #F5587B;
+        color: white;
+        }
+    </style>
 </head>
-<body class="hold-transition sidebar-mini">
+
+<body class="hold-transition sidebar-mini layout-footer-fixed">
 <div class="wrapper">
+    
+    <!-- Preloader -->
+    <div class="preloader flex-column justify-content-center align-items-center">
+        <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
+    </div>
+
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-dark">
+        <!-- Left navbar links -->
+        <ul class="navbar-nav">
+        <li class="nav-item">
+            <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;">
+            <h5 class="nav-link text-white" ><?= $barangay ?></h5>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <h5 class="nav-link text-white" >-</h5>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <h5 class="nav-link text-white" ><?= $zone ?></h5>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <h5 class="nav-link text-white" >-</h5>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <h5 class="nav-link text-white" ><?= $district ?></h5>
+        </li>
+        </ul>
+
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ml-auto">
+
+        <!-- Messages Dropdown Menu -->
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="far fa-user"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <a href="myProfile.php" class="dropdown-item">
+                <!-- Message Start -->
+                <div class="media">
+                <?php 
+                    if($user_image != '' || $user_image != null || !empty($user_image)){
+                    echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle alt="User Image">';
+                    }else{
+                    echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle alt="User Image">';
+                    }
+                ?>
+                
+                <div class="media-body">
+                    <h3 class="dropdown-item-title py-3">
+                    <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
+                    </h3>
+                </div>
+                </div>
+                <!-- Message End -->
+            </a>         
+            <div class="dropdown-divider"></div>
+            <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
+            </div>
+        </li>
+        </ul>
+    </nav>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
+        <!-- Brand Logo -->
+        <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+            <li class="nav-item"><a href="dashboard.php" class="nav-link "><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon fas fa-users-cog"></i><p>Barangay Official<i class="right fas fa-angle-left"></i></p></a>
+                <ul class="nav nav-treeview">
+                <li class="nav-item"><a href="newOfficial.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>New Official</p></a></li>
+                <li class="nav-item"><a href="allOfficial.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>List of Official</p></a></li>
+                <li class="nav-item"><a href="officialEndTerm.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>Official End Term</p></a></li>
+                <li class="nav-item"><a href="position.php" class="nav-link"><i class="nav-icon fas fa-user-tie"></i><p>Position</p></a></li>
+                </ul>
+            </li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon fas fa-users"></i><p>Residence<i class="right fas fa-angle-left"></i></p></a>
+                <ul class="nav nav-treeview">
+                <li class="nav-item"><a href="newResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>New Residence</p></a></li>
+                <li class="nav-item"><a href="allResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>All Residence</p></a></li>
+                <li class="nav-item"><a href="archiveResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Archive Residence</p></a></li>
+                </ul>
+            </li>
+            <li class="nav-item "><a href="#" class="nav-link"><i class="nav-icon fas fa-user-shield"></i><p>Users<i class="right fas fa-angle-left"></i></p></a>
+                <ul class="nav nav-treeview">
+                <li class="nav-item"><a href="usersResident.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>Resident</p></a></li>
+                <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
+                <li class="nav-item"><a href="userAdministrator.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Administrator</p></a></li>
+                </ul>
+            </li>
+            <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Masterlist Report</p></a></li>
+            <li class="nav-item"><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
+            <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
+            <li class="nav-item"><a href="forceTrigger.php" class="nav-link bg-indigo"><i class="nav-icon fas fa-exclamation-triangle"></i><p>Force Trigger Emergency</p></a></li>
+            <li class="nav-item"><a href="systemLog.php" class="nav-link"><i class="nav-icon fas fa-history"></i><p>System Logs</p></a></li>
+            
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+        </div>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <section class="content-header"><h1>Force Trigger (Weather & Earthquake)</h1></section>
     <section class="content">

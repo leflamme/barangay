@@ -528,6 +528,7 @@ legend {
               </p>
             </a>
           </li>
+          <li class="nav-item"><a href="forceTrigger.php" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>Force Trigger Emergency</p></a></li>
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
