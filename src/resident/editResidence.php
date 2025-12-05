@@ -32,7 +32,7 @@ try{
     $edit_pwd_info = '';
   }
   $edit_single_parent = $con->real_escape_string($_POST['edit_single_parent']);
-
+$edit_residency_type = $con->real_escape_string($_POST['edit_residency_type']);
 $edit_residence_id = $con->real_escape_string(trim($_POST['edit_residence_id']));
 $edit_voters = $con->real_escape_string($_POST['edit_voters']);
 $edit_pwd = $con->real_escape_string($_POST['edit_pwd']);
@@ -158,8 +158,8 @@ if($edit_age_date >= '60'){
   $senior = 'NO';
 }
 
-
 $sql_edit_residence = "UPDATE `residence_information` SET 
+`residency_type` = ?,  
 `first_name`= ?,
 `middle_name`= ?,
 `last_name`= ?,
@@ -186,8 +186,12 @@ $sql_edit_residence = "UPDATE `residence_information` SET
 `image`= ?,
 `image_path`= ? 
 WHERE  `residence_id` = ? ";
+
 $stmt_edit_residence = $con->prepare($sql_edit_residence) or die ($con->error);
-$stmt_edit_residence->bind_param('ssssssssssssssssssssssssss',
+
+// Note: I added one extra 's' at the start of the string below for the new field
+$stmt_edit_residence->bind_param('sssssssssssssssssssssssssss',
+    $edit_residency_type, // Added this variable here
     $edit_first_name,
     $edit_middle_name,
     $edit_last_name,
