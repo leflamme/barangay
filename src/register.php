@@ -326,16 +326,14 @@ $sql = "SELECT * FROM `barangay_information`";
 
               <div class="row">
                 <div class="col-sm-12">
-                  <!--
                   <div class="form-group">
-                    <label>Voters <span class="text-danger">*</span></label>
-                    <select name="add_voters" id="add_voters" class="form-control">
-                      <option value=""></option>
-                      <option value="NO">NO</option>
-                      <option value="YES">YES</option>
+                    <label>Residency Type <span class="text-danger">*</span></label>
+                    <select name="add_residency_type" id="add_residency_type" class="form-control">
+                        <option value=""></option>
+                        <option value="Resident">Resident</option>
+                        <option value="Worker">Worker</option>
                     </select>
                   </div>
-  -->
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group ">
@@ -791,7 +789,7 @@ $sql = "SELECT * FROM `barangay_information`";
             required: true,
             email: true
           },
-          add_voters: {
+          add_residency_type: {
             required: true,
           },
           add_pwd: {
@@ -811,9 +809,6 @@ $sql = "SELECT * FROM `barangay_information`";
             minlength: 8
           },
           add_pwd:{
-            required: true,
-          },
-          add_voters:{
             required: true,
           },
           add_single_parent:{
@@ -848,7 +843,9 @@ $sql = "SELECT * FROM `barangay_information`";
             required: "This Field is required",
             minlength: "Last Name must be at least 2 characters long"
           },
-        
+          add_residency_type: {
+            required: "Please select Residency Type",
+          },
           add_contact_number: {
             required: "This Field is required",
             minlength: "Input Exact Contact Number"

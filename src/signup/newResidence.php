@@ -191,7 +191,7 @@ try {
     $add_pwd_check = isset($_POST['add_pwd_info']) ? $con->real_escape_string($_POST['add_pwd_info']) : '';
     $add_single_parent = isset($_POST['add_single_parent']) ? $con->real_escape_string($_POST['add_single_parent']) : 'NO';
     $add_pwd = isset($_POST['add_pwd']) ? $con->real_escape_string($_POST['add_pwd']) : 'NO';
-    $add_voters = isset($_POST['add_voters']) ? $con->real_escape_string($_POST['add_voters']) : 'NO';
+    $add_residency_type = isset($_POST['add_residency_type']) ? $con->real_escape_string($_POST['add_residency_type']) : 'NO';
     $add_first_name = isset($_POST['add_first_name']) ? $con->real_escape_string($_POST['add_first_name']) : '';
     $add_middle_name = isset($_POST['add_middle_name']) ? $con->real_escape_string($_POST['add_middle_name']) : '';
     $add_last_name = isset($_POST['add_last_name']) ? $con->real_escape_string($_POST['add_last_name']) : '';
@@ -303,9 +303,9 @@ try {
     $stmt->close();
 
     // C. Residence Status
-    $sql_residence_status = "INSERT INTO `residence_status` (`residence_id`, `status`, `voters`,`archive`,`pwd`,`pwd_info`,`single_parent`,`senior`, `date_added`) VALUES (?,?,?,?,?,?,?,?,?)";
+    $sql_residence_status = "INSERT INTO `residence_status` (`residence_id`, `status`, `residency_type`,`archive`,`pwd`,`pwd_info`,`single_parent`,`senior`, `date_added`) VALUES (?,?,?,?,?,?,?,?,?)";
     $stmt_status = $con->prepare($sql_residence_status);
-    $stmt_status->bind_param('sssssssss',$number,$add_status,$add_voters,$archive,$add_pwd,$add_pwd_check,$add_single_parent,$senior,$date_added);
+    $stmt_status->bind_param('sssssssss',$number,$add_status,$add_residency_type,$archive,$add_pwd,$add_pwd_check,$add_single_parent,$senior,$date_added);
     $stmt_status->execute();
     $stmt_status->close();
 
