@@ -327,11 +327,11 @@ $sql = "SELECT * FROM `barangay_information`";
               <div class="row">
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <label>Residency Type <span class="text-danger">*</span></label>
-                    <select name="add_residency_type" id="add_residency_type" class="form-control">
-                        <option value=""></option>
-                        <option value="Resident">Resident</option>
-                        <option value="Worker">Worker</option>
+                    <label>Voters <span class="text-danger">*</span></label>
+                    <select name="add_voters" id="add_voters" class="form-control">
+                      <option value=""></option>
+                      <option value="NO">NO</option>
+                      <option value="YES">YES</option>
                     </select>
                   </div>
                 </div>
@@ -622,59 +622,6 @@ $sql = "SELECT * FROM `barangay_information`";
         <h2>1. Introduction</h2>
         <p>The Barangay Kalusugan is committed to protecting the privacy and security of your personal information. This notice outlines how we collect, use, and safeguard your data in compliance with the Data Privacy Act of 2012 (Republic Act No. 10173) and its implementing rules and regulations.</p>
 
-        <h2>2. Personal Information We Collect</h2>
-        <p>We may collect the following types of personal information:</p>
-        <ul>
-            <li>Full Name</li>
-            <li>Address</li>
-            <li>Date of Birth</li>
-            <li>Contact Information (e.g., phone number, email address)</li>
-            <li>Identification Documents (e.g., government-issued ID)</li>
-            <li>Other relevant information necessary for barangay services</li>
-        </ul>
-
-        <h2>3. Purpose of Data Collection</h2>
-        <p>Your personal information is collected for the following purposes:</p>
-        <ul>
-            <li>To provide and improve barangay services</li>
-            <li>To maintain accurate records of residents</li>
-            <li>To facilitate communication regarding barangay activities and announcements</li>
-        </ul>
-
-        <h2>4. Data Sharing and Disclosure</h2>
-        <p>We may share your personal information with:</p>
-        <ul>
-            <li>Government agencies as required by law</li>
-            <li>Third-party service providers who assist us in delivering services (with appropriate safeguards)</li>
-            <li>Other entities with your consent</li>
-        </ul>
-
-        <h2>5. Data Security</h2>
-        <p>We implement reasonable and appropriate security measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction. These measures include:</p>
-        <ul>
-            <li>Secure storage of physical and electronic records</li>
-            <li>Access controls to limit data access to authorized personnel only</li>
-            <li>Regular training for staff on data privacy and security</li>
-        </ul>
-        <h2>6. Your Rights</h2>
-        <p>As a data subject, you have the following rights under the Data Privacy Act:</p>
-        <ul>
-            <li>The right to be informed about the collection and processing of your personal data</li>
-            <li>The right to access your personal data</li>
-            <li>The right to correct any inaccuracies in your personal data</li>
-            <li>The right to object to the processing of your personal data</li>
-            <li>The right to data portability</li>
-            <li>The right to erasure or blocking of your personal data</li>
-        </ul>
-
-        <h2>7. How to Exercise Your Rights</h2>
-        <div class="contact-info">
-            <p>To exercise your rights or for any inquiries regarding your personal information, please contact:</p>
-            <p><strong>Barangay Kalusugan Data Protection Officer or Secretay</strong><br>
-            
-        </div>
-        <h2>8. Changes to This Notice</h2>
-        <p>We may update this Data Privacy Act Notice from time to time. Any changes will be posted on our official bulletin board and website. We encourage you to review this notice periodically.</p>
         <h2>9. Acknowledgment</h2>
         <p>By providing your personal information to Barangay Kalusugan, you acknowledge that you have read and understood this Data Privacy Act Notice.</p>
 
@@ -789,7 +736,7 @@ $sql = "SELECT * FROM `barangay_information`";
             required: true,
             email: true
           },
-          add_residency_type: {
+          add_voters: {
             required: true,
           },
           add_pwd: {
@@ -809,6 +756,9 @@ $sql = "SELECT * FROM `barangay_information`";
             minlength: 8
           },
           add_pwd:{
+            required: true,
+          },
+          add_voters:{
             required: true,
           },
           add_single_parent:{
@@ -843,9 +793,7 @@ $sql = "SELECT * FROM `barangay_information`";
             required: "This Field is required",
             minlength: "Last Name must be at least 2 characters long"
           },
-          add_residency_type: {
-            required: "Please select Residency Type",
-          },
+        
           add_contact_number: {
             required: "This Field is required",
             minlength: "Input Exact Contact Number"
@@ -1281,37 +1229,49 @@ $(document).ready(function(){
     $(document).on('click', '#joinHouseholdBtn', function(){
         
         var householdId = $('#existing_household_id').val();
+        var headId = $('#existing_household_head_id').val();
+        var relationship = $('#relationship_to_head').val();
         
         if (!householdId || householdId === '') {
             Swal.fire('Error', 'No household selected', 'error');
             return;
         }
-
-        // STEP 1: If the dropdown is hidden, show it first
-        if ($('#relationshipField').is(':hidden')) {
-            $('#relationshipField').slideDown(); // Show the dropdown
-            $('#relationship_to_head').focus();  // Focus on it
-            
-            // Change button text to guide the user
-            $(this).html('<i class="fas fa-check-circle"></i> Confirm & Join');
-            return; // STOP here. Wait for user to select and click button again.
-        }
-
-        // STEP 2: User clicked "Confirm & Join" -> Get the value they selected
-        var selectedRelationship = $('#relationship_to_head').val(); 
         
-        // STEP 3: Show simple confirmation (No dropdown here to avoid bugs)
+        // Show relationship field first
+        $('#relationshipField').show();
+        
+        // Focus on relationship dropdown
+        $('#relationship_to_head').focus();
+        
+        // Show confirmation with relationship selection
         Swal.fire({
-            title: 'Confirm Join?',
-            html: 'You will join this household as the: <br><strong style="font-size: 1.2em; color: #007bff">' + selectedRelationship + '</strong>',
+            title: 'Join Household?',
+            html: 'You will be added as a member of this household.<br><br>' +
+                '<strong>Your Relationship:</strong> ' + 
+                '<select id="swalRelationship" class="form-control mt-2">' +
+                '<option value="Spouse">Spouse</option>' +
+                '<option value="Child">Child</option>' +
+                '<option value="Parent">Parent</option>' +
+                '<option value="Sibling">Sibling</option>' +
+                '<option value="Relative">Relative</option>' +
+                '<option value="Tenant">Tenant</option>' +
+                '<option value="Other">Other</option>' +
+                '</select>',
             type: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Yes, Register Me',
+            confirmButtonText: 'Yes, Join Household',
             cancelButtonText: 'Cancel',
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#d33'
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            preConfirm: () => {
+                return {
+                    relationship: document.getElementById('swalRelationship').value
+                };
+            }
         }).then((result) => {
             if (result.value) {
+                var relationshipValue = result.value.relationship;
+                
                 // Clear modal state
                 householdModalShown = false;
                 existingHouseholdData = null;
@@ -1321,52 +1281,10 @@ $(document).ready(function(){
                 
                 // Create FormData and submit
                 var formData = new FormData($('#registerResidentForm')[0]);
-                submitFormData(formData, 'join', householdId, selectedRelationship);
+                submitFormData(formData, 'join', householdId, relationshipValue);
             }
         });
     });
-
-    // Reset the modal whenever it opens (Update your showHouseholdModal function)
-    function showHouseholdModal(household){
-        if (!household) return;
-        
-        // Format head name
-        let headFirstName = household.head_first_name || 'Not assigned';
-        let headLastName = household.head_last_name || '';
-        let headName = (headFirstName === 'Not assigned' && headLastName === '') ? 
-                    'No head assigned yet' : `${headFirstName} ${headLastName}`;
-        
-        // Create modal content
-        let modalContent = `
-            <div class="household-details">
-                <p><strong>Address:</strong> ${household.address || 'N/A'}</p>
-                <p><strong>Head of Household:</strong> ${headName}</p>
-        `;
-        
-        if (household.household_number) {
-            modalContent += `<p><strong>Household #:</strong> ${household.household_number}</p>`;
-        }
-        
-        modalContent += `
-            </div>
-            <input type="hidden" id="existing_household_id" value="${household.id || ''}">
-            <input type="hidden" id="existing_household_head_id" value="${household.household_head_id || ''}">
-        `;
-        
-        $('#existingHouseholdInfo').html(modalContent);
-        
-        // RESET STATE: Hide field and reset button text
-        $('#relationshipField').hide();
-        $('#relationship_to_head').val('Spouse'); // Default value
-        $('#joinHouseholdBtn').html('<i class="fas fa-user-plus"></i> Join Household'); // Reset button text
-        
-        // Show modal
-        $('#householdModal').modal({
-            backdrop: 'static', 
-            keyboard: false,
-            show: true
-        });
-    }
 
     // New household button
     $(document).on('click', '#newHouseholdBtn', function(){

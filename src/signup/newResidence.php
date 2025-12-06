@@ -62,41 +62,6 @@ function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     return ($httpCode >= 200 && $httpCode < 300);
 }
 
-/**
- * ---------------------------------------------------------
- * GEOCODING FUNCTION (Convert Address to Lat/Long)
- * ---------------------------------------------------------
- */
-function getCoordinatesFromAddress($address) {
-    // 1. Format Address
-    $formatted = urlencode($address . ", Quezon City, Philippines");
-    
-    // 2. Call API
-    $url = "https://nominatim.openstreetmap.org/search?q={$formatted}&format=json&limit=1";
-    
-    // 3. Set User Agent (Required)
-    $opts = [
-        "http" => [
-            "header" => "User-Agent: BarangayKalusuganSystem/1.0 (your_email@email.com)\r\n"
-        ]
-    ];
-    $context = stream_context_create($opts);
-    
-    // 4. Get Data
-    $result = @file_get_contents($url, false, $context);
-    
-    if ($result) {
-        $data = json_decode($result, true);
-        if (!empty($data) && isset($data[0])) {
-            return [
-                'lat' => $data[0]['lat'],
-                'lon' => $data[0]['lon']
-            ];
-        }
-    }
-    return null; // Return null if not found
-}
-
 // ---------------------------------------------------------
 // MAIN PROCESSING
 // ---------------------------------------------------------
@@ -132,13 +97,13 @@ try {
         exit();
     }
 
-    // Address Inputs - Added TRIM() to remove accidental spaces
-    $add_municipality = isset($_POST['add_municipality']) ? trim($con->real_escape_string($_POST['add_municipality'])) : '';
-    $add_barangay = isset($_POST['add_barangay']) ? trim($con->real_escape_string($_POST['add_barangay'])) : '';
-    $add_street = isset($_POST['add_street']) ? trim($con->real_escape_string($_POST['add_street'])) : '';
-    $add_house_number = isset($_POST['add_house_number']) ? trim($con->real_escape_string($_POST['add_house_number'])) : '';
-    $add_address = isset($_POST['add_address']) ? trim($con->real_escape_string($_POST['add_address'])) : '';
-    $add_zip = isset($_POST['add_zip']) ? trim($con->real_escape_string($_POST['add_zip'])) : '';
+    // Address Inputs
+    $add_municipality = isset($_POST['add_municipality']) ? $con->real_escape_string($_POST['add_municipality']) : '';
+    $add_barangay = isset($_POST['add_barangay']) ? $con->real_escape_string($_POST['add_barangay']) : '';
+    $add_street = isset($_POST['add_street']) ? $con->real_escape_string($_POST['add_street']) : '';
+    $add_house_number = isset($_POST['add_house_number']) ? $con->real_escape_string($_POST['add_house_number']) : '';
+    $add_address = isset($_POST['add_address']) ? $con->real_escape_string($_POST['add_address']) : '';
+    $add_zip = isset($_POST['add_zip']) ? $con->real_escape_string($_POST['add_zip']) : '';
     
     // Household Action Inputs
     $household_action = isset($_POST['household_action']) ? $_POST['household_action'] : null;
@@ -147,52 +112,24 @@ try {
 
     // --- 2. HOUSEHOLD CHECK LOGIC ---
     
-    // Only check if user hasn't made a choice yet (First click of Register button)
+    // Only check if user hasn't made a choice yet
     if (empty($household_action)) {
-        
-        $clean_mun = strtolower(trim($add_municipality));
-        $clean_brgy = strtolower(trim($add_barangay));
-        $clean_str  = strtolower(trim($add_street));
-        $clean_house = strtolower(trim($add_house_number));
-
-        // QUERY CHANGE:
-        // 1. Used 'LIKE' for Street and Barangay to find partial matches.
-        // 2. Added wildcards (%) around the input.
-        // Note: This helps, but the user must still type the "main" name correctly.
-        
+        // Look for exact address match
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
                       LEFT JOIN users u ON h.household_head_id = u.id 
-                      WHERE LOWER(TRIM(h.municipality)) = ? 
-                      AND LOWER(TRIM(h.barangay)) = ? 
-                      AND LOWER(TRIM(h.street)) LIKE CONCAT('%', ?, '%') 
-                      AND LOWER(TRIM(h.house_number)) = ? 
-                      LIMIT 1";
+                      WHERE h.municipality = ? AND h.barangay = ? AND h.street = ? AND h.house_number = ? LIMIT 1";
         
         $stmt_h = $con->prepare($check_sql);
-        // Bind parameters: Municipality(s), Barangay(s), Street(s), House(s)
-        $stmt_h->bind_param("ssss", $clean_mun, $clean_brgy, $clean_str, $clean_house);
+        $stmt_h->bind_param("ssss", $add_municipality, $add_barangay, $add_street, $add_house_number);
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
-
-        // --- DEBUGGING: SEND TO RAILWAY LOGS ---
-        $debug_content = "--------------------------\n";
-        $debug_content .= "HOUSEHOLD DEBUG:\n";
-        $debug_content .= "Municipality: [$clean_mun]\n";
-        $debug_content .= "Barangay: [$clean_brgy]\n";
-        $debug_content .= "Street: [$clean_str]\n";
-        $debug_content .= "House: [$clean_house]\n";
-        $debug_content .= "Result Rows Found: " . $result_h->num_rows . "\n";
-        $debug_content .= "--------------------------";
-        
-        // This writes the message to the Server Console (stderr)
-        error_log($debug_content); 
-        // ---------------------------------------------------------------
 
         if ($result_h->num_rows > 0) {
             // Found one! Ask user what to do.
             $household_data = $result_h->fetch_assoc();
             
+            // CLEAN OUTPUT AND SEND JSON
             ob_clean();
             header('Content-Type: application/json');
             echo json_encode([
@@ -201,7 +138,7 @@ try {
             ]);
             exit(); 
         } else {
-            // No match found -> Proceed to create NEW household
+            // None found, creating new
             $household_action = 'new';
         }
     }
@@ -219,7 +156,7 @@ try {
     $add_pwd_check = isset($_POST['add_pwd_info']) ? $con->real_escape_string($_POST['add_pwd_info']) : '';
     $add_single_parent = isset($_POST['add_single_parent']) ? $con->real_escape_string($_POST['add_single_parent']) : 'NO';
     $add_pwd = isset($_POST['add_pwd']) ? $con->real_escape_string($_POST['add_pwd']) : 'NO';
-    $add_residency_type = isset($_POST['add_residency_type']) ? $con->real_escape_string($_POST['add_residency_type']) : 'NO';
+    $add_voters = isset($_POST['add_voters']) ? $con->real_escape_string($_POST['add_voters']) : 'NO';
     $add_first_name = isset($_POST['add_first_name']) ? $con->real_escape_string($_POST['add_first_name']) : '';
     $add_middle_name = isset($_POST['add_middle_name']) ? $con->real_escape_string($_POST['add_middle_name']) : '';
     $add_last_name = isset($_POST['add_last_name']) ? $con->real_escape_string($_POST['add_last_name']) : '';
@@ -295,45 +232,32 @@ try {
     $alias = $add_first_name . ' ' . $add_last_name; 
     $add_occupation = '';
 
-    // --- NEW: GENERATE COORDINATES ---
-    // Combine fields to make a search-friendly string
-    $full_search_address = "$add_house_number $add_street, $add_barangay, $add_municipality";
-    $coords = getCoordinatesFromAddress($full_search_address);
-
-    // Set values (or NULL if not found)
-    $latitude = ($coords) ? $coords['lat'] : null;
-    $longitude = ($coords) ? $coords['lon'] : null;
-    // ---------------------------------
-
-    // UPDATED SQL: Added 'latitude' and 'longitude' columns
     $sql = "INSERT INTO `residence_information`(
       `residence_id`, `first_name`, `middle_name`, `last_name`, `age`, 
       `suffix`, `gender`, `civil_status`, `religion`, `nationality`, 
       `contact_number`, `email_address`, `address`, `birth_date`, `birth_place`, 
       `municipality`, `zip`, `barangay`, `house_number`, `street`, 
       `fathers_name`, `mothers_name`, `guardian`, `guardian_contact`, `image`, 
-      `image_path`, `alias`, `occupation`, `latitude`, `longitude`
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      `image_path`, `alias`, `occupation`
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     
     $stmt = $con->prepare($sql);
     if (!$stmt) throw new Exception($con->error);
-
-    // UPDATED BIND: Added two 's' at the end for the new columns (Total 30 chars)
-    $stmt->bind_param('ssssssssssssssssssssssssssssss', 
+    $stmt->bind_param('ssssssssssssssssssssssssssss', 
       $number, $add_first_name, $add_middle_name, $add_last_name, $age_val,
       $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
       $add_contact_number, $add_email_address, $add_address, $add_birth_date, $add_birth_place,
       $add_municipality, $add_zip, $add_barangay, $add_house_number, $add_street,
       $add_fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $new_image_name,
-      $new_image_path, $alias, $add_occupation, $latitude, $longitude
+      $new_image_path, $alias, $add_occupation
     );
     $stmt->execute();
     $stmt->close();
 
     // C. Residence Status
-    $sql_residence_status = "INSERT INTO `residence_status` (`residence_id`, `status`, `residency_type`,`archive`,`pwd`,`pwd_info`,`single_parent`,`senior`, `date_added`) VALUES (?,?,?,?,?,?,?,?,?)";
+    $sql_residence_status = "INSERT INTO `residence_status` (`residence_id`, `status`, `voters`,`archive`,`pwd`,`pwd_info`,`single_parent`,`senior`, `date_added`) VALUES (?,?,?,?,?,?,?,?,?)";
     $stmt_status = $con->prepare($sql_residence_status);
-    $stmt_status->bind_param('sssssssss',$number,$add_status,$add_residency_type,$archive,$add_pwd,$add_pwd_check,$add_single_parent,$senior,$date_added);
+    $stmt_status->bind_param('sssssssss',$number,$add_status,$add_voters,$archive,$add_pwd,$add_pwd_check,$add_single_parent,$senior,$date_added);
     $stmt_status->execute();
     $stmt_status->close();
 
