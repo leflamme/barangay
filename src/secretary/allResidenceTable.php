@@ -3,11 +3,15 @@ include_once '../connection.php';
 
 try{
 
+// 1. CAPTURE DATA (Updated voters to residency_type)
 $first_name = $con->real_escape_string($_POST['first_name']);
 $middle_name = $con->real_escape_string($_POST['middle_name']);
 $last_name = $con->real_escape_string($_POST['last_name']);
 $status = $con->real_escape_string($_POST['status']);
-$voters =  $con->real_escape_string($_POST['voters']);
+
+// CHANGED: Captured residency_type instead of voters
+$residency_type = isset($_POST['residency_type']) ? $con->real_escape_string($_POST['residency_type']) : '';
+
 $age =  $con->real_escape_string($_POST['age']);
 $pwd =  $con->real_escape_string($_POST['pwd']);
 $senior =  $con->real_escape_string($_POST['senior']);
@@ -31,19 +35,18 @@ $whereClause[] = "residence_status.pwd='".$pwd."'";
 if(!empty($single_parent))  
 $whereClause[] = "residence_status.single_parent='".$single_parent."'";
 
-
 if(!empty($senior))  
 $whereClause[] = "residence_status.senior='".$senior."'";
 
 if(!empty($status))  
 $whereClause[] = "residence_status.status='".$status."'";
 
-if(!empty($voters))
-$whereClause[] = "residence_status.voters='".$voters."'";
+// 2. UPDATE FILTER LOGIC (Replaced voters check)
+if(!empty($residency_type))
+$whereClause[] = "UPPER(residence_status.residency_type)='".strtoupper($residency_type)."'";
 
 if(!empty($age))
 $whereClause[] = "residence_information.age='".$age."'";
-
 
 if(!empty($resident_id))
 $whereClause[] = "residence_information.residence_id='$resident_id'";
@@ -55,9 +58,7 @@ if(count($whereClause) > 0){
   $where .= ' AND ' .implode(' AND ', $whereClause);
 }
 
-
-
-
+// 3. UPDATE SQL SELECT (Replaced voters column)
 $sql = "SELECT 
 residence_information.residence_id, 
 residence_information.first_name,  
@@ -67,7 +68,7 @@ residence_information.age,
 residence_information.image, 
 residence_information.image_path, 
 residence_status.residence_id,
-residence_status.voters,
+residence_status.residency_type, 
 residence_status.pwd_info,
 residence_status.single_parent,
 residence_status.pwd,
@@ -75,17 +76,12 @@ residence_status.status
 FROM residence_information
 INNER JOIN residence_status ON residence_information.residence_id = residence_status.residence_id
  WHERE archive = 'NO'" .$where;
+
 $query = $con->prepare($sql) or die ($con->error);
 $query->execute();
 $query->store_result();
 $totalData = $query->num_rows;
 $totalFiltered = $totalData;
-
-
-
-
-
-
 
 if(isset($_REQUEST['order'])){
   $sql .= ' ORDER BY '.
@@ -111,7 +107,6 @@ $result = $query->get_result();
 $data = [];
 while($row = $result->fetch_assoc()){
   
-
   if($row['image'] != '' || $row['image'] != null || !empty($row['image'])){
     $image = '<span style="cursor: pointer;" class="pop"><img src="'.$row['image_path'].'" alt="residence_image" class="img-circle" width="40"></span>';
   }else{
@@ -132,7 +127,7 @@ while($row = $result->fetch_assoc()){
                     <span class="off ">INACTIVE</span>
                   </div>
               </label>';
-}else{
+  }else{
     $status = '<label class="switch">
                     <input type="checkbox" class="editStatus" id="'.$row['residence_id'].'" data-status="INACTIVE">
                   <div class="slider round">
@@ -140,20 +135,25 @@ while($row = $result->fetch_assoc()){
                     <span class="on ">ACTIVE</span>
                   </div>
               </label> ';
-}
+  }
 
+  // 4. UPDATE DISPLAY LOGIC (Replaced voters badging with residency_type)
+  $db_residency_type_upper = strtoupper($row['residency_type']);
 
-if($row['voters'] == 'YES'){
-  $voters = '<span class="badge badge-success text-md">'.$row['voters'].'</span>';
-}else{
-  $voters = '<span class="badge badge-danger text-md">'.$row['voters'].'</span>';
-}
+  if($db_residency_type_upper == 'RESIDENT'){ 
+    $residency_type_label = '<span class="badge badge-success text-md">RESIDENT</span>'; 
+  } else if ($db_residency_type_upper == 'WORKER') {
+    $residency_type_label = '<span class="badge badge-danger text-md">WORKER</span>'; 
+  } else {
+    $residency_type_label = '<span class="badge badge-secondary text-md">'.$row['residency_type'].'</span>';
+  }
 
-if($row['single_parent'] == 'YES'){
-  $single_parent = '<span class="badge badge-info text-md ">'.$row['single_parent'].'</span>';
-}else{
-  $single_parent = '<span class="badge badge-warning text-md ">'.$row['single_parent'].'</span>';
-}
+  if($row['single_parent'] == 'YES'){
+    $single_parent = '<span class="badge badge-info text-md ">'.$row['single_parent'].'</span>';
+  }else{
+    $single_parent = '<span class="badge badge-warning text-md ">'.$row['single_parent'].'</span>';
+  }
+
   $subdata = [];
   $subdata[] = $image;
   $subdata[] =  $row['residence_id'];
@@ -161,7 +161,7 @@ if($row['single_parent'] == 'YES'){
   $subdata[] =  $row['age'];
   $subdata[] =  $row['pwd_info']; 
   $subdata[] =  $single_parent; 
-  $subdata[] = $voters;
+  $subdata[] = $residency_type_label; // Display the new label
   $subdata[] = $status;
   $subdata[] = '<i style="cursor: pointer;  color: yellow;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-user-edit text-lg px-3 viewResidence" id="'.$row['residence_id'].'"></i>
   <i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteResidence" id="'.$row['residence_id'].'"></i>';
@@ -178,14 +178,7 @@ $json_data = [
 
 echo json_encode($json_data);
 
-
-
 }catch(Exception $e){
   echo $e->getMessage();
 }
-
-
-
-
-
 ?>

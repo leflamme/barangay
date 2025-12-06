@@ -578,12 +578,12 @@ div.dataTables_scrollHead table.dataTable thead th {
                 <div class="col-sm-4">
                   <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                      <span class="input-group-text">VOTERS</span>
+                      <span class="input-group-text">RESIDENCY TYPE</span>
                     </div>
-                      <select name="voters" id="voters" class="form-control">
-                        <option value="">--SELECT VOTERS--</option>
-                        <option value="YES">YES</option>
-                        <option value="NO">NO</option>
+                      <select name="residency_type" id="residency_type" class="form-control">
+                        <option value="">--SELECT RESIDENCY TYPE--</option> 
+                        <option value="Resident">Resident</option> 
+                        <option value="Worker">Worker</option>
                       </select>
                   </div>
                 </div>
@@ -672,7 +672,7 @@ div.dataTables_scrollHead table.dataTable thead th {
                   <th>Age</th>
                   <th>Pwd</th>
                   <th>Single Parent</th>
-                  <th>Voters</th>
+                  <th>Residency Type</th>
                   <th>Status</th>
                   <th class="text-center">Action</th>
                 </tr>
@@ -867,14 +867,11 @@ div.dataTables_scrollHead table.dataTable thead th {
 
       })
     }
-    
-
-
-
 
     function filterData(){
         var status = $("#status").val();
-        var voters = $("#voters").val();
+        // CHANGED: voters to residency_type
+        var residency_type = $("#residency_type").val();
         var age = $("#age").val();
         var pwd = $("#pwd").val();
         var senior = $("#senior").val();
@@ -883,6 +880,7 @@ div.dataTables_scrollHead table.dataTable thead th {
         var last_name = $("#last_name").val();
         var single_parent = $("#single_parent").val();
         var resident_id = $("#resident_id").val();
+        
         var allResidenceTable = $("#allResidenceTable").DataTable({
           processing: true,
           serverSide: true,
@@ -893,7 +891,8 @@ div.dataTables_scrollHead table.dataTable thead th {
             url: 'allResidenceTable.php',
             type: 'POST',
             data:{
-              voters:voters,
+              // CHANGED: sent as residency_type
+              residency_type: residency_type,
               status:status,
               age:age,
               pwd:pwd,
@@ -957,12 +956,12 @@ div.dataTables_scrollHead table.dataTable thead th {
             }
             
       })
-       
     }
 
     $(document).on('click', '#search',function(){
       var status = $("#status").val();
-      var voters = $("#voters").val();
+      // CHANGED: voters to residency_type
+      var residency_type = $("#residency_type").val();
       var age = $("#age").val();
       var pwd = $("#pwd").val();
       var senior = $("#senior").val();
@@ -971,14 +970,18 @@ div.dataTables_scrollHead table.dataTable thead th {
       var last_name = $("#last_name").val();
       var resident_id = $("#resident_id").val();
       var single_parent = $("#single_parent").val();
-      if(status != '' || voters != '' || age != '' || first_name != '' ||  middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
+      
+      // CHANGED: Check residency_type
+      if(status != '' || residency_type != '' || age != '' || first_name != '' ||  middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
         $("#allResidenceTable").DataTable().destroy();
         filterData();
       }
     })
+
     $(document).on('click', '#reset',function(){
       var status = $("#status").val();
-      var voters = $("#voters").val();
+      // CHANGED: voters to residency_type
+      var residency_type = $("#residency_type").val();
       var age = $("#age").val();
       var pwd = $("#pwd").val();
       var senior = $("#senior").val();
@@ -987,9 +990,11 @@ div.dataTables_scrollHead table.dataTable thead th {
       var last_name = $("#last_name").val()
       var resident_id = $("#resident_id").val();
       var single_parent = $("#single_parent").val();
-      if(status != '' || voters != '' || age != '' || first_name != '' || middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
+      
+      // CHANGED: Check residency_type and clear #residency_type
+      if(status != '' || residency_type != '' || age != '' || first_name != '' || middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
         $("#status").val('');
-        $("#voters").val('');
+        $("#residency_type").val(''); // Clears the new dropdown
         $("#age").val('');
         $("#pwd").val('');
         $("#senior").val('');
