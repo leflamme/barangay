@@ -9,17 +9,15 @@ try{
   if(!empty($position))
     $whereClause[] = "official_status.position='".$position."'";
 
+    // --- ADD THIS CODE BLOCK ---
+    // This ensures that officials marked as 'ARCHIVED' are hidden from the list
+    $whereClause[] = "official_status.status != 'ARCHIVED'";
+    // ---------------------------
+
     $where = '';
 
     if(count($whereClause) > 0)
     $where .= ' WHERE ' .implode(' AND ', $whereClause);
-
-
-
-
-
-
-
   
   $sql = "SELECT  official_status.position, official_status.voters, official_status.status, official_status.pwd_info,official_status.single_parent, official_information.official_id, official_information.first_name, official_information.middle_name, official_information.last_name, official_information.first_name,
   image, official_information.image_path, position.color, position.position as official_position FROM official_status
