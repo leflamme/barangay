@@ -1,70 +1,81 @@
 <?php 
 include_once '../connection.php';
 
+// Ensure the server returns JSON format
+header('Content-Type: application/json');
+
 try{
 
-  $edit_residence_id = $con->real_escape_string($_REQUEST['edit_residence_id']);
+  // Fix for SQL Strict Mode (ONLY_FULL_GROUP_BY) which causes crashes on Group By * queries
+  $con->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
 
-  $sql_blooter_check = "SELECT blotter_record.*, blotter_status.*, blotter_complainant.*, blotter_record.blotter_id AS gago FROM `blotter_record` 
-  INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_complainant.blotter_main 
-  INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main WHERE person_id = ? OR complainant_id =  ? GROUP BY blotter_record.blotter_id";
-  $query_blotter_check = $con->prepare($sql_blooter_check) or die ($con->error);
-  $query_blotter_check->bind_param('ss',$edit_residence_id,$edit_residence_id);
-  $query_blotter_check->execute();
-  $result_blotter_check = $query_blotter_check->get_result();
-  $totalDataBlotter = $result_blotter_check->num_rows;
-  $totalFilteredBlotter = $totalDataBlotter;
+  $edit_residence_id = isset($_REQUEST['edit_residence_id']) ? $con->real_escape_string($_REQUEST['edit_residence_id']) : '';
+  $draw = isset($_REQUEST['draw']) ? intval($_REQUEST['draw']) : 0;
 
-  $data= [];
+  // Initial Data
+  $data = [];
+  $totalDataBlotter = 0;
+  $totalFilteredBlotter = 0;
 
-  while($row_blotter_check = $result_blotter_check->fetch_assoc()){
+  if(!empty($edit_residence_id)){
+      $sql_blooter_check = "SELECT blotter_record.*, blotter_status.*, blotter_complainant.*, blotter_record.blotter_id AS gago FROM `blotter_record` 
+      INNER JOIN blotter_complainant ON blotter_record.blotter_id = blotter_complainant.blotter_main 
+      INNER JOIN blotter_status ON blotter_record.blotter_id = blotter_status.blotter_main 
+      WHERE person_id = ? OR complainant_id = ? 
+      GROUP BY blotter_record.blotter_id";
+      
+      $query_blotter_check = $con->prepare($sql_blooter_check) or die ($con->error);
+      $query_blotter_check->bind_param('ss',$edit_residence_id,$edit_residence_id);
+      $query_blotter_check->execute();
+      $result_blotter_check = $query_blotter_check->get_result();
+      $totalDataBlotter = $result_blotter_check->num_rows;
+      $totalFilteredBlotter = $totalDataBlotter;
 
-    date_default_timezone_set('Asia/Manila');
-    $date_incident= date("m/d/Y - h:i A", strtotime($row_blotter_check['date_incident']));
+      while($row_blotter_check = $result_blotter_check->fetch_assoc()){
 
-   
-    $date_reported= date("m/d/Y - h:i A", strtotime($row_blotter_check['date_reported']));
+        date_default_timezone_set('Asia/Manila');
+        $date_incident= date("m/d/Y - h:i A", strtotime($row_blotter_check['date_incident']));
+        $date_reported= date("m/d/Y - h:i A", strtotime($row_blotter_check['date_reported']));
 
 
-    if($row_blotter_check['status'] == 'NEW'){
-      $status_blotter = '<span class="badge badge-primary">'.$row_blotter_check['status'] .'</span>';
-    }else{
-      $status_blotter = '<span class="badge badge-warning">'.$row_blotter_check['status'] .'</span>';
-    }
+        if($row_blotter_check['status'] == 'NEW'){
+          $status_blotter = '<span class="badge badge-primary">'.$row_blotter_check['status'] .'</span>';
+        }else{
+          $status_blotter = '<span class="badge badge-warning">'.$row_blotter_check['status'] .'</span>';
+        }
 
-    if($row_blotter_check['remarks'] == 'CLOSED'){
-      $remarks_blotter = '<span class="badge badge-success">'.$row_blotter_check['remarks'] .'</span>';
-    }else{
-      $remarks_blotter = '<span class="badge badge-danger">'.$row_blotter_check['remarks'] .'</span>';
-    }
+        if($row_blotter_check['remarks'] == 'CLOSED'){
+          $remarks_blotter = '<span class="badge badge-success">'.$row_blotter_check['remarks'] .'</span>';
+        }else{
+          $remarks_blotter = '<span class="badge badge-danger">'.$row_blotter_check['remarks'] .'</span>';
+        }
 
-    if($row_blotter_check['complainant_id'] == $edit_residence_id){
-      $color = 1;
-      $delete_record = '<i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteRecordComplainant" data-id="'.$row_blotter_check['complainant_id'].'" id="'.$row_blotter_check['blotter_main'].'" ></i>';
-    }else{
-      $color = 2;
-      $delete_record = '<i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteRecordPerson" data-id="'.$row_blotter_check['person_id'].'" id="'.$row_blotter_check['blotter_main'].'"></i>';
-    }
+        if($row_blotter_check['complainant_id'] == $edit_residence_id){
+          $color = 1;
+          // Note: Kept your original logic, but make sure these classes exist in your JS
+          $delete_record = '<i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteRecordComplainant" data-id="'.$row_blotter_check['complainant_id'].'" id="'.$row_blotter_check['blotter_main'].'" ></i>';
+        }else{
+          $color = 2;
+          $delete_record = '<i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteRecordPerson" data-id="'.$row_blotter_check['person_id'].'" id="'.$row_blotter_check['blotter_main'].'"></i>';
+        }
 
-    $subdata = [];
+        $subdata = [];
+        $subdata[] = $color;
+        $subdata[] = $row_blotter_check['gago'];
+        $subdata[] = $status_blotter;
+        $subdata[] = $remarks_blotter;
+        $subdata[] = $row_blotter_check['type_of_incident'];
+        $subdata[] = $row_blotter_check['location_incident'];
+        $subdata[] = $date_incident;
+        $subdata[] = $date_reported;
 
-    $subdata[] = $color;
-    $subdata[] = $row_blotter_check['gago'];
-    $subdata[] = $status_blotter;
-    $subdata[] = $remarks_blotter;
-    $subdata[] = $row_blotter_check['type_of_incident'];
-    $subdata[] = $row_blotter_check['location_incident'];
-    $subdata[] = $date_incident;
-    $subdata[] = $date_reported;
-    // $subdata[] =   '<i style="cursor: pointer;  color: yellow;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-book-open text-lg px-2 viewRecord" id="'.$row_blotter_check['gago'].'"></i>
-    // '.$delete_record.'';
-
-   $data[] = $subdata;
-    
+        $data[] = $subdata;
+        
+      }
   }
 
   $json_data = [
-    'draw' => intval($_REQUEST['draw']),
+    'draw' => $draw,
     'recordsTotal' => intval($totalDataBlotter),
     'recordsFiltered' => intval($totalFilteredBlotter),
     'data' => $data,
@@ -73,6 +84,13 @@ try{
   echo json_encode($json_data);
 
 }catch(Exception $e){
-  echo $e->getMessage();
+  // If an error occurs, send it as JSON so the table doesn't just crash silently
+  echo json_encode([
+      'draw' => 0,
+      'recordsTotal' => 0,
+      'recordsFiltered' => 0,
+      'data' => [],
+      'error' => $e->getMessage()
+  ]);
 }
 ?>
