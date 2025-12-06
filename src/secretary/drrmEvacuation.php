@@ -99,36 +99,180 @@ try{
       <li class="nav-item"><h5><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
       <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link"><?= $barangay ?> - Evacuation Monitor</h5></li>
      </ul>
+
      <ul class="navbar-nav ml-auto">
+      <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <a href="myProfile.php" class="dropdown-item">
+            <!-- Message Start -->
+            <div class="media">
+              <?php 
+                if($user_image != '' || $user_image != null || !empty($user_image)){
+                  echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle alt="User Image">';
+                }else{
+                  echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle alt="User Image">';
+                }
+              ?>
+            
+              <div class="media-body">
+                <h3 class="dropdown-item-title py-3">
+                  <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
+                </h3>
+              </div>
+            </div>
+            <!-- Message End -->
+          </a>         
+          <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
 
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <a href="#" class="brand-link">
-      <img src="../assets/logo/ksugan.jpg" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-      <span class="brand-text font-weight-light">Barangay System</span>
-    </a>
+  <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
+    <!-- Brand Logo -->
+    <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
+
     <div class="sidebar">
-       <nav class="mt-2">
-         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-           <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
-           <li class="nav-item has-treeview menu-open">
-              <a href="#" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>DRRM<i class="right fas fa-angle-left"></i></p></a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item"><a href="drrmHousehold.php" class="nav-link"><i class="fas fa-users nav-icon text-red"></i><p>Household Members</p></a></li>
-                <li class="nav-item"><a href="drrmEvacuation.php" class="nav-link active bg-indigo"><i class="fas fa-house-damage nav-icon text-red"></i><p>Evacuation Center</p></a></li>
+       <!-- Sidebar Menu -->
+      <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item">
+            <a href="dashboard.php" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>
+                Dashboard
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-users-cog"></i>
+              <p>
+              Barangay Official
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+             
+              <li class="nav-item">
+                <a href="allOfficial.php" class="nav-link">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>List of Official</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="officialEndTerm.php" class="nav-link ">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Official End Term</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link ">
+              <i class="nav-icon fas fa-users"></i>
+              <p>
+                Residence
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="newResidence.php" class="nav-link ">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>New Residence</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="allResidence.php" class="nav-link ">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>All Residence</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="archiveResidence.php" class="nav-link ">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Archive Residence</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          
+          <li class="nav-item ">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-user-shield"></i>
+              <p>
+                Users
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="usersResident.php" class="nav-link ">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Resident</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="editRequests.php" class="nav-link">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Edit Requests</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!-- DRM Part   (START)   -->
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
+              <p>
+                DRRM
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+              
+              <ul class="nav nav-treeview">                
+                <li class="nav-item">
+                  <a href="drrmEvacuation.php" class="nav-link bg-indigo">
+                    <i class="fas fa-house-damage nav-icon text-red"></i>
+                    <p>Evacuation Center</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="report.php" class="nav-link">
+                    <i class="nav-icon fas fa-bookmark"></i>
+                    <p>
+                      Masterlist Report
+                    </p>
+                  </a>
+                </li>
               </ul>
-           </li>
-         </ul>
-       </nav>
+          </li>
+        <!-- End of DRM Part -->
+          <li class="nav-item ">
+            <a href="requestCertificate.php" class="nav-link">
+              <i class="nav-icon fas fa-certificate"></i>
+              <p>
+                Certificate
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="blotterRecord.php" class="nav-link">
+              <i class="nav-icon fas fa-clipboard"></i>
+              <p>
+                Blotter Record
+              </p>
+            </a>
+          </li>
+         
+        </ul>
+      </nav>
     </div>
   </aside>
 
