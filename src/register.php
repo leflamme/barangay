@@ -1,45 +1,34 @@
 <?php
-//index.php
-include_once 'connection.php';
 session_start();
+include_once 'connection.php';
+
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
-
-
   $user_id = $_SESSION['user_id'];
   $sql = "SELECT * FROM users WHERE id = '$user_id'";
   $query = $con->query($sql) or die ($con->error);
   $row = $query->fetch_assoc();
   $account_type = $row['user_type'];
   if ($account_type == 'admin') {
-  echo '<script>
-          window.location.href="admin/dashboard.php";
-      </script>';
-  
+    echo '<script>window.location.href="admin/dashboard.php";</script>';
   } elseif ($account_type == 'secretary') {
-      echo '<script>
-          window.location.href="secretary/dashboard.php";
-      </script>';
-  
+      echo '<script>window.location.href="secretary/dashboard.php";</script>';
   } else {
-      echo '<script>
-      window.location.href="resident/dashboard.php";
-  </script>';
-  
-}
+    echo '<script>window.location.href="resident/dashboard.php";</script>';
+  }
 }
 
-$sql = "SELECT * FROM `barangay_information`";
+  $sql = "SELECT * FROM `barangay_information`";
   $query = $con->prepare($sql) or die ($con->error);
   $query->execute();
   $result = $query->get_result();
   while($row = $result->fetch_assoc()){
-      $barangay = $row['barangay'];
-      $zone = $row['zone'];
-      $district = $row['district'];
-      $image = $row['image'];
-      $image_path = $row['image_path'];
-      $id = $row['id'];
-      $postal_address = $row['postal_address'];
+    $barangay = $row['barangay'];
+    $zone = $row['zone'];
+    $district = $row['district'];
+    $image = $row['image'];
+    $image_path = $row['image_path'];
+    $id = $row['id'];
+    $postal_address = $row['postal_address'];
   }
 ?>
 
@@ -274,42 +263,30 @@ $sql = "SELECT * FROM `barangay_information`";
     }
   </style>
 </head>
+
 <body  class="hold-transition layout-top-nav">
+  <div class="wrapper">
+    <nav class="main-header navbar navbar-expand-md" style="background-color: #0037af">
+      <div class="container">
+        <a href="" class="navbar-brand"><img src="assets/logo/ksugan.jpg" alt="logo">
+        <span class="brand-text text-white" style="font-weight: 700">BARANGAY PORTAL</span></a>
 
+        <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-<div class="wrapper">
+        <div class="collapse navbar-collapse order-3" id="navbarCollapse"></div>
 
-  <nav class="main-header navbar navbar-expand-md" style="background-color: #0037af">
-    <div class="container">
-      <a href="" class="navbar-brand">
-        <img src="assets/logo/ksugan.jpg" alt="logo">
-        <span class="brand-text text-white" style="font-weight: 700">BARANGAY PORTAL</span>
-      </a>
-
-      <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+        <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto " >
+          <li class="nav-item"><a href="index.php" class="nav-link text-white rightBar">HOME</a></li>
+          <li class="nav-item"><a href="#" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a></li>
+          <li class="nav-item"><a href="login.php" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a></li>
+        </ul>
       </div>
+    </nav>
 
-      <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto " >
-          <li class="nav-item">
-            <a href="index.php" class="nav-link text-white rightBar" >HOME</a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link text-white rightBar" style="  border-bottom: 3px solid red;"><i class="fas fa-user-plus"></i> REGISTER</a>
-          </li>
-          <li class="nav-item">
-            <a href="login.php" class="nav-link text-white rightBar"><i class="fas fa-user-alt"></i> LOGIN</a>
-          </li>
-      </ul>
-    </div>
-  </nav>
   <div class="content-wrapper double" id="backGround">
-    
     <div class="content" >
-
       <div class="container-fluid py-5">
 
       <form id="registerResidentForm" method="POST" enctype="multipart/form-data" autocomplete="off">
@@ -631,7 +608,8 @@ $sql = "SELECT * FROM `barangay_information`";
   </div>
 </div>
 
-<div class="modal fade" id="householdModal" tabindex="-1" aria-labelledby="householdModalLabel" aria-hidden="true">
+  <!-- Changes: Removed tabindex-1 to stop conflict logic -->
+<div class="modal fade" id="householdModal" aria-labelledby="householdModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-warning">
