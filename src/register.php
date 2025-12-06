@@ -326,6 +326,7 @@ $sql = "SELECT * FROM `barangay_information`";
 
               <div class="row">
                 <div class="col-sm-12">
+                  <!--
                   <div class="form-group">
                     <label>Voters <span class="text-danger">*</span></label>
                     <select name="add_voters" id="add_voters" class="form-control">
@@ -334,6 +335,7 @@ $sql = "SELECT * FROM `barangay_information`";
                       <option value="YES">YES</option>
                     </select>
                   </div>
+  -->
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group ">
@@ -622,6 +624,59 @@ $sql = "SELECT * FROM `barangay_information`";
         <h2>1. Introduction</h2>
         <p>The Barangay Kalusugan is committed to protecting the privacy and security of your personal information. This notice outlines how we collect, use, and safeguard your data in compliance with the Data Privacy Act of 2012 (Republic Act No. 10173) and its implementing rules and regulations.</p>
 
+        <h2>2. Personal Information We Collect</h2>
+        <p>We may collect the following types of personal information:</p>
+        <ul>
+            <li>Full Name</li>
+            <li>Address</li>
+            <li>Date of Birth</li>
+            <li>Contact Information (e.g., phone number, email address)</li>
+            <li>Identification Documents (e.g., government-issued ID)</li>
+            <li>Other relevant information necessary for barangay services</li>
+        </ul>
+
+        <h2>3. Purpose of Data Collection</h2>
+        <p>Your personal information is collected for the following purposes:</p>
+        <ul>
+            <li>To provide and improve barangay services</li>
+            <li>To maintain accurate records of residents</li>
+            <li>To facilitate communication regarding barangay activities and announcements</li>
+        </ul>
+
+        <h2>4. Data Sharing and Disclosure</h2>
+        <p>We may share your personal information with:</p>
+        <ul>
+            <li>Government agencies as required by law</li>
+            <li>Third-party service providers who assist us in delivering services (with appropriate safeguards)</li>
+            <li>Other entities with your consent</li>
+        </ul>
+
+        <h2>5. Data Security</h2>
+        <p>We implement reasonable and appropriate security measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction. These measures include:</p>
+        <ul>
+            <li>Secure storage of physical and electronic records</li>
+            <li>Access controls to limit data access to authorized personnel only</li>
+            <li>Regular training for staff on data privacy and security</li>
+        </ul>
+        <h2>6. Your Rights</h2>
+        <p>As a data subject, you have the following rights under the Data Privacy Act:</p>
+        <ul>
+            <li>The right to be informed about the collection and processing of your personal data</li>
+            <li>The right to access your personal data</li>
+            <li>The right to correct any inaccuracies in your personal data</li>
+            <li>The right to object to the processing of your personal data</li>
+            <li>The right to data portability</li>
+            <li>The right to erasure or blocking of your personal data</li>
+        </ul>
+
+        <h2>7. How to Exercise Your Rights</h2>
+        <div class="contact-info">
+            <p>To exercise your rights or for any inquiries regarding your personal information, please contact:</p>
+            <p><strong>Barangay Kalusugan Data Protection Officer or Secretay</strong><br>
+            
+        </div>
+        <h2>8. Changes to This Notice</h2>
+        <p>We may update this Data Privacy Act Notice from time to time. Any changes will be posted on our official bulletin board and website. We encourage you to review this notice periodically.</p>
         <h2>9. Acknowledgment</h2>
         <p>By providing your personal information to Barangay Kalusugan, you acknowledge that you have read and understood this Data Privacy Act Notice.</p>
 
