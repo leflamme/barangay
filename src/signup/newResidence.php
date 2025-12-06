@@ -150,24 +150,27 @@ try {
     // Only check if user hasn't made a choice yet (First click of Register button)
     if (empty($household_action)) {
         
-        // A. CLEAN INPUTS (Remove spaces, force lowercase for comparison)
         $clean_mun = strtolower(trim($add_municipality));
         $clean_brgy = strtolower(trim($add_barangay));
         $clean_str  = strtolower(trim($add_street));
         $clean_house = strtolower(trim($add_house_number));
 
-        // B. ROBUST SQL QUERY (Case-Insensitive & Space-Insensitive)
-        // We use LOWER() and TRIM() on the Database columns too, just to be safe.
+        // QUERY CHANGE:
+        // 1. Used 'LIKE' for Street and Barangay to find partial matches.
+        // 2. Added wildcards (%) around the input.
+        // Note: This helps, but the user must still type the "main" name correctly.
+        
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
                       LEFT JOIN users u ON h.household_head_id = u.id 
                       WHERE LOWER(TRIM(h.municipality)) = ? 
                       AND LOWER(TRIM(h.barangay)) = ? 
-                      AND LOWER(TRIM(h.street)) = ? 
+                      AND LOWER(TRIM(h.street)) LIKE CONCAT('%', ?, '%') 
                       AND LOWER(TRIM(h.house_number)) = ? 
                       LIMIT 1";
         
         $stmt_h = $con->prepare($check_sql);
+        // Bind parameters: Municipality(s), Barangay(s), Street(s), House(s)
         $stmt_h->bind_param("ssss", $clean_mun, $clean_brgy, $clean_str, $clean_house);
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
