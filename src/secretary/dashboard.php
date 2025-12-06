@@ -275,20 +275,7 @@ try{
         $mobile_hq_data = [];
     }
 
-    // Existing queries for voters, single parents, etc.
-    $sql_voters_yes = "SELECT voters, archive FROM residence_status WHERE voters = ? AND archive = ?";
-    $query_voters_yes = $con->prepare($sql_voters_yes) or die ($con->error);
-    $query_voters_yes->bind_param('ss',$yes,$no);
-    $query_voters_yes->execute();
-    $query_voters_yes->store_result();
-    $count_voters_yes = $query_voters_yes->num_rows;
-
-    $sql_voters_no = "SELECT voters, archive FROM residence_status WHERE voters = ? AND archive = ?";
-    $query_voters_no = $con->prepare($sql_voters_no) or die ($con->error);
-    $query_voters_no->bind_param('ss',$no,$no);
-    $query_voters_no->execute();
-    $query_voters_no->store_result();
-    $count_voters_no = $query_voters_no->num_rows;
+    
 
     $sql_single_parent_yes = "SELECT single_parent, archive FROM residence_status WHERE single_parent = ? AND archive = ?";
     $query_single_parent_yes = $con->prepare($sql_single_parent_yes) or die ($con->error);
@@ -1383,9 +1370,14 @@ $(function () {
                     Single Parents
                     <span class="badge badge-secondary badge-pill"><?= number_format($count_single_parent) ?></span>
                 </li>
+
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Registered Voters
-                    <span class="badge badge-secondary badge-pill"><?= number_format($count_voters) ?></span>
+                    Residents
+                    <span class="badge badge-primary badge-pill"><?= number_format($count_residents) ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Workers
+                    <span class="badge badge-info badge-pill"><?= number_format($count_workers) ?></span>
                 </li>
             </ul>
 
