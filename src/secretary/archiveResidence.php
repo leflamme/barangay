@@ -572,9 +572,23 @@ legend {
                         <input type="text" class="form-control" id="resident_id" name="resident_id">
                       </div>
                     </div>
+
                     <div class="col-sm-4 text-center">
                       <button type="button" class="btn btn-warning  elevation-5 px-3 text-white" id="search"><i class="fas fa-search"></i> SEARCH</button>
                       <button type="button" class="btn btn-danger  elevation-5 px-3 text-white" id="reset"><i class="fas fa-undo"></i> RESET</button>
+                    </div>
+
+                    <div class="col-sm-4">
+                      <div class="input-group input-group-md mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">RESIDENCY TYPE</span>
+                        </div>
+                        <select name="residency_type" id="residency_type" class="form-control">
+                          <option value="">--SELECT TYPE--</option>
+                          <option value="RESIDENT">RESIDENT</option>
+                          <option value="WORKER">WORKER</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
               
@@ -588,7 +602,7 @@ legend {
                     <th>Age</th>
                     <th>Pwd</th>
                     <th>Single Parent</th>
-                    <th>Voters</th>
+                    <th>Residency Type</th>
                     <th>Status</th>
                     <th class="text-center">Action</th>
                   </tr>
@@ -673,22 +687,28 @@ legend {
       var first_name = $("#first_name").val();
       var middle_name = $("#middle_name").val();
       var last_name = $("#last_name").val();
-      var resident_id = $("#resident_id")
-      if(first_name != '' ||  middle_name != '' || last_name != '' || resident_id != ''){
+      var resident_id = $("#resident_id").val();
+      var residency_type = $("#residency_type").val(); // NEW
+
+      // Check if any filter is set
+      if(first_name != '' ||  middle_name != '' || last_name != '' || resident_id != '' || residency_type != ''){
         $("#archiveResidenceTable").DataTable().destroy();
         archiveResidence();
       }
     })
     $(document).on('click', '#reset',function(){
-      var first_name = $("#first_name")
-      var middle_name = $("#middle_name")
-      var last_name = $("#last_name")
-      var resident_id = $("#resident_id")
-      if(first_name != '' || middle_name != '' || last_name != '' || resident_id != ''){
+      var first_name = $("#first_name").val();
+      var middle_name = $("#middle_name").val();
+      var last_name = $("#last_name").val();
+      var resident_id = $("#resident_id").val();
+      var residency_type = $("#residency_type").val(); // NEW
+
+      if(first_name != '' || middle_name != '' || last_name != '' || resident_id != '' || residency_type != ''){
         $("#first_name").val('');
         $("#middle_name").val('');
         $("#last_name").val('');
         $("#resident_id").val('');
+        $("#residency_type").val(''); // RESET NEW FIELD
         $("#archiveResidenceTable").DataTable().destroy();
         archiveResidence();
       }else{
@@ -708,6 +728,8 @@ legend {
       var middle_name = $("#middle_name").val();
       var last_name = $("#last_name").val();
       var resident_id = $("#resident_id").val();
+      var residency_type = $("#residency_type").val(); // NEW VARIABLE
+
       var archiveResidenceTable = $("#archiveResidenceTable").DataTable({
       processing: true,
       serverSide: true,
@@ -721,8 +743,8 @@ legend {
           middle_name:middle_name,
           last_name:last_name,
           resident_id:resident_id,
+          residency_type:residency_type, // PASS TO BACKEND
         }
-
       },
       order:[],
       columnDefs:[
@@ -775,7 +797,6 @@ legend {
         $('.dataTables_paginate ul.pagination').addClass("pagination-md ");
       }
       })
-     
     }
 
     function viewResidence(){
