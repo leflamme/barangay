@@ -574,7 +574,7 @@ div.dataTables_scrollHead table.dataTable thead th {
                       </select>
                   </div>
                 </div>
-                <!--
+                
                 <div class="col-sm-4">
                   <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -587,7 +587,6 @@ div.dataTables_scrollHead table.dataTable thead th {
                       </select>
                   </div>
                 </div>
-                -->
                 
                 <div class="col-sm-4">
                   <div class="input-group mb-3">
@@ -673,7 +672,7 @@ div.dataTables_scrollHead table.dataTable thead th {
                   <th>Age</th>
                   <th>Pwd</th>
                   <th>Single Parent</th>
-                  <!-- <th>Voters</th> -->
+                  <th>Voters</th>
                   <th>Status</th>
                   <th class="text-center">Action</th>
                 </tr>
