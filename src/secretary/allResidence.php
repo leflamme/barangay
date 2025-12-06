@@ -463,15 +463,6 @@ div.dataTables_scrollHead table.dataTable thead th {
               </li>
             </ul>
           </li>
-          
-          <li class="nav-item ">
-            <a href="requestCertificate.php" class="nav-link">
-              <i class="nav-icon fas fa-certificate"></i>
-              <p>
-                Certificate
-              </p>
-            </a>
-          </li>
           <li class="nav-item ">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-user-shield"></i>
@@ -502,22 +493,32 @@ div.dataTables_scrollHead table.dataTable thead th {
             </a>
               
               <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="drrmHousehold.php" class="nav-link">
-                    <i class="fas fa-users nav-icon text-red"></i>
-                    <p>Household Members</p>
-                  </a>
-                </li>
+                
                 <li class="nav-item">
                   <a href="drrmEvacuation.php" class="nav-link">
                     <i class="fas fa-house-damage nav-icon text-red"></i>
                     <p>Evacuation Center</p>
                   </a>
                 </li>
+                <li class="nav-item">
+                  <a href="report.php" class="nav-link">
+                    <i class="nav-icon fas fa-bookmark"></i>
+                    <p>
+                      Masterlist Report
+                    </p>
+                  </a>
+                </li>
               </ul>
           </li>
         <!-- End of DRM Part -->
-
+          <li class="nav-item ">
+            <a href="requestCertificate.php" class="nav-link">
+              <i class="nav-icon fas fa-certificate"></i>
+              <p>
+                Certificate
+              </p>
+            </a>
+          </li>
           <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
@@ -526,24 +527,6 @@ div.dataTables_scrollHead table.dataTable thead th {
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="report.php" class="nav-link">
-              <i class="nav-icon fas fa-bookmark"></i>
-              <p>
-                Reports
-              </p>
-            </a>
-          </li>
-         
-          <li class="nav-item">
-            <a href="systemLog.php" class="nav-link">
-              <i class="nav-icon fas fa-history"></i>
-              <p>
-                System Logs
-              </p>
-            </a>
-          </li>
-         
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

@@ -459,12 +459,7 @@ legend {
             </a>
               
               <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="drrmHousehold.php" class="nav-link">
-                    <i class="fas fa-users nav-icon text-red"></i>
-                    <p>Household Members</p>
-                  </a>
-                </li>
+                
                 <li class="nav-item">
                   <a href="drrmEvacuation.php" class="nav-link">
                     <i class="fas fa-house-damage nav-icon text-red"></i>
