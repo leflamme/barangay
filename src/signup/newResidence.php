@@ -172,17 +172,18 @@ try {
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
 
-        // --- DEBUGGING: GENERATE A LOG FILE TO SEE WHAT IS HAPPENING ---
-        // This will create a file 'debug_household_check.txt' in your signup folder.
-        // Open it to see what values are being compared.
-        $debug_content = "Attempting to match:\n";
+        // --- DEBUGGING: SEND TO RAILWAY LOGS ---
+        $debug_content = "--------------------------\n";
+        $debug_content .= "HOUSEHOLD DEBUG:\n";
         $debug_content .= "Municipality: [$clean_mun]\n";
         $debug_content .= "Barangay: [$clean_brgy]\n";
         $debug_content .= "Street: [$clean_str]\n";
         $debug_content .= "House: [$clean_house]\n";
         $debug_content .= "Result Rows Found: " . $result_h->num_rows . "\n";
-        $debug_content .= "--------------------------\n";
-        file_put_contents('debug_household_check.txt', $debug_content, FILE_APPEND);
+        $debug_content .= "--------------------------";
+        
+        // This writes the message to the Server Console (stderr)
+        error_log($debug_content); 
         // ---------------------------------------------------------------
 
         if ($result_h->num_rows > 0) {
