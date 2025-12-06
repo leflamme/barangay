@@ -49,26 +49,19 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>List: All Residents</title>
-  <!-- Website Logo -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-  <!-- Google Fonts DONT FORGET-->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-  <!-- DONT FORGET -->
   <link rel="stylesheet" href="../assets/dist/css/admin.css?v=2">
 
   <style>
@@ -384,14 +377,11 @@ select.form-control {
 <body class="hold-transition sidebar-mini  ">
 <div class="wrapper">
 
-<!-- Preloader -->
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-dark">
-  <!-- Left navbar links (COPY LEFT ONLY)  -->
+  <nav class="main-header navbar navbar-expand navbar-dark">
   <ul class="navbar-nav">
     <li class="nav-item">
       <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
@@ -413,10 +403,8 @@ select.form-control {
     </li>
   </ul>
 
-  <!-- Right navbar links -->
   <ul class="navbar-nav ml-auto">
 
-<!-- profile_dropdown.php (COPY THIS) -->
 <li class="nav-item dropdown">
   <a class="nav-link" data-toggle="dropdown" href="#">
     <i class="far fa-user"></i>
@@ -444,17 +432,11 @@ select.form-control {
 </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container (COPY THIS ASIDE TO ASIDE) -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display:block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
 
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
@@ -492,16 +474,12 @@ select.form-control {
           
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
    
 
-    <!-- Main content -->
     <section class="content mt-3">
       <div class="container-fluid">
 
@@ -540,12 +518,12 @@ select.form-control {
                 <div class="col-sm-4">
                   <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                      <span class="input-group-text ">VOTERS</span>
+                      <span class="input-group-text">RESIDENCY TYPE</span>
                     </div>
-                      <select name="voters" id="voters" class="form-control">
-                        <option value="">--SELECT VOTERS--</option>
-                        <option value="YES">YES</option>
-                        <option value="NO">NO</option>
+                      <select name="residency_type" id="residency_type" class="form-control">
+                        <option value="">--SELECT RESIDENCY TYPE--</option> 
+                        <option value="RESIDENT">RESIDENT</option> 
+                        <option value="WORKER">WORKER</option>
                       </select>
                   </div>
                 </div>
@@ -633,7 +611,7 @@ select.form-control {
                   <th>Age</th>
                   <th>Pwd</th>
                   <th>Single Parent</th>
-                  <th>Voters</th>
+                  <th>Residency Type</th>
                   <th>Status</th>
                   <th class="text-center">Action</th>
                 </tr>
@@ -644,22 +622,13 @@ select.form-control {
       </div>   
 
 
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
-<!--Main footer (COPY THIS)-->
-<footer class="main-footer">
+      </div></section>
+    </div>
+  <footer class="main-footer">
   <strong>&copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')) ?></strong>
   <div class="float-right d-none d-sm-inline-block">
   </div>
 </footer>
-
-<!-- ./wrapper -->
 
 <div id="imagemodal" class="modal " tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -674,14 +643,9 @@ select.form-control {
 
 
 
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -835,7 +799,7 @@ select.form-control {
 
     function filterData(){
         var status = $("#status").val();
-        var voters = $("#voters").val();
+        var residency_type = $("#residency_type").val(); // CHANGED FROM VOTERS
         var age = $("#age").val();
         var pwd = $("#pwd").val();
         var senior = $("#senior").val();
@@ -854,7 +818,7 @@ select.form-control {
             url: 'allResidenceTable.php',
             type: 'POST',
             data:{
-              voters:voters,
+              residency_type:residency_type, // CHANGED FROM VOTERS
               status:status,
               age:age,
               pwd:pwd,
@@ -923,7 +887,7 @@ select.form-control {
 
     $(document).on('click', '#search',function(){
       var status = $("#status").val();
-      var voters = $("#voters").val();
+      var residency_type = $("#residency_type").val(); // CHANGED FROM VOTERS
       var age = $("#age").val();
       var pwd = $("#pwd").val();
       var senior = $("#senior").val();
@@ -933,14 +897,14 @@ select.form-control {
       var resident_id = $("#resident_id").val();
       var single_parent = $("#single_parent").val();
       
-      if(status != '' || voters != '' || age != '' || first_name != '' ||  middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
+      if(status != '' || residency_type != '' || age != '' || first_name != '' ||  middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
         $("#allResidenceTable").DataTable().destroy();
         filterData();
       }
     })
     $(document).on('click', '#reset',function(){
       var status = $("#status").val();
-      var voters = $("#voters").val();
+      var residency_type = $("#residency_type").val(); // CHANGED FROM VOTERS
       var age = $("#age").val();
       var pwd = $("#pwd").val();
       var senior = $("#senior").val();
@@ -949,9 +913,9 @@ select.form-control {
       var last_name = $("#last_name").val()
       var resident_id = $("#resident_id").val();
       var single_parent = $("#single_parent").val();
-      if(status != '' || voters != '' || age != '' || first_name != '' || middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
+      if(status != '' || residency_type != '' || age != '' || first_name != '' || middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
         $("#status").val('');
-        $("#voters").val('');
+        $("#residency_type").val(''); // CHANGED FROM VOTERS
         $("#age").val('');
         $("#pwd").val('');
         $("#senior").val('');

@@ -123,15 +123,29 @@ try{
       $count_single_parent = (int)($row_single_parent['single_parent_count'] ?? 0);
     } catch (Exception $e) { $count_single_parent = 0; }
 
-    // Voters
+    // 1. Count RESIDENTS
     try {
-      $sql_voters = "SELECT COUNT(*) as voters_count FROM residence_status WHERE voters = 'YES' AND archive = 'NO'";
-      $query_voters = db_prepare($con, $sql_voters);
-      $query_voters->execute();
-      $result_voters = $query_voters->get_result();
-      $row_voters = $result_voters->fetch_assoc() ?: [];
-      $count_voters = (int)($row_voters['voters_count'] ?? 0);
-    } catch (Exception $e) { $count_voters = 0; }
+        // Count those explicitly marked as 'Resident'
+        $sql_residents = "SELECT COUNT(residence_id) AS residents_count FROM residence_status WHERE residency_type = 'Resident' AND archive = 'NO'";
+        $query_residents = $con->prepare($sql_residents);
+        $query_residents->execute();
+        $row_residents = $query_residents->get_result()->fetch_assoc();
+        $count_residents = $row_residents['residents_count'] ?? 0;
+    } catch (Exception $e) {
+        $count_residents = 0;
+    }
+
+    // 2. Count WORKERS
+    try {
+        // Count those explicitly marked as 'Worker'
+        $sql_workers = "SELECT COUNT(residence_id) AS workers_count FROM residence_status WHERE residency_type = 'Worker' AND archive = 'NO'";
+        $query_workers = $con->prepare($sql_workers);
+        $query_workers->execute();
+        $row_workers = $query_workers->get_result()->fetch_assoc();
+        $count_workers = $row_workers['workers_count'] ?? 0;
+    } catch (Exception $e) {
+        $count_workers = 0;
+    }
 
     /* ======= DRRM ======= */
 
@@ -844,10 +858,23 @@ $(function () {
             <li class="list-group-item d-flex justify-content-between align-items-center">Single Parents
               <span class="badge badge-secondary badge-pill"><?= number_format($count_single_parent) ?></span>
             </li>
+
             <li class="list-group-item d-flex justify-content-between align-items-center">Registered Voters
               <span class="badge badge-secondary badge-pill"><?= number_format($count_voters) ?></span>
             </li>
           </ul>
+
+          <h6 class="font-weight-bold mt-4">Residency Status</h6>
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Residents
+                    <span class="badge badge-primary badge-pill"><?= number_format($count_residents) ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Workers
+                    <span class="badge badge-info badge-pill"><?= number_format($count_workers) ?></span>
+                </li>
+            </ul>
         </div>`
     },
     firehydrants: {
