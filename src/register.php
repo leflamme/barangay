@@ -1,7 +1,7 @@
 <?php
-session_start();
+//index.php
 include_once 'connection.php';
-
+session_start();
 if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
 
 
@@ -366,7 +366,7 @@ $sql = "SELECT * FROM `barangay_information`";
                         </div>
                         <div class="col-sm-12">
                           <div class="form-group ">
-                            <label >Single Parent</label>
+                            <label >Single Parent <span class="text-danger">*</span></label>
                             <select name="add_single_parent" id="add_single_parent" class="form-control">
                               <option value=""></option>
                               <option value="NO">NO</option>
@@ -487,6 +487,12 @@ $sql = "SELECT * FROM `barangay_information`";
                           </div>
                         </div>
                         
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Address <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_address" name="add_address" >
+                          </div> 
+                        </div>
                         <div class="col-sm-6">
                           <div class="form-group">
                             <label >Contact Number <span class="text-danger">*</span></label>
@@ -1157,10 +1163,9 @@ $(document).ready(function(){
                 }
             },
             error: function(xhr, status, error){
-              console.error('AJAX Error:', error);
-              console.log('Server Response:', xhr.responseText); // This logs the actual text sent by server
-              Swal.fire('ERROR','AJAX request failed. Check console for details.','error');
-          }
+                console.error('AJAX Error:', error);
+                Swal.fire('ERROR','AJAX request failed: ' + error,'error');
+            }
         });
     }
 

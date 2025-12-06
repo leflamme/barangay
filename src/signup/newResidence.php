@@ -1,14 +1,11 @@
 <?php 
-// 1. START OUTPUT BUFFERING IMMEDIATELY
-// This captures anything printed (whitespace, errors) so we can delete it later.
-ob_start();
-
 // DISABLE DISPLAY ERRORS TO PREVENT BREAKING JSON
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-// START SESSION
+// START SESSION AND SET HEADER
 session_start();
+header('Content-Type: application/json'); // Crucial for JSON response
 
 // Load Composer Autoloader 
 require __DIR__ . '/../vendor/autoload.php';
@@ -77,9 +74,6 @@ try {
 
     // Validate Password
     if($add_password != $add_confirm_password){
-        // Output JSON immediately
-        ob_clean();
-        header('Content-Type: application/json');
         echo json_encode(['status' => 'errorPassword']);
         exit();
     }
@@ -90,9 +84,6 @@ try {
     $stmt_check->bind_param('s', $add_username);
     $stmt_check->execute();
     if($stmt_check->get_result()->num_rows > 0){
-        // Output JSON immediately
-        ob_clean();
-        header('Content-Type: application/json');
         echo json_encode(['status' => 'errorUsername']);
         exit();
     }
@@ -128,10 +119,6 @@ try {
         if ($result_h->num_rows > 0) {
             // Found one! Ask user what to do.
             $household_data = $result_h->fetch_assoc();
-            
-            // CLEAN OUTPUT AND SEND JSON
-            ob_clean();
-            header('Content-Type: application/json');
             echo json_encode([
                 'status' => 'showHouseholdModal',
                 'household' => $household_data
@@ -217,6 +204,7 @@ try {
     // --- 5. INSERT USER & RESIDENT DATA ---
 
     // A. Users Table
+    // Note: We use $add_password directly (Plain Text) to match your existing login system.
     $sql_add_user = "INSERT INTO `users`(`id`, `first_name`, `middle_name`, `last_name`, `username`, `password`, `user_type`,`contact_number`, `image`,`image_path`, `household_id`, `relationship_to_head`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     $stmt_user = $con->prepare($sql_add_user);
     if (!$stmt_user) throw new Exception($con->error);
@@ -261,6 +249,7 @@ try {
     $stmt_status->close();
 
     // D. Household Members (New Table)
+    // Check if table exists to prevent errors if you haven't created it yet
     $check_table = $con->query("SHOW TABLES LIKE 'household_members'");
     if($check_table->num_rows > 0) {
         $is_head_val = ($relationship === 'Head') ? 1 : 0;
@@ -285,48 +274,31 @@ try {
     $stmt_log->close();
 
     // --- 6. NOTIFICATIONS (EMAIL ONLY) ---
-    // If these fail, we catch the error but still want to report success on DB insert
-    try {
-        $resident_data_for_email = [
-            'Full Name'        => $add_first_name . ' ' . $add_last_name,
-            'Household #'      => $final_household_number,
-            'Username'         => $add_username,
-            'Address'          => $add_address
-        ];
     
-        if (!empty($add_email_address)) {
-            sendBarangayWelcomeEmail($add_email_address, $add_first_name, $resident_data_for_email);
-        }
-    } catch (Exception $e) {
-        // Suppress email errors so it doesn't break the JSON response for registration
+    $resident_data_for_email = [
+        'Full Name'        => $add_first_name . ' ' . $add_last_name,
+        'Household #'      => $final_household_number,
+        'Username'         => $add_username,
+        'Address'          => $add_address
+    ];
+  
+    if (!empty($add_email_address)) {
+        sendBarangayWelcomeEmail($add_email_address, $add_first_name, $resident_data_for_email);
     }
   
     // --- 7. FINAL SUCCESS RESPONSE ---
-    
-    // !!! CRITICAL: CLEAN BUFFER BEFORE OUTPUTTING JSON !!!
-    // This removes any whitespace or text accidentally echoed by connection.php or includes
-    ob_clean();
-    
-    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'success',
         'household_number' => $final_household_number,
         'action' => $household_action
     ]);
-    
-    // Flush buffer and exit
-    ob_end_flush();
-    exit();
 
 } catch (Throwable $e) {
     // Return JSON Error if anything fails
-    ob_clean(); // Clean any previous output
     http_response_code(500);
-    header('Content-Type: application/json');
     echo json_encode([
         'status' => 'error',
         'message' => $e->getMessage()
     ]);
-    exit();
 }
 ?>
