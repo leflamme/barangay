@@ -11,7 +11,7 @@ try{
 
     // --- ADD THIS CODE BLOCK ---
     // This ensures that officials marked as 'ARCHIVED' are hidden from the list
-    $whereClause[] = "official_status.status != 'ARCHIVED'";
+    $whereClause[] = "official_status.status != 'ARCHIVE'";
     // ---------------------------
 
     $where = '';
