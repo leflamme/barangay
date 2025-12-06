@@ -194,14 +194,14 @@ fieldset {
           </div>
         </td>
       <td>
-       VOTERS
+       RESIDENCY TYPE
         <br>
-        <select name="edit_voters" id="edit_voters" class="form-control"
-        <?= !empty($row_view_residence['voters']) ? 'disabled' : '' ?>>
-          <option value="YES" <?= $row_view_residence['voters'] == 'YES'? 'selected': '' ?>>YES</option>
-          <option value="NO" <?= $row_view_residence['voters'] == 'NO'? 'selected': '' ?>>NO</option>
+        <?php $residency_type_value = $row_view_residence['residency_type']; ?>
+        <select name="edit_residency_type" id="edit_residency_type" class="form-control">
+          <option value="Resident" <?= $residency_type_value == 'Resident' ? 'selected' : ''; ?>>Resident</option>
+          <option value="Worker" <?= $residency_type_value == 'Worker' ? 'selected' : ''; ?>>Worker</option>
         </select>
-        <input type="hidden" value="false" id="edit_voters_check">
+        <input type="hidden" value="false" id="edit_residency_type_check">
       </td>
     </tr>
     <tr>
@@ -686,7 +686,7 @@ function blotterPersonTable(){
             var edit_last_name = $("#edit_last_name").val();
             var edit_term_from = $("#edit_term_from").val();
             var edit_term_to = $("#edit_term_to").val();
-            var edit_voters = $("#edit_voters").val();
+            var edit_residency_type = $("#edit_residency_type").val();
             var edit_pwd = $("#edit_pwd").val();
             var edit_birth_date = $("#edit_birth_date").val();
             var edit_birth_place = $("#edit_birth_place").val();
@@ -777,20 +777,13 @@ function blotterPersonTable(){
 
           
 
-                $("#edit_voters").change(function(){
-
-                  var newVoters = $(this).val();
-
-                  if(!(newVoters == edit_voters )){
-
-                  $("#edit_voters_check").val('true');
-
+                $("#edit_residency_type").change(function(){
+                  var newResidencyType = $(this).val();
+                  if(!(newResidencyType == edit_residency_type )){
+                    $("#edit_residency_type_check").val('true');
                   }else{
-
-                  $("#edit_voters_check").val('false');
-
+                    $("#edit_residency_type_check").val('false');
                   }
-
                 })
 
                 $("#edit_pwd").change(function(){
@@ -1140,7 +1133,7 @@ function blotterPersonTable(){
                   
                   formData.append("edit_first_name_check",$("#edit_first_name_check").val())
                   formData.append("edit_last_name_check",$("#edit_last_name_check").val())
-                  formData.append("edit_voters_check",$("#edit_voters_check").val())
+                  formData.append("edit_residency_type_check",$("#edit_residency_type_check").val())
                   formData.append("edit_pwd_check",$("#edit_pwd_check").val())
                   formData.append("edit_birth_date_check",$("#edit_birth_date_check").val())
                   formData.append("edit_birth_place_check",$("#edit_birth_place_check").val())

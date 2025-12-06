@@ -15,10 +15,6 @@ if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['us
   $user_type = $row_user['user_type'];
   $user_image = $row_user['image'];
 
-
- 
-
-
 }else{
  echo '<script>
         window.location.href = "../login.php";
@@ -34,7 +30,10 @@ try{
   $edit_single_parent = $con->real_escape_string($_POST['edit_single_parent']);
 
 $edit_residence_id = $con->real_escape_string(trim($_POST['edit_residence_id']));
-$edit_voters = $con->real_escape_string($_POST['edit_voters']);
+
+// CHANGED: Capture residency_type instead of voters
+$edit_residency_type = $con->real_escape_string($_POST['edit_residency_type']);
+
 $edit_pwd = $con->real_escape_string($_POST['edit_pwd']);
 $edit_first_name = $con->real_escape_string($_POST['edit_first_name']);
 $edit_middle_name = $con->real_escape_string($_POST['edit_middle_name']);
@@ -74,7 +73,10 @@ $row_check_resident = $result_check_resident->fetch_assoc();
 $old_first_name = $row_check_resident['first_name'];
 $old_middle_name = $row_check_resident['middle_name'];
 $old_last_name = $row_check_resident['last_name'];
-$old_voters = $row_check_resident['voters'];
+
+// CHANGED: Get old residency_type
+$old_residency_type = $row_check_resident['residency_type'];
+
 $old_pwd = $row_check_resident['pwd'];
 $old_birth_date = $row_check_resident['birth_date'];
 $old_birth_place = $row_check_resident['birth_place'];
@@ -97,14 +99,6 @@ $old_guardian = $row_check_resident['guardian'];
 $old_pwd_info = $row_check_resident['pwd_info'];
 $old_single_parent = $row_check_resident['single_parent'];
 $old_guardian_contact = $row_check_resident['guardian_contact'];
-
-
-
-
-
-
-
-
 
 
 if(isset($edit_image)){
@@ -220,9 +214,10 @@ $stmt_edit_residence->execute();
 $stmt_edit_residence->close();
 
 
-$sql_edit_residence_status = "UPDATE `residence_status` SET `voters` = ?, `senior` = ?, `pwd` = ?, `pwd_info`= ? , `single_parent` = ? WHERE `residence_id` = ?";
+// CHANGED: Updated SQL to set residency_type instead of voters
+$sql_edit_residence_status = "UPDATE `residence_status` SET `residency_type` = ?, `senior` = ?, `pwd` = ?, `pwd_info`= ? , `single_parent` = ? WHERE `residence_id` = ?";
 $stmt_edit_residence_status = $con->prepare($sql_edit_residence_status) or die ($con->error);
-$stmt_edit_residence_status->bind_param('ssssss',$edit_voters,$senior,$edit_pwd,$edit_pwd_info,$edit_single_parent,$edit_residence_id);
+$stmt_edit_residence_status->bind_param('ssssss',$edit_residency_type,$senior,$edit_pwd,$edit_pwd_info,$edit_single_parent,$edit_residence_id);
 $stmt_edit_residence_status->execute();
 $stmt_edit_residence_status->close();
 
@@ -303,16 +298,11 @@ if($_POST['edit_last_name_check'] == 'true' || $_POST['edit_last_name_check'] ==
 }
 
 
-
-
-
-
-
-if($_POST['edit_voters_check'] == 'true' || $_POST['edit_voters_check'] === TRUE){
-
+// CHANGED: Update Activity Log for Residency Type
+if($_POST['edit_residency_type_check'] == 'true' || $_POST['edit_residency_type_check'] === TRUE){
 
   $date_activity = $now = date("j-n-Y g:i A");  
-  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '. 'UPDATED RESIDENT VOTERS -'.' ' .$edit_residence_id.' |' .' '. ' FROM '.$old_voters.' TO '. $edit_voters;
+  $admin = strtoupper('OFFICAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '. 'UPDATED RESIDENCY TYPE -'.' ' .$edit_residence_id.' |' .' '. ' FROM '.$old_residency_type.' TO '. $edit_residency_type;
   $status_activity_log = 'update';
   $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`)VALUES(?,?,?)";
   $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
@@ -320,7 +310,6 @@ if($_POST['edit_voters_check'] == 'true' || $_POST['edit_voters_check'] === TRUE
   $stmt_activity_log->execute();
   $stmt_activity_log->close();
   
-
 }
 
 
