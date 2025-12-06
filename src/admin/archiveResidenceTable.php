@@ -6,7 +6,6 @@ $first_name = $con->real_escape_string($_POST['first_name']);
 $middle_name = $con->real_escape_string($_POST['middle_name']);
 $last_name = $con->real_escape_string($_POST['last_name']);
 $resident_id = $con->real_escape_string($_POST['resident_id']);
-// 1. ADDED: Input for residency_type
 $residency_type = $con->real_escape_string($_POST['residency_type']);
 
 $whereClause = [];
@@ -23,7 +22,6 @@ $whereClause[] = "middle_name LIKE '%" .$middle_name. "%'";
 if(!empty($last_name))  
 $whereClause[] = "last_name LIKE '%" .$last_name. "%'";
 
-// 2. ADDED: Filter logic for residency_type
 if(!empty($residency_type))
 $whereClause[] = "residence_status.residency_type='$residency_type'";
 
@@ -34,7 +32,6 @@ if(count($whereClause) > 0){
   $where .= ' AND ' .implode(' AND ', ($whereClause));
 }
 
-// 3. UPDATED: Selected residency_type instead of voters
 $sql = "SELECT residence_information.residence_id, 
 residence_information.first_name, 
 residence_information.last_name, 
@@ -57,7 +54,6 @@ $totalData = $query->num_rows;
 $totalFiltered = $totalData;
 
 
-// 4. FIXED: Typo 'oder' to 'order'
 if(isset($_REQUEST['order'])){
   $sql .= ' ORDER BY '.
   $_REQUEST['order']['0']['column'].
@@ -92,13 +88,23 @@ while($row = $query->fetch_assoc()){
     $middle_name = '';
   }
 
-  // 5. UPDATED: Logic for Residency Type Badges (Resident/Worker) instead of Voters
-  if (isset($row['residency_type']) && strtoupper($row['residency_type']) === 'RESIDENT') {
+  // --- FIX START: Improved Residency Type Logic ---
+  // Get the value, make it uppercase, and remove any accidental spaces
+  $db_residency_type = isset($row['residency_type']) ? trim(strtoupper($row['residency_type'])) : '';
+
+  if ($db_residency_type === 'RESIDENT') {
+    // If explicitly RESIDENT
     $residency_type_label = '<span class="badge badge-success text-md">RESIDENT</span>';
-  } else {
-    // Default to WORKER for non-resident types
+  } elseif ($db_residency_type === 'WORKER') {
+    // If explicitly WORKER
     $residency_type_label = '<span class="badge badge-danger text-md">WORKER</span>';
+  } else {
+    // If Empty (Old data) or Unknown, show N/A or the actual value (grey badge)
+    // This prevents them from showing up as "WORKER" incorrectly
+    $display_text = !empty($db_residency_type) ? $db_residency_type : 'N/A';
+    $residency_type_label = '<span class="badge badge-secondary text-md">'.$display_text.'</span>';
   }
+  // --- FIX END ---
 
   if($row['single_parent'] == 'YES'){
     $single_parent = '<span class="badge badge-info text-md ">'.$row['single_parent'].'</span>';
@@ -131,7 +137,6 @@ $subdata[] =  ucfirst($row['first_name']).' '. $middle_name .' '. ucfirst($row['
 $subdata[] =  $row['age'];
 $subdata[] =  $row['pwd_info']; 
 $subdata[] =  $single_parent; 
-// 6. UPDATED: Output residency type label
 $subdata[] = $residency_type_label;
 $subdata[] = $status;
   $subdata[] = '<i style="cursor: pointer;  color: yellow;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-user-edit text-lg px-3 viewResidence" id="'.$row['residence_id'].'"></i>
