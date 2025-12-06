@@ -147,30 +147,48 @@ try {
 
     // --- 2. HOUSEHOLD CHECK LOGIC ---
     
-    // Only check if user hasn't made a choice yet
+    // Only check if user hasn't made a choice yet (First click of Register button)
     if (empty($household_action)) {
         
-        // UPDATED QUERY: Uses LOWER() for case-insensitive matching
+        // A. CLEAN INPUTS (Remove spaces, force lowercase for comparison)
+        $clean_mun = strtolower(trim($add_municipality));
+        $clean_brgy = strtolower(trim($add_barangay));
+        $clean_str  = strtolower(trim($add_street));
+        $clean_house = strtolower(trim($add_house_number));
+
+        // B. ROBUST SQL QUERY (Case-Insensitive & Space-Insensitive)
+        // We use LOWER() and TRIM() on the Database columns too, just to be safe.
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
                       LEFT JOIN users u ON h.household_head_id = u.id 
-                      WHERE LOWER(h.municipality) = LOWER(?) 
-                      AND LOWER(h.barangay) = LOWER(?) 
-                      AND LOWER(h.street) = LOWER(?) 
-                      AND LOWER(h.house_number) = LOWER(?) 
+                      WHERE LOWER(TRIM(h.municipality)) = ? 
+                      AND LOWER(TRIM(h.barangay)) = ? 
+                      AND LOWER(TRIM(h.street)) = ? 
+                      AND LOWER(TRIM(h.house_number)) = ? 
                       LIMIT 1";
         
         $stmt_h = $con->prepare($check_sql);
-        // We still bind the normal variables, SQL handles the LOWER conversion
-        $stmt_h->bind_param("ssss", $add_municipality, $add_barangay, $add_street, $add_house_number);
+        $stmt_h->bind_param("ssss", $clean_mun, $clean_brgy, $clean_str, $clean_house);
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
+
+        // --- DEBUGGING: GENERATE A LOG FILE TO SEE WHAT IS HAPPENING ---
+        // This will create a file 'debug_household_check.txt' in your signup folder.
+        // Open it to see what values are being compared.
+        $debug_content = "Attempting to match:\n";
+        $debug_content .= "Municipality: [$clean_mun]\n";
+        $debug_content .= "Barangay: [$clean_brgy]\n";
+        $debug_content .= "Street: [$clean_str]\n";
+        $debug_content .= "House: [$clean_house]\n";
+        $debug_content .= "Result Rows Found: " . $result_h->num_rows . "\n";
+        $debug_content .= "--------------------------\n";
+        file_put_contents('debug_household_check.txt', $debug_content, FILE_APPEND);
+        // ---------------------------------------------------------------
 
         if ($result_h->num_rows > 0) {
             // Found one! Ask user what to do.
             $household_data = $result_h->fetch_assoc();
             
-            // CLEAN OUTPUT AND SEND JSON
             ob_clean();
             header('Content-Type: application/json');
             echo json_encode([
@@ -178,10 +196,10 @@ try {
                 'household' => $household_data
             ]);
             exit(); 
-        } 
-        // NOTE: We do NOT set $household_action = 'new' here yet. 
-        // If we don't find a match, we just fall through to the rest of the code 
-        // where it naturally creates a new household.
+        } else {
+            // No match found -> Proceed to create NEW household
+            $household_action = 'new';
+        }
     }
 
     // --- 3. PREPARE GENERAL DATA ---
