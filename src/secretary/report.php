@@ -79,11 +79,17 @@ try {
                      FROM household_members hm5 
                      JOIN residence_status rs5 ON hm5.user_id = rs5.residence_id 
                      WHERE hm5.household_id = h.id AND rs5.single_parent = 'YES') as single_parent_count,
-                    -- Count voters
+                    -- Count Residents
                     (SELECT COUNT(*) 
                      FROM household_members hm6 
                      JOIN residence_status rs6 ON hm6.user_id = rs6.residence_id 
-                     WHERE hm6.household_id = h.id AND rs6.voters = 'YES') as voters_count,
+                     WHERE hm6.household_id = h.id AND rs6.residency_type = 'Resident') as resident_count,
+                    -- Count Workers
+                    (SELECT COUNT(*) 
+                     FROM household_members hm7 
+                     JOIN residence_status rs7 ON hm7.user_id = rs7.residence_id 
+                     WHERE hm7.household_id = h.id AND rs7.residency_type = 'Worker') as worker_count,
+                    
                     -- Get household head name
                     CONCAT(ri.first_name, ' ', ri.last_name) as head_name
                 FROM households h
@@ -167,9 +173,13 @@ try {
                     ' . ($row['senior_count'] > 0 ? '<span class="badge badge-warning" title="Senior Citizens">' . $row['senior_count'] . ' Senior</span><br>' : '') . '
                     ' . ($row['pwd_count'] > 0 ? '<span class="badge badge-info" title="Persons with Disability">' . $row['pwd_count'] . ' PWD</span>' : '<span class="text-muted">None</span>') . '
                 </td>
+
                 <td class="text-center">
-                    ' . ($row['voters_count'] > 0 ? '<span class="badge badge-success">' . $row['voters_count'] . ' Voters</span>' : '<span class="text-muted">None</span>') . '
+                    ' . ($row['resident_count'] > 0 ? '<span class="badge badge-success mb-1">' . $row['resident_count'] . ' Resident</span><br>' : '') . '
+                    ' . ($row['worker_count'] > 0 ? '<span class="badge badge-info">' . $row['worker_count'] . ' Worker</span>' : '') . '
+                    ' . ($row['resident_count'] == 0 && $row['worker_count'] == 0 ? '<span class="text-muted">None</span>' : '') . '
                 </td>
+                
                 <td class="text-center">
                     <span class="badge ' . $vulnerability_class . '" style="font-size:12px; padding:6px 12px;">
                         ' . $priority . '
@@ -810,7 +820,7 @@ try {
                     <th>Address</th>
                     <th class="text-center">Members</th>
                     <th class="text-center">Vulnerable Groups</th>
-                    <th class="text-center">Voters</th>
+                    <th class="text-center">Residency Type</th>
                     <th class="text-center">Rescue Priority</th>
                     <th class="text-center">Actions</th>
                   </tr>
@@ -960,7 +970,11 @@ $(document).on('click', '.view-members', function(e) {
                         if(member.pwd === 'YES') html += '<span class="badge badge-info mr-1 mb-1" title="Person with Disability"><i class="fas fa-wheelchair"></i> PWD</span>';
                         if(member.senior === 'YES') html += '<span class="badge badge-warning mr-1 mb-1" title="Senior Citizen"><i class="fas fa-user-clock"></i> Senior</span>';
                         if(member.single_parent === 'YES') html += '<span class="badge badge-danger mr-1 mb-1" title="Single Parent"><i class="fas fa-user-friends"></i> Single Parent</span>';
-                        if(member.voters === 'YES') html += '<span class="badge badge-success mr-1 mb-1" title="Registered Voter"><i class="fas fa-vote-yea"></i> Voter</span>';
+                        if(member.residency_type === 'Resident') {
+                            html += '<span class="badge badge-success mr-1 mb-1" title="Resident"><i class="fas fa-home"></i> Resident</span>';
+                        } else if (member.residency_type === 'Worker') {
+                            html += '<span class="badge badge-info mr-1 mb-1" title="Worker"><i class="fas fa-briefcase"></i> Worker</span>';
+                        }
                         html += '</div>';
                         html += '</div>';
                         
