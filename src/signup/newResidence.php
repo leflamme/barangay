@@ -132,13 +132,13 @@ try {
         exit();
     }
 
-    // Address Inputs
-    $add_municipality = isset($_POST['add_municipality']) ? $con->real_escape_string($_POST['add_municipality']) : '';
-    $add_barangay = isset($_POST['add_barangay']) ? $con->real_escape_string($_POST['add_barangay']) : '';
-    $add_street = isset($_POST['add_street']) ? $con->real_escape_string($_POST['add_street']) : '';
-    $add_house_number = isset($_POST['add_house_number']) ? $con->real_escape_string($_POST['add_house_number']) : '';
-    $add_address = isset($_POST['add_address']) ? $con->real_escape_string($_POST['add_address']) : '';
-    $add_zip = isset($_POST['add_zip']) ? $con->real_escape_string($_POST['add_zip']) : '';
+    // Address Inputs - Added TRIM() to remove accidental spaces
+    $add_municipality = isset($_POST['add_municipality']) ? trim($con->real_escape_string($_POST['add_municipality'])) : '';
+    $add_barangay = isset($_POST['add_barangay']) ? trim($con->real_escape_string($_POST['add_barangay'])) : '';
+    $add_street = isset($_POST['add_street']) ? trim($con->real_escape_string($_POST['add_street'])) : '';
+    $add_house_number = isset($_POST['add_house_number']) ? trim($con->real_escape_string($_POST['add_house_number'])) : '';
+    $add_address = isset($_POST['add_address']) ? trim($con->real_escape_string($_POST['add_address'])) : '';
+    $add_zip = isset($_POST['add_zip']) ? trim($con->real_escape_string($_POST['add_zip'])) : '';
     
     // Household Action Inputs
     $household_action = isset($_POST['household_action']) ? $_POST['household_action'] : null;
@@ -149,13 +149,19 @@ try {
     
     // Only check if user hasn't made a choice yet
     if (empty($household_action)) {
-        // Look for exact address match
+        
+        // UPDATED QUERY: Uses LOWER() for case-insensitive matching
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
                       LEFT JOIN users u ON h.household_head_id = u.id 
-                      WHERE h.municipality = ? AND h.barangay = ? AND h.street = ? AND h.house_number = ? LIMIT 1";
+                      WHERE LOWER(h.municipality) = LOWER(?) 
+                      AND LOWER(h.barangay) = LOWER(?) 
+                      AND LOWER(h.street) = LOWER(?) 
+                      AND LOWER(h.house_number) = LOWER(?) 
+                      LIMIT 1";
         
         $stmt_h = $con->prepare($check_sql);
+        // We still bind the normal variables, SQL handles the LOWER conversion
         $stmt_h->bind_param("ssss", $add_municipality, $add_barangay, $add_street, $add_house_number);
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
@@ -172,10 +178,10 @@ try {
                 'household' => $household_data
             ]);
             exit(); 
-        } else {
-            // None found, creating new
-            $household_action = 'new';
-        }
+        } 
+        // NOTE: We do NOT set $household_action = 'new' here yet. 
+        // If we don't find a match, we just fall through to the rest of the code 
+        // where it naturally creates a new household.
     }
 
     // --- 3. PREPARE GENERAL DATA ---
