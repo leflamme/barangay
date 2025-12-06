@@ -24,14 +24,11 @@ try{
     $result = $query->get_result();
     while($row = $result->fetch_assoc()){
         $barangay = $row['barangay'];
-        $zone = $row['zone'];
-        $district = $row['district'];
     }
 
     // 3. Helper Function: Get Families by Center Name
+    // This looks for the EXACT text stored in your database (e.g. "Barangay Kalusugan Elementary School")
     function getFamiliesByCenter($con, $centerName) {
-        // We use LIKE here just in case of small spaces differences, but exact match is better
-        // This looks for the exact string saved in 'assigned_center'
         $sql = "SELECT 
                   last_name,
                   COUNT(*) as total_members,
@@ -88,48 +85,6 @@ try{
         color: #495057 !important;
         font-weight: bold;
     }
-
-    /* Sidebar */
-    .main-sidebar {
-      background-color: #050C9C !important;
-    }
-
-    .brand-link {
-      background-color: transparent !important;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .sidebar .nav-link {
-      color: #A7E6FF !important;
-      transition: all 0.3s;
-    }
-
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      background-color: #3572EF !important;
-      color: #ffffff !important;
-    }
-
-    .sidebar .nav-icon {
-      color: #3ABEF9 !important;
-    }
-
-    .dropdown-menu {
-      border-radius: 10px;
-      border: none;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-
-    .dropdown-item {
-      font-weight: 600;
-      transition: 0.2s ease-in-out;
-    }
-
-    .dropdown-item:hover {
-      background-color: #F5587B;
-      color: white;
-    }
-
     .status-fraction { font-size: 1.2rem; font-weight: bold; }
   </style>
 </head>
@@ -141,180 +96,36 @@ try{
       <li class="nav-item"><h5><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></h5></li>
       <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link"><?= $barangay ?> - Evacuation Monitor</h5></li>
      </ul>
-
      <ul class="navbar-nav ml-auto">
-      <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-          <a href="myProfile.php" class="dropdown-item">
-            <!-- Message Start -->
-            <div class="media">
-              <?php 
-                if($user_image != '' || $user_image != null || !empty($user_image)){
-                  echo '<img src="../assets/dist/img/'.$user_image.'" class="img-size-50 mr-3 img-circle alt="User Image">';
-                }else{
-                  echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle alt="User Image">';
-                }
-              ?>
-            
-              <div class="media-body">
-                <h3 class="dropdown-item-title py-3">
-                  <?= ucfirst($first_name_user) .' '. ucfirst($last_name_user) ?>
-                </h3>
-              </div>
-            </div>
-            <!-- Message End -->
-          </a>         
-          <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
 
-  <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
-    <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
-
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="#" class="brand-link">
+      <img src="../assets/logo/ksugan.jpg" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <span class="brand-text font-weight-light">Barangay System</span>
+    </a>
     <div class="sidebar">
-       <!-- Sidebar Menu -->
-      <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item">
-            <a href="dashboard.php" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>
-                Dashboard
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-users-cog"></i>
-              <p>
-              Barangay Official
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-             
-              <li class="nav-item">
-                <a href="allOfficial.php" class="nav-link">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>List of Official</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="officialEndTerm.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Official End Term</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link ">
-              <i class="nav-icon fas fa-users"></i>
-              <p>
-                Residence
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="newResidence.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>New Residence</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="allResidence.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>All Residence</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="archiveResidence.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Archive Residence</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          
-          <li class="nav-item ">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-user-shield"></i>
-              <p>
-                Users
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="usersResident.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Resident</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="editRequests.php" class="nav-link">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Edit Requests</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <!-- DRM Part   (START)   -->
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-exclamation-triangle"></i>
-              <p>
-                DRRM
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-              
-              <ul class="nav nav-treeview">                
-                <li class="nav-item">
-                  <a href="drrmEvacuation.php" class="nav-link bg-indigo">
-                    <i class="fas fa-house-damage nav-icon text-red"></i>
-                    <p>Evacuation Center</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="report.php" class="nav-link">
-                    <i class="nav-icon fas fa-bookmark"></i>
-                    <p>
-                      Masterlist Report
-                    </p>
-                  </a>
-                </li>
+       <nav class="mt-2">
+         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+           <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+           <li class="nav-item has-treeview menu-open">
+              <a href="#" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>DRRM<i class="right fas fa-angle-left"></i></p></a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item"><a href="drrmHousehold.php" class="nav-link"><i class="fas fa-users nav-icon text-red"></i><p>Household Members</p></a></li>
+                <li class="nav-item"><a href="drrmEvacuation.php" class="nav-link active bg-indigo"><i class="fas fa-house-damage nav-icon text-red"></i><p>Evacuation Center</p></a></li>
               </ul>
-          </li>
-        <!-- End of DRM Part -->
-          <li class="nav-item ">
-            <a href="requestCertificate.php" class="nav-link">
-              <i class="nav-icon fas fa-certificate"></i>
-              <p>
-                Certificate
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="blotterRecord.php" class="nav-link">
-              <i class="nav-icon fas fa-clipboard"></i>
-              <p>
-                Blotter Record
-              </p>
-            </a>
-          </li>
-         
-        </ul>
-      </nav>
+           </li>
+         </ul>
+       </nav>
     </div>
   </aside>
 
@@ -340,7 +151,7 @@ try{
                 <a class="nav-link" id="tab-b" data-toggle="pill" href="#center-b" role="tab">Basketball Court</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="tab-c" data-toggle="pill" href="#center-c" role="tab">High School Annex</a>
+                <a class="nav-link" id="tab-c" data-toggle="pill" href="#center-c" role="tab">HS Annex</a>
               </li>
             </ul>
           </div>
@@ -351,7 +162,7 @@ try{
               <div class="tab-pane fade show active" id="center-a" role="tabpanel">
                 <h4>Barangay Kalusugan Elementary School</h4>
                 <?php 
-                  // MUST MATCH DATABASE NAME EXACTLY
+                  // CRITICAL: Must match the database text exactly
                   $resultFamilies = getFamiliesByCenter($con, 'Barangay Kalusugan Elementary School'); 
                   include 'evacuation_table_template.php'; 
                 ?>
@@ -413,7 +224,7 @@ try{
 $(document).ready(function() {
     $('.table').DataTable();
 
-    // Open Modal
+    // 1. Open Modal (Using the NEW get_evacuation_family.php)
     $(document).on('click', '.view-family-btn', function() {
         var surname = $(this).data('surname');
         
@@ -421,7 +232,6 @@ $(document).ready(function() {
         $('#familyModalBody').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
         $('#familyModal').modal('show');
 
-        // Calls the NEW file we created
         $.ajax({
             url: 'get_evacuation_family.php',
             type: 'POST',
@@ -432,13 +242,16 @@ $(document).ready(function() {
         });
     });
 
-    // Toggle Status Logic
+    // 2. Button Click Handler (THIS FIXES THE "STILL MISSING" ISSUE)
     $(document).on('click', '.toggle-status-btn', function() {
         var btn = $(this);
         var residence_id = btn.data('id');
         var current_status = btn.data('status');
+        
+        // Calculate the opposite status
         var new_status = (current_status === 'Arrived') ? 'Missing' : 'Arrived';
 
+        // Disable to prevent double click
         btn.prop('disabled', true);
 
         $.ajax({
@@ -446,19 +259,31 @@ $(document).ready(function() {
             type: 'POST',
             data: { residence_id: residence_id, status: new_status },
             success: function(response) {
+                // Re-enable
                 btn.prop('disabled', false);
-                btn.data('status', new_status);
-                btn.text(new_status);
-                // Update button color immediately
-                btn.html( (new_status === 'Arrived' ? '<i class="fas fa-check"></i> ' : '<i class="fas fa-times"></i> ') + new_status );
                 
+                // Update the memory
+                btn.data('status', new_status); 
+                
+                // VISUAL UPDATE: Swap colors and text immediately
                 if(new_status === 'Arrived') {
                     btn.removeClass('btn-danger').addClass('btn-success');
+                    btn.html('<i class="fas fa-check"></i> Arrived');
                 } else {
                     btn.removeClass('btn-success').addClass('btn-danger');
+                    btn.html('<i class="fas fa-times"></i> Missing');
                 }
+            },
+            error: function() {
+                alert('Connection error');
+                btn.prop('disabled', false);
             }
         });
+    });
+
+    // 3. Reload Page ONLY when Closing Modal (Updates the 0/1 counts)
+    $('#familyModal').on('hidden.bs.modal', function () {
+        location.reload();
     });
 });
 </script>
