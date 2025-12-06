@@ -132,17 +132,13 @@ try {
         exit();
     }
 
-    // Address Inputs - Capture the individual parts
+    // Address Inputs - Added TRIM() to remove accidental spaces
     $add_municipality = isset($_POST['add_municipality']) ? trim($con->real_escape_string($_POST['add_municipality'])) : '';
     $add_barangay = isset($_POST['add_barangay']) ? trim($con->real_escape_string($_POST['add_barangay'])) : '';
     $add_street = isset($_POST['add_street']) ? trim($con->real_escape_string($_POST['add_street'])) : '';
     $add_house_number = isset($_POST['add_house_number']) ? trim($con->real_escape_string($_POST['add_house_number'])) : '';
+    $add_address = isset($_POST['add_address']) ? trim($con->real_escape_string($_POST['add_address'])) : '';
     $add_zip = isset($_POST['add_zip']) ? trim($con->real_escape_string($_POST['add_zip'])) : '';
-
-    // --- AUTOMATIC CONCATENATION ---
-    // Instead of looking for a POST variable, we build the address right here.
-    // Format: "123 Main St, Barangay Kalusugan, Quezon City"
-    $add_address = $add_house_number . ' ' . $add_street . ', ' . $add_barangay . ', ' . $add_municipality;
     
     // Household Action Inputs
     $household_action = isset($_POST['household_action']) ? $_POST['household_action'] : null;
