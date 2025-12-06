@@ -74,7 +74,8 @@ fieldset {
     outline:none;
     width: 100%;
     }
-   #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, #edit_single_parent select {
+    /* UPDATED CSS ID HERE */
+   #edit_gender, #edit_civil_status, #edit_residency_type, #edit_pwd, #edit_single_parent select {
       /* for Firefox */
       -moz-appearance: none;
       /* for Chrome */
@@ -82,14 +83,16 @@ fieldset {
       border: none;
       width: 100%;
     }
-    #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, #edit_single_parent, option:focus{
+    /* UPDATED CSS ID HERE */
+    #edit_gender, #edit_civil_status, #edit_residency_type, #edit_pwd, #edit_single_parent, option:focus{
       outline:none;
       border:none;
       box-shadow:none;
     }
 
     /* For IE10 */
-    #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, select::-ms-expand {
+    /* UPDATED CSS ID HERE */
+    #edit_gender, #edit_civil_status, #edit_residency_type, #edit_pwd, select::-ms-expand {
       display: none;
     }
     #display_edit_image_residence{
@@ -116,7 +119,6 @@ fieldset {
 
 
 
-<!-- Modal -->
 <div class="modal" id="viewResidenceModal"  role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="modelTitleId" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
@@ -204,13 +206,14 @@ fieldset {
           </div>
         </td>
       <td>
-       VOTERS
+       RESIDENCY TYPE
         <br>
-        <select name="edit_voters" id="edit_voters" class="form-control">
-          <option value="NO" <?= $row_view_residence['voters'] == 'NO'? 'selected': '' ?>>NO</option>
-          <option value="YES" <?= $row_view_residence['voters'] == 'YES'? 'selected': '' ?>>YES</option>
+        <?php $residency_type_value = $row_view_residence['residency_type']; ?>
+        <select name="edit_residency_type" id="edit_residency_type" class="form-control">
+          <option value="Resident" <?= $residency_type_value == 'Resident' ? 'selected' : ''; ?>>Resident</option>
+          <option value="Worker" <?= $residency_type_value == 'Worker' ? 'selected' : ''; ?>>Worker</option>
         </select>
-        <input type="hidden" value="false" id="edit_voters_check">
+        <input type="hidden" value="false" id="edit_residency_type_check">
       </td>
     </tr>
     <tr>
@@ -695,7 +698,7 @@ function blotterPersonTable(){
             var edit_last_name = $("#edit_last_name").val();
             var edit_term_from = $("#edit_term_from").val();
             var edit_term_to = $("#edit_term_to").val();
-            var edit_voters = $("#edit_voters").val();
+            var edit_residency_type = $("#edit_residency_type").val(); // CHANGED
             var edit_pwd = $("#edit_pwd").val();
             var edit_birth_date = $("#edit_birth_date").val();
             var edit_birth_place = $("#edit_birth_place").val();
@@ -785,18 +788,18 @@ function blotterPersonTable(){
               })
 
           
+                // CHANGED FROM VOTERS TO RESIDENCY TYPE
+                $("#edit_residency_type").change(function(){
 
-                $("#edit_voters").change(function(){
+                  var newResidencyType = $(this).val();
 
-                  var newVoters = $(this).val();
+                  if(!(newResidencyType == edit_residency_type )){
 
-                  if(!(newVoters == edit_voters )){
-
-                  $("#edit_voters_check").val('true');
+                  $("#edit_residency_type_check").val('true');
 
                   }else{
 
-                  $("#edit_voters_check").val('false');
+                  $("#edit_residency_type_check").val('false');
 
                   }
 
@@ -1149,7 +1152,8 @@ function blotterPersonTable(){
                   
                   formData.append("edit_first_name_check",$("#edit_first_name_check").val())
                   formData.append("edit_last_name_check",$("#edit_last_name_check").val())
-                  formData.append("edit_voters_check",$("#edit_voters_check").val())
+                  // CHANGED FROM VOTERS TO RESIDENCY TYPE
+                  formData.append("edit_residency_type_check",$("#edit_residency_type_check").val())
                   formData.append("edit_pwd_check",$("#edit_pwd_check").val())
                   formData.append("edit_birth_date_check",$("#edit_birth_date_check").val())
                   formData.append("edit_birth_place_check",$("#edit_birth_place_check").val())
