@@ -325,16 +325,7 @@ $sql = "SELECT * FROM `barangay_information`";
               <h3 class="profile-username text-center "><span id="keyup_first_name"></span> <span id="keyup_last_name"></span></h3>
 
               <div class="row">
-                <div class="col-sm-12">
-                  <div class="form-group">
-                    <label>Voters <span class="text-danger">*</span></label>
-                    <select name="add_voters" id="add_voters" class="form-control">
-                      <option value=""></option>
-                      <option value="NO">NO</option>
-                      <option value="YES">YES</option>
-                    </select>
-                  </div>
-                </div>
+                
                 <div class="col-sm-12">
                   <div class="form-group ">
                     <label >Gender</label>
@@ -736,9 +727,6 @@ $sql = "SELECT * FROM `barangay_information`";
             required: true,
             email: true
           },
-          add_voters: {
-            required: true,
-          },
           add_pwd: {
             required: true,
           },
@@ -756,9 +744,6 @@ $sql = "SELECT * FROM `barangay_information`";
             minlength: 8
           },
           add_pwd:{
-            required: true,
-          },
-          add_voters:{
             required: true,
           },
           add_single_parent:{
