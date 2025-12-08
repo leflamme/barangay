@@ -51,7 +51,7 @@ $sql = "SELECT * FROM `barangay_information`";
   <!-- CSS Libraries -->
   <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="assets/plugins/bs-stepper/css/bs-stepper.min.css">
-  <link rel="stylesheet" href="assets/plugins/phone code/intlTelInput.min.css">
+  <link rel="stylesheet" href="assets/plugins/phone_code/intlTelInput.min.css">
   <link rel="stylesheet" href="assets/plugins/sweetalert2/css/sweetalert2.min.css">
   <link rel="stylesheet" href="assets/plugins/step-wizard/css/smart_wizard_all.min.css">
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
@@ -672,15 +672,17 @@ $sql = "SELECT * FROM `barangay_information`";
 <script src="assets/plugins/bs-stepper/js/bs-stepper.min.js"></script>
 <script src="assets/plugins/jquery-validation/jquery.validate.min.js"></script>
 <script src="assets/plugins/jquery-validation/additional-methods.min.js"></script>
-<script src="assets/plugins/phone code/intlTelInput.js"></script>
+<script src="assets/plugins/phone_code/intlTelInput.js"></script>
 <script src="assets/plugins/sweetalert2/js/sweetalert2.all.min.js"></script>
 <script src="assets/plugins/step-wizard/js/jquery.smartWizard.min.js"></script>
 
 <script>
   $(document).ready(function(){
-    // Function to check if all required fields in the active/current tab are valid
+    
+    // --- 1. TAB NAVIGATION LOGIC ---
     function isCurrentStepValid(tabId) {
         var isValid = true;
+        // Validate all inputs in the current tab
         $('#' + tabId + ' :input').each(function() {
             if (!$(this).valid()) {
                 isValid = false;
@@ -688,7 +690,8 @@ $sql = "SELECT * FROM `barangay_information`";
         });
         return isValid;
     }
-    // Proceed from Basic Info to Other Info
+
+    // Button: Basic Info -> Other Info
     $('#proceed-basic').click(function(e) {
         e.preventDefault();
         if (isCurrentStepValid('basic-info')) {
@@ -697,15 +700,11 @@ $sql = "SELECT * FROM `barangay_information`";
             $('#basic-info').removeClass('active show');
             $('#other-info').addClass('active show');
         } else {
-            Swal.fire({
-                title: 'Please Enter Information needed',
-                text: 'Complete required fields before proceeding.',
-                icon: 'warning',
-                confirmButtonColor: '#28a745'
-            });
+            Swal.fire({ title: 'Missing Information', text: 'Please complete the required fields.', icon: 'warning', confirmButtonColor: '#28a745' });
         }
     });
-    // Proceed from Other Info to Guardian
+
+    // Button: Other Info -> Guardian
     $('#proceed-other').click(function(e) {
         e.preventDefault();
         if (isCurrentStepValid('other-info')) {
@@ -714,15 +713,11 @@ $sql = "SELECT * FROM `barangay_information`";
             $('#other-info').removeClass('active show');
             $('#guardian').addClass('active show');
         } else {
-            Swal.fire({
-                title: 'Please Enter Information needed',
-                text: 'Complete required fields before proceeding.',
-                icon: 'warning',
-                confirmButtonColor: '#28a745'
-            });
+            Swal.fire({ title: 'Missing Information', text: 'Please complete the required fields.', icon: 'warning', confirmButtonColor: '#28a745' });
         }
     });
-    // Proceed from Guardian to Account
+
+    // Button: Guardian -> Account
     $('#proceed-guardian').click(function(e) {
         e.preventDefault();
         if (isCurrentStepValid('guardian')) {
@@ -731,18 +726,13 @@ $sql = "SELECT * FROM `barangay_information`";
             $('#guardian').removeClass('active show');
             $('#account').addClass('active show');
         } else {
-            Swal.fire({
-                title: 'Please Enter Information needed',
-                text: 'Complete required fields before proceeding.',
-                icon: 'warning',
-                confirmButtonColor: '#28a745'
-            });
+            Swal.fire({ title: 'Missing Information', text: 'Please complete the required fields.', icon: 'warning', confirmButtonColor: '#28a745' });
         }
     });
     
+    // --- 2. PWD TOGGLE ---
     $("#add_pwd").change(function(){
-      var pwd_check = $(this).val();
-      if(pwd_check == 'YES'){
+      if($(this).val() == 'YES'){
         $("#pwd_check").css('display', 'block');
         $("#add_pwd_info").prop('disabled', false);
       }else{
@@ -751,129 +741,57 @@ $sql = "SELECT * FROM `barangay_information`";
       }
     });
     
-    // Initialize form validation
+    // --- 3. FORM VALIDATION & SUBMISSION ---
     $('#registerResidentForm').validate({
-       ignore:'',
-        rules: {
-          add_first_name: {
-            required: true,
-            minlength: 2
-          },
-          add_last_name: {
-            required: true,
-            minlength: 2
-          },
-          add_birth_date: {
-            required: true,
-          },
-          add_gender: {
-            required: true,
-          },
-          add_contact_number: {
-            required: true,
-            minlength: 11
-          },
-          add_email_address: {
-            required: true,
-            email: true
-          },
-          add_residency_type: {
-            required: true,
-          },
-          add_pwd: {
-            required: true,
-          },
-          add_username:{
-            required: true,
-            minlength: 8
-          },
-          add_password:{
-            required: true,
-            minlength: 8
-          },
-          add_confirm_password:{
-            required: true,
-            minlength: 8,
-            equalTo: "#add_password"
-          },
-          add_address: {
-            required: true,
-          },
-        },
-        messages: {
-          add_first_name: {
-            required: "This Field is required",
-            minlength: "First Name must be at least 2 characters long"
-          },
-          add_last_name: {
-            required: "This Field is required",
-            minlength: "Last Name must be at least 2 characters long"
-          },
-          add_contact_number: {
-            required: "This Field is required",
-            minlength: "Input Exact Contact Number"
-          },
-          add_residency_type: {
-            required: "Please select Residency Type",
-          },
-          add_email_address: {
-            required: "This Field is required",
-            email: "Please enter a valid email address"
-          },
-          add_birth_date: {
-            required: "This Field is required",
-          },
-          add_gender: {
-            required: "This Field is required",
-          },
-          add_pwd: {
-            required: "This Field is required",
-          },
-          add_username: {
-            required: "This Field is required",
-            minlength: "Username must be at least 8 characters long"
-          },
-          add_password: {
-            required: "This Field is required",
-            minlength: "Password must be at least 8 characters long"
-          },
-          add_confirm_password: {
-            required: "This Field is required",
-            minlength: "Confirm Password must be at least 8 characters long",
-            equalTo: "Passwords do not match"
-          },
-        },
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
+       ignore: [], // Validate hidden fields/tabs
+       rules: {
+          add_first_name: { required: true, minlength: 2 },
+          add_last_name: { required: true, minlength: 2 },
+          add_birth_date: { required: true },
+          add_gender: { required: true },
+          add_contact_number: { required: true, minlength: 11 },
+          add_email_address: { required: true, email: true },
+          add_residency_type: { required: true },
+          add_pwd: { required: true },
+          add_username:{ required: true, minlength: 8 },
+          add_password:{ required: true, minlength: 8 },
+          add_confirm_password:{ required: true, minlength: 8, equalTo: "#add_password" },
+          add_address: { required: true }
+       },
+       messages: {
+          add_first_name: { required: "Required", minlength: "At least 2 chars" },
+          add_last_name: { required: "Required", minlength: "At least 2 chars" },
+          add_confirm_password: { equalTo: "Passwords do not match" }
+       },
+       errorElement: 'span',
+       errorPlacement: function (error, element) {
           error.addClass('invalid-feedback');
           element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-        },
-        // Handle form submission
-        submitHandler: function (form) {
-            // 1. Show Data Privacy modal
+       },
+       highlight: function (element) { $(element).addClass('is-invalid'); },
+       unhighlight: function (element) { $(element).removeClass('is-invalid'); },
+       
+       // Handle the actual submit
+       submitHandler: function (form) {
             $('#dataPrivacyModal').modal('show');
             
-            // 2. Set up one-time agree handler
+            // Unbind previous clicks to avoid duplicates, then bind new click
             $('#agreeButton').off('click').on('click', function() {
                 $('#dataPrivacyModal').modal('hide');
                 
-                // 3. Prepare data and call the helper function
+                // Create FormData and call the AJAX function
                 var formData = new FormData(form);
                 submitRegistration(formData); 
             });
-            
-            return false; // Prevent default submit
+            return false;
         }
-    }); // <--- THIS CLOSES THE VALIDATE() FUNCTION. CRITICAL!
+    }); 
 
-    // --- HELPER FUNCTION (MUST BE OUTSIDE THE VALIDATE OBJECT BUT INSIDE READY) ---
+    // --- 4. AJAX SUBMIT FUNCTION ---
     function submitRegistration(formData) {
+        // Debug: Log the action to the console to verify "join" is set
+        console.log("Submitting... Action:", formData.get('household_action'), "ID:", formData.get('household_id'));
+
         $.ajax({
             url: 'signup/newResidence.php',
             type: 'POST',
@@ -893,7 +811,7 @@ $sql = "SELECT * FROM `barangay_information`";
                     Swal.fire({
                         title: '<strong class="text-success">SUCCESS</strong>',
                         icon: 'success',
-                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number + '<br>Redirecting...',
+                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
                         timer: 2000,
                         showConfirmButton: false,
                         allowOutsideClick: false
@@ -921,12 +839,14 @@ $sql = "SELECT * FROM `barangay_information`";
                         cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            formData.set('household_action', 'join'); // Use .set() to avoid duplicates
+                            // User clicked "Join Existing"
+                            formData.set('household_action', 'join'); 
                             formData.set('household_id', response.household.id);
-                            submitRegistration(formData); // Recursion
+                            submitRegistration(formData); // Send again with new data
                         } else if (result.isDenied) {
+                            // User clicked "Create New"
                             formData.set('household_action', 'new');
-                            submitRegistration(formData); // Recursion
+                            submitRegistration(formData); // Send again with new data
                         }
                     });
 
@@ -944,77 +864,48 @@ $sql = "SELECT * FROM `barangay_information`";
             },
             error: function(xhr, status, error) {
                 console.error("AJAX Error:", xhr.responseText);
-                Swal.fire('System Error', 'Something went wrong. Check console.', 'error');
+                Swal.fire('System Error', 'Check console for details.', 'error');
             }
         });
     }
 
-    // Fix password toggle
-    $("#show_hide_password a").on('click', function(event) {
+    // --- 5. PASSWORD TOGGLE ---
+    $("#show_hide_password a, #show_hide_password_confirm a").on('click', function(event) {
         event.preventDefault();
-        if($('#show_hide_password input').attr("type") == "text"){
-            $('#show_hide_password input').attr('type', 'password');
-            $('#show_hide_password i').addClass( "fa-eye-slash" );
-            $('#show_hide_password i').removeClass( "fa-eye" );
-        }else if($('#show_hide_password input').attr("type") == "password"){
-            $('#show_hide_password input').attr('type', 'text');
-            $('#show_hide_password i').removeClass( "fa-eye-slash" );
-            $('#show_hide_password i').addClass( "fa-eye" );
-        }
-    });
-
-    $("#show_hide_password_confirm a").on('click', function(event) {
-        event.preventDefault();
-        if($('#show_hide_password_confirm input').attr("type") == "text"){
-            $('#show_hide_password_confirm input').attr('type', 'password');
-            $('#show_hide_password_confirm i').addClass( "fa-eye-slash" );
-            $('#show_hide_password_confirm i').removeClass( "fa-eye" );
-        }else if($('#show_hide_password_confirm input').attr("type") == "password"){
-            $('#show_hide_password_confirm input').attr('type', 'text');
-            $('#show_hide_password_confirm i').removeClass( "fa-eye-slash" );
-            $('#show_hide_password_confirm i').addClass( "fa-eye" );
+        var input = $(this).closest('.input-group').find('input');
+        var icon = $(this).find('i');
+        if(input.attr("type") == "text"){
+            input.attr('type', 'password');
+            icon.addClass( "fa-eye-slash" ).removeClass( "fa-eye" );
+        } else {
+            input.attr('type', 'text');
+            icon.removeClass( "fa-eye-slash" ).addClass( "fa-eye" );
         }
     });
     
-    // Image preview
-    $("#image_residence").click(function(){
-          $("#add_image_residence").click();
-    });
-    
-    function displayImge(input){
-      if(input.files && input.files[0]){
+    // --- 6. IMAGE PREVIEW ---
+    $("#image_residence").click(function(){ $("#add_image_residence").click(); });
+    $("#add_image_residence").change(function(){
+      if(this.files && this.files[0]){
         var reader = new FileReader();
-        var add_image = $("#add_image_residence").val().split('.').pop().toLowerCase();
-        if(add_image != ''){
-          if(jQuery.inArray(add_image,['gif','png','jpg','jpeg']) == -1){
-            Swal.fire({
-              title: '<strong class="text-danger">ERROR</strong>',
-              icon: 'error',
-              html: '<b>Invalid Image File</b>',
-              confirmButtonColor: '#6610f2',
-            })
-            $("#add_image_residence").val('');
-            $("#image_residence").attr('src', 'assets/dist/img/blank_image.png');
+        var add_image = $(this).val().split('.').pop().toLowerCase();
+        if($.inArray(add_image,['gif','png','jpg','jpeg']) == -1){
+            Swal.fire('Error', 'Invalid Image File', 'error');
+            $(this).val('');
             return false;
-          }
         }
         reader.onload = function(e){
-          $("#image_residence").attr('src',e.target.result);
-          $("#image_residence").hide();
-          $("#image_residence").fadeIn(650);
+          $("#image_residence").attr('src',e.target.result).hide().fadeIn(650);
         }
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(this.files[0]);
       }
-    }  
-    $("#add_image_residence").change(function(){
-      displayImge(this);
-    })
+    });
 
-}); // <--- END OF DOCUMENT READY
+}); // End Document Ready
 </script>
 
 <script>
-// Restricts input for each element in the set of matched elements to the given inputFilter.
+// Input Filters
 (function($) {
   $.fn.inputFilter = function(inputFilter) {
     return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
@@ -1031,15 +922,8 @@ $sql = "SELECT * FROM `barangay_information`";
     });
   };
 }(jQuery));
-  $("#add_contact_number,#add_zip, #add_guardian_contact, #add_age").inputFilter(function(value) {
-  return /^-?\d*$/.test(value); 
-  });
-  $("#add_first_name, #add_middle_name, #add_last_name, #add_suffix, #add_religion, #add_nationality, #add_municipality, #add_fathers_name, #add_mothers_name, #add_guardian").inputFilter(function(value) {
-  return /^[a-z, ]*$/i.test(value); 
-  });
-  $("#add_street, #add_birth_place, #add_house_number").inputFilter(function(value) {
-  return /^[0-9a-z, ,-]*$/i.test(value); 
-  });
+$("#add_contact_number,#add_zip, #add_guardian_contact").inputFilter(function(value) { return /^-?\d*$/.test(value); });
+$("#add_first_name, #add_middle_name, #add_last_name").inputFilter(function(value) { return /^[a-z, ]*$/i.test(value); });
 </script>
 </body>
 </html>
