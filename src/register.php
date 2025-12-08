@@ -199,8 +199,7 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                     <div class="form-group">
                       <label>PWD <span class="text-danger">*</span></label>
                       <select name="add_pwd" id="add_pwd" class="form-control">
-                        <option value=""></option>
-                        <option value="NO">NO</option>
+                        <option value="NO" selected>NO</option>
                         <option value="YES">YES</option>
                       </select>
                     </div>
@@ -213,10 +212,9 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                   </div>
                   <div class="col-sm-12">
                     <div class="form-group">
-                      <label>Single Parent</label>
+                      <label>Single Parent <span class="text-danger">*</span></label>
                       <select name="add_single_parent" id="add_single_parent" class="form-control">
-                        <option value=""></option>
-                        <option value="NO">NO</option>
+                        <option value="NO" selected>NO</option>
                         <option value="YES">YES</option>
                       </select>
                     </div>
@@ -258,7 +256,7 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                         </div>
                       </div>
                       <div class="col-sm-6"><div class="form-group"><label>Religion</label><input type="text" class="form-control" id="add_religion" name="add_religion"></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Nationality</label><input type="text" class="form-control" id="add_nationality" name="add_nationality"></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Nationality</label><input type="text" class="form-control" id="add_nationality" name="add_nationality" value="Filipino"></div></div>
                     </div>
                     <div class="card-footer step-footer">
                       <button type="button" id="proceed-basic" class="btn btn-success px-4 elevation-3"><i class="fas fa-arrow-right"></i> Proceed to Other Info</button>
@@ -268,9 +266,10 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                   <div class="tab-pane fade" id="other-info">
                     <p class="lead text-center lead-bold">Address</p>
                     <div class="row">
-                      <div class="col-sm-6"><div class="form-group"><label>Municipality</label><input type="text" class="form-control" id="add_municipality" name="add_municipality"></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Zip</label><input type="text" class="form-control" id="add_zip" name="add_zip"></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Barangay</label><input type="text" class="form-control" id="add_barangay" name="add_barangay"></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Municipality</label><input type="text" class="form-control" id="add_municipality" name="add_municipality" value="Quezon City" readonly></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Zip</label><input type="text" class="form-control" id="add_zip" name="add_zip" value="1112" readonly></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Barangay</label><input type="text" class="form-control" id="add_barangay" name="add_barangay" value="Barangay Kalusugan" readonly></div></div>
+                      
                       <div class="col-sm-6"><div class="form-group"><label>House Number</label><input type="text" class="form-control" id="add_house_number" name="add_house_number"></div></div>
                       <div class="col-sm-6"><div class="form-group"><label>Street</label><input type="text" class="form-control" id="add_street" name="add_street"></div></div>
                       <div class="col-sm-6"><div class="form-group"><label>Address <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_address" name="add_address"></div></div>
