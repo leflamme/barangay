@@ -196,7 +196,7 @@ try {
         if ($stmt_hh->execute()) {
             $final_household_id = $stmt_hh->insert_id;
             $final_household_number = $new_household_number;
-            $relationship = 'Head';
+            // $relationship = 'Head';
         }
         $stmt_hh->close();
     }
