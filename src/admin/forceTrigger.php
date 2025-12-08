@@ -9,7 +9,7 @@ $vars_status = [
 ];
 
 // ==========================================
-//   HELPER: BROADCAST FUNCTION (UPDATED)
+//   HELPER: BROADCAST FUNCTION
 // ==========================================
 function broadcastToAllResidents($con, $type, $message) {
     $log = "";
@@ -52,9 +52,8 @@ function broadcastToAllResidents($con, $type, $message) {
             }
 
             // --- B. Resend (Email) ---
-            // Only try if email looks valid
             if (!empty(getenv('RESEND_API_KEY')) && !empty($email) && strpos($email, '@') !== false) {
-                $subject = ($type == 'EARTHQUAKE') ? "🚨 EARTHQUAKE ALERT" : "⚠️ WEATHER WARNING";
+                $subject = ($type == 'EVACUATE') ? "🚨 URGENT EVACUATION" : "⚠️ WEATHER WARNING";
                 $html = "<h1>{$type} ALERT</h1><p>Dear {$name},</p><p>{$message}</p>";
 
                 $ch = curl_init('https://api.resend.com/emails');
@@ -88,7 +87,7 @@ try {
         echo '<script>window.location.href = "../login.php";</script>'; exit;
     }
     
-    // User Info Fetching (Restored for Sidebar)
+    // User Info Fetching
     $user_id = $_SESSION['user_id'];
     $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
     $stmt_user = $con->prepare($sql_user);
@@ -99,41 +98,44 @@ try {
     $last_name_user = $row_user['last_name'];
     $user_image = $row_user['image'];
 
-
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger = $_POST['trigger'];
         $brgy = getenv('BARANGAY_NAME');
 
-        if ($trigger == 'earthquake') {
-            $msg = "ALERT: Mag 6.5 Earthquake detected in TEST REGION. Distance: 50.0km from {$brgy}. Prepare for shaking.";
-            $page_message = "<strong>Simulated Earthquake Triggered.</strong><br>" . broadcastToAllResidents($con, "EARTHQUAKE", $msg);
-        } else {
-            // WEATHER LOGIC
-            $stmt_info = $con->prepare("SELECT flood_history FROM barangay_information LIMIT 1");
-            $stmt_info->execute();
-            $hist = $stmt_info->get_result()->fetch_assoc()['flood_history'] ?? 'rare';
+        // WEATHER LOGIC
+        $stmt_info = $con->prepare("SELECT flood_history FROM barangay_information LIMIT 1");
+        $stmt_info->execute();
+        $hist = $stmt_info->get_result()->fetch_assoc()['flood_history'] ?? 'rare';
 
-            $data = ['flood_history' => $hist, 'rainfall_category' => 'light', 'rainfall_amount_mm' => 0];
-            if ($trigger == 'red') $data = ['rainfall_category' => 'heavy', 'rainfall_amount_mm' => 70.0, 'flood_history' => $hist];
-            if ($trigger == 'orange') $data = ['rainfall_category' => 'moderate', 'rainfall_amount_mm' => 35.0, 'flood_history' => $hist];
+        $data = ['flood_history' => $hist, 'rainfall_category' => 'light', 'rainfall_amount_mm' => 0];
+        if ($trigger == 'red') $data = ['rainfall_category' => 'heavy', 'rainfall_amount_mm' => 70.0, 'flood_history' => $hist];
+        if ($trigger == 'orange') $data = ['rainfall_category' => 'moderate', 'rainfall_amount_mm' => 35.0, 'flood_history' => $hist];
 
-            $ch = curl_init('http://barangay_api.railway.internal:8080/predict');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            $ai_resp = json_decode(curl_exec($ch), true);
-            curl_close($ch);
+        $ch = curl_init('http://barangay_api.railway.internal:8080/predict');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $ai_resp = json_decode(curl_exec($ch), true);
+        curl_close($ch);
+        
+        $status = $ai_resp['prediction'] ?? 'Error';
+        if ($status != 'Error') {
+            $con->query("UPDATE current_alert_status SET status = '$status' WHERE id = 1");
+            $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.<br>";
             
-            $status = $ai_resp['prediction'] ?? 'Error';
-            if ($status != 'Error') {
-                $con->query("UPDATE current_alert_status SET status = '$status' WHERE id = 1");
-                $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.<br>";
+            if ($status == 'evacuate') {
+                // EVACUATION MESSAGE
+                $evac_place = "Barangay Hall"; // You can make this dynamic later
+                $dist_text = "(Check App for Distance)"; 
+                $msg = "URGENT EVACUATION: Red Rainfall Category, flood is detected within the area. Proceed immediately to {$evac_place} {$dist_text}. It has space available";
                 
-                if ($status == 'evacuate' || $status == 'warn') {
-                    $msg = ($status == 'evacuate') ? "URGENT {$brgy}: EVACUATE NOW." : "WARNING {$brgy}: Heavy rain detected.";
-                    $page_message .= broadcastToAllResidents($con, "WEATHER", $msg);
-                }
+                $page_message .= broadcastToAllResidents($con, "EVACUATE", $msg);
+            } 
+            elseif ($status == 'warn') {
+                // WARNING MESSAGE
+                $msg = "WARNING {$brgy}: Heavy rain detected. Please stay alert and monitor updates.";
+                $page_message .= broadcastToAllResidents($con, "WARN", $msg);
             }
         }
     }
@@ -236,7 +238,7 @@ try {
     </aside>
 
   <div class="content-wrapper">
-    <section class="content-header"><h1>Force Trigger (Weather & Earthquake)</h1></section>
+    <section class="content-header"><h1>Force Trigger (Weather)</h1></section>
     <section class="content">
       <div class="container-fluid">
         
@@ -252,10 +254,6 @@ try {
             </div>
         </div>
 
-        <?php if (!empty($page_message)): ?>
-            <div class="alert alert-warning"><?= $page_message ?></div>
-        <?php endif; ?>
-
         <div class="card card-primary">
             <div class="card-header"><h3 class="card-title">Weather Simulations</h3></div>
             <div class="card-body">
@@ -269,18 +267,14 @@ try {
                 </form>
             </div>
         </div>
-
-        <div class="card card-danger">
-            <div class="card-header"><h3 class="card-title">Seismic Simulation</h3></div>
-            <div class="card-body">
-                <p>Simulate a Magnitude 6.5 Earthquake occurring 50km from Barangay Kalusugan.</p>
-                <form method="POST">
-                    <button name="trigger" value="earthquake" class="btn btn-danger btn-block btn-lg">
-                        <i class="fas fa-house-damage"></i> FORCE EARTHQUAKE ALERT
-                    </button>
-                </form>
+        
+        <?php if (!empty($page_message)): ?>
+            <div class="alert alert-warning alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5><i class="icon fas fa-info"></i> Broadcast Result:</h5>
+                <?= $page_message ?>
             </div>
-        </div>
+        <?php endif; ?>
 
       </div>
     </section>
