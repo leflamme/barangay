@@ -248,23 +248,6 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                     </div>
                     <div class="row">
                       <div class="col-sm-6"><div class="form-group"><label>Suffix</label><input type="text" class="form-control" id="add_suffix" name="add_suffix"></div></div>
-                      
-                      <div class="col-sm-6">
-                        <div class="form-group">
-                            <label>Relationship to Household Head <span class="text-danger">*</span></label>
-                            <select name="relationship_to_head" id="relationship_to_head" class="form-control">
-                                <option value="Head">Head of Household</option>
-                                <option value="Wife">Wife</option>
-                                <option value="Husband">Husband</option>
-                                <option value="Son">Son</option>
-                                <option value="Daughter">Daughter</option>
-                                <option value="Relative">Relative</option>
-                                <option value="Tenant">Tenant</option>
-                                <option value="Worker">Worker</option>
-                            </select>
-                        </div>
-                      </div>
-
                       <div class="col-sm-6">
                         <div class="form-group"><label>Civil Status</label>
                           <select name="add_civil_status" id="add_civil_status" class="form-control">
@@ -495,7 +478,7 @@ $(document).ready(function(){
        rules: {
           add_first_name: { required: true, minlength: 2 },
           add_last_name: { required: true, minlength: 2 },
-          relationship_to_head: { required: true }, // <--- Validates the new dropdown
+          // Removed relationship rule here since it's now in popup
           add_birth_date: { required: true },
           add_gender: { required: true },
           add_contact_number: { required: true, minlength: 11 },
@@ -531,10 +514,9 @@ $(document).ready(function(){
         }
     });
 
-    // --- AJAX HELPER ---
+    // --- AJAX HELPER WITH LEGACY SWEETALERT CHAINING ---
     function submitRegistration(formData) {
-        // Grab the relationship user chose from the form
-        var role = formData.get('relationship_to_head') || "Member"; 
+        // We do NOT have relationship here yet. We will ask in popup.
         
         $.ajax({
             url: 'signup/newResidence.php',
@@ -564,7 +546,7 @@ $(document).ready(function(){
                     });
 
                 } else if (response.status === 'showHouseholdModal') {
-                    // HOUSEHOLD FOUND POPUP
+                    // STEP 1: Household Found. Join or Create?
                     Swal.fire({
                         title: 'Existing Household Found',
                         type: 'question',
@@ -574,32 +556,32 @@ $(document).ready(function(){
                                 <li><strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}</li>
                                 <li><strong>Household #:</strong> ${response.household.household_number}</li>
                             </ul>
-                            <br><b>Do you want to join as ${role}?</b>`,
+                            <br><b>Do you want to JOIN this household?</b>`,
                         showCancelButton: true,
-                        confirmButtonText: 'Yes, Join',
-                        cancelButtonText: 'No, Cancel',
+                        confirmButtonText: 'Yes, Join It',
+                        cancelButtonText: 'No, Create New', // This button now serves as the "Create" trigger
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33'
                     }).then((result) => {
+                        
                         if (result.value) {
-                            // User clicked YES
-                            formData.set('household_action', 'join'); 
-                            formData.set('household_id', response.household.id);
-                            // It will automatically use the 'relationship_to_head' from the form
-                            submitRegistration(formData); 
+                            // --- JOIN FLOW ---
+                            askRelationshipAndSubmit('join', response.household.id);
+
                         } else {
-                            // User clicked NO
-                            Swal.fire({
+                            // --- CREATE NEW FLOW ---
+                            // Check if they really want to create new (since they clicked "No" to Join)
+                             Swal.fire({
                                 title: 'Create New Household?',
-                                text: `Do you want to create a brand new household record instead? (You will be registered as ${role})`,
+                                text: 'Do you want to create a brand new household record instead?',
                                 type: 'warning',
                                 showCancelButton: true,
                                 confirmButtonText: 'Yes, Create New',
                                 cancelButtonText: 'Cancel'
                             }).then((res2) => {
                                 if (res2.value) {
-                                    formData.set('household_action', 'new');
-                                    submitRegistration(formData); 
+                                    // Even if Creating New, we ask relationship (e.g. Son of a new household)
+                                    askRelationshipAndSubmit('new', null);
                                 }
                             });
                         }
@@ -619,6 +601,75 @@ $(document).ready(function(){
             },
             error: function(xhr, status, error) {
                 Swal.fire('System Error', 'Check console.', 'error');
+            }
+        });
+    }
+
+    // Helper function to ask relationship inside SweetAlert
+    function askRelationshipAndSubmit(action, id) {
+        Swal.fire({
+            title: 'Select Relationship',
+            text: 'What is your relationship to the Household Head?',
+            input: 'select',
+            inputOptions: {
+                'Head': 'Head of Household',
+                'Wife': 'Wife',
+                'Husband': 'Husband',
+                'Son': 'Son',
+                'Daughter': 'Daughter',
+                'Relative': 'Relative',
+                'Tenant': 'Tenant',
+                'Worker': 'Worker'
+            },
+            inputPlaceholder: 'Select relationship',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return !value && 'You need to choose an option!'
+            }
+        }).then((relResult) => {
+            if (relResult.value) {
+                // User selected a relationship, now submit
+                var form = $('#registerResidentForm')[0];
+                var formData = new FormData(form);
+                
+                formData.set('household_action', action);
+                if(id) formData.set('household_id', id);
+                formData.set('relationship_to_head', relResult.value);
+                
+                // Call main function again, but this time it will succeed because action is set
+                // Actually, let's call the recursive part manually to avoid validation loops
+                submitFinalData(formData);
+            }
+        });
+    }
+
+    function submitFinalData(formData) {
+        $.ajax({
+            url: 'signup/newResidence.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function(data) {
+                 var response;
+                try { response = (typeof data === 'object') ? data : JSON.parse(data); } 
+                catch (e) { response = { status: 'error', message: data }; }
+
+                if (response.status === 'success') {
+                    Swal.fire({
+                        title: 'SUCCESS',
+                        type: 'success',
+                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.href = 'login.php';
+                    });
+                } else {
+                     Swal.fire('Error', response.message || 'Unknown Error', 'error');
+                }
             }
         });
     }
