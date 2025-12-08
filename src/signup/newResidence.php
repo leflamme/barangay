@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 // START SESSION AND SET HEADER
 session_start();
-header('Content-Type: application/json'); // Crucial for JSON response
+header('Content-Type: application/json'); 
 
 // Load Composer Autoloader 
 require __DIR__ . '/../vendor/autoload.php';
@@ -67,7 +67,7 @@ try {
     $date = new DateTime();
     $today = date("Y/m/d");
 
-    // --- 1. CAPTURE DATA (Safe Handling) ---
+    // --- 1. CAPTURE DATA ---
     $add_username = isset($_POST['add_username']) ? $con->real_escape_string($_POST['add_username']) : '';
     $add_password = isset($_POST['add_password']) ? $con->real_escape_string($_POST['add_password']) : '';
     $add_confirm_password = isset($_POST['add_confirm_password']) ? $con->real_escape_string($_POST['add_confirm_password']) : '';
@@ -88,18 +88,18 @@ try {
         exit();
     }
 
-    // Address Inputs
-    // Strict values as requested
+    // --- CAPTURE AND COMBINE ADDRESS (MOVED TO TOP) ---
+    // 1. Strict values
     $add_municipality = 'Quezon City';
     $add_barangay     = 'Barangay Kalusugan';
     $add_zip          = '1112';
     
-    // Captured inputs
+    // 2. User inputs
     $add_street       = isset($_POST['add_street']) ? $con->real_escape_string($_POST['add_street']) : '';
     $add_house_number = isset($_POST['add_house_number']) ? $con->real_escape_string($_POST['add_house_number']) : '';
     
-    // --- UPDATED ADDRESS GENERATION ---
-    // Combine fields into one address string
+    // 3. COMBINE THEM IMMEDIATELY
+    // Format: "House No., Street, Barangay, City, Zip"
     $parts = array_filter([$add_house_number, $add_street, $add_barangay, $add_municipality, $add_zip]);
     $add_address = implode(', ', $parts);
     
@@ -112,14 +112,22 @@ try {
     
     // Only check if user hasn't made a choice yet
     if (empty($household_action)) {
-        // Look for exact address match
+        
+        // UPDATED LOGIC:
+        // Search by (Street AND House Number) OR by the exact combined Address string.
+        // We removed Municipality/Barangay from the WHERE clause to ensure we find matches 
+        // even if the database has empty values for those columns.
+        
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
                       LEFT JOIN users u ON h.household_head_id = u.id 
-                      WHERE h.municipality = ? AND h.barangay = ? AND h.street = ? AND h.house_number = ? LIMIT 1";
+                      WHERE (h.street = ? AND h.house_number = ?) 
+                         OR h.address = ? 
+                      LIMIT 1";
         
         $stmt_h = $con->prepare($check_sql);
-        $stmt_h->bind_param("ssss", $add_municipality, $add_barangay, $add_street, $add_house_number);
+        // Bind: street, house_number, address
+        $stmt_h->bind_param("sss", $add_street, $add_house_number, $add_address);
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
 
@@ -139,7 +147,7 @@ try {
 
     // --- 3. PREPARE GENERAL DATA ---
     
-    // ID Generation (Using Old Format to match DB schema)
+    // ID Generation
     $number = mt_rand(100000, 999999) . $date->format("mdHis");
     $date_added = date("m/d/Y h:i A");
     $archive = 'NO';
@@ -197,13 +205,12 @@ try {
         
         $sql_hh = "INSERT INTO households (household_number, household_head_id, municipality, barangay, street, house_number, address, zip_code, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt_hh = $con->prepare($sql_hh);
-        // We set the head_id to the NEW user's ID
+        // Important: We use the $add_address we constructed at the top
         $stmt_hh->bind_param("ssssssss", $new_household_number, $number, $add_municipality, $add_barangay, $add_street, $add_house_number, $add_address, $add_zip);
         
         if ($stmt_hh->execute()) {
             $final_household_id = $stmt_hh->insert_id;
             $final_household_number = $new_household_number;
-            // $relationship = 'Head';
         }
         $stmt_hh->close();
     }
@@ -211,7 +218,6 @@ try {
     // --- 5. INSERT USER & RESIDENT DATA ---
 
     // A. Users Table
-    // Note: We use $add_password directly (Plain Text) to match your existing login system.
     $sql_add_user = "INSERT INTO `users`(`id`, `first_name`, `middle_name`, `last_name`, `username`, `password`, `user_type`,`contact_number`, `image`,`image_path`, `household_id`, `relationship_to_head`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     $stmt_user = $con->prepare($sql_add_user);
     if (!$stmt_user) throw new Exception($con->error);
@@ -237,6 +243,7 @@ try {
     
     $stmt = $con->prepare($sql);
     if (!$stmt) throw new Exception($con->error);
+    // Important: We pass $add_address here to save the Combined Address in the 'address' column
     $stmt->bind_param('ssssssssssssssssssssssssssss', 
       $number, $add_first_name, $add_middle_name, $add_last_name, $age_val,
       $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
@@ -255,8 +262,7 @@ try {
     $stmt_status->execute();
     $stmt_status->close();
 
-    // D. Household Members (New Table)
-    // Check if table exists to prevent errors if you haven't created it yet
+    // D. Household Members
     $check_table = $con->query("SHOW TABLES LIKE 'household_members'");
     if($check_table->num_rows > 0) {
         $is_head_val = ($relationship === 'Head') ? 1 : 0;
@@ -280,8 +286,7 @@ try {
     $stmt_log->execute();
     $stmt_log->close();
 
-    // --- 6. NOTIFICATIONS (EMAIL ONLY) ---
-    
+    // --- 6. NOTIFICATIONS ---
     $resident_data_for_email = [
         'Full Name'        => $add_first_name . ' ' . $add_last_name,
         'Household #'      => $final_household_number,
@@ -293,7 +298,7 @@ try {
         sendBarangayWelcomeEmail($add_email_address, $add_first_name, $resident_data_for_email);
     }
   
-    // --- 7. FINAL SUCCESS RESPONSE ---
+    // --- 7. FINAL RESPONSE ---
     echo json_encode([
         'status' => 'success',
         'household_number' => $final_household_number,
@@ -301,7 +306,6 @@ try {
     ]);
 
 } catch (Throwable $e) {
-    // Return JSON Error if anything fails
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
