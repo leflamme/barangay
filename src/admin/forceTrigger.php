@@ -9,15 +9,40 @@ $vars_status = [
 ];
 
 // ==========================================
+//   CONFIGURATION: EVACUATION CENTER
+// ==========================================
+// Coordinates for Barangay Kalusugan Hall (or your specific Evac Center)
+$EVAC_CENTER_NAME = "Barangay Hall";
+$EVAC_LAT = 14.6231; 
+$EVAC_LON = 121.0219;
+
+// ==========================================
+//   HELPER: DISTANCE CALCULATOR (Haversine)
+// ==========================================
+function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+    if (empty($lat1) || empty($lon1) || empty($lat2) || empty($lon2)) return 0;
+
+    $R = 6371; // Earth radius in km
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLon = deg2rad($lon2 - $lon1);
+    $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
+    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+    return $R * $c;
+}
+
+// ==========================================
 //   HELPER: BROADCAST FUNCTION
 // ==========================================
-function broadcastToAllResidents($con, $type, $message) {
+function broadcastToAllResidents($con, $type, $base_message) {
+    global $EVAC_CENTER_NAME, $EVAC_LAT, $EVAC_LON;
+    
     $log = "";
     $count_sms = 0;
     $count_email = 0;
 
-    // 1. Fetch ALL Residents
-    $sql = "SELECT r.contact_number, r.email_address, u.first_name 
+    // 1. Fetch Residents WITH Coordinates
+    // Make sure your table 'residence_information' has 'latitude' and 'longitude' columns
+    $sql = "SELECT r.contact_number, r.email_address, r.latitude, r.longitude, u.first_name 
             FROM users u
             JOIN residence_information r ON u.id = r.residence_id
             WHERE u.user_type = 'resident'";
@@ -28,7 +53,21 @@ function broadcastToAllResidents($con, $type, $message) {
             $phone = $row['contact_number'];
             $email = $row['email_address'];
             $name  = $row['first_name'];
-            
+            $r_lat = $row['latitude'];
+            $r_lon = $row['longitude'];
+
+            // 2. Calculate Distance for THIS specific resident
+            $dist_km = calculateDistance($EVAC_LAT, $EVAC_LON, $r_lat, $r_lon);
+            $dist_str = number_format($dist_km, 2);
+
+            // 3. Customize Message
+            if ($type == 'EVACUATE') {
+                $custom_msg = "URGENT EVACUATION: Red Rainfall Category, flood is detected within the area. Proceed immediately to {$EVAC_CENTER_NAME} ({$dist_str}km). It has space available.";
+            } else {
+                // Keep generic warning for non-evacuation events
+                $custom_msg = "WARNING: Heavy rain detected. Please stay alert.";
+            }
+
             // --- A. PhilSMS (SMS) ---
             if (!empty($phone)) {
                 $clean_phone = preg_replace('/[^0-9]/', '', $phone);
@@ -41,7 +80,7 @@ function broadcastToAllResidents($con, $type, $message) {
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POST, true);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                        "recipient" => $final_phone, "sender_id" => "PhilSMS", "message" => $message
+                        "recipient" => $final_phone, "sender_id" => "PhilSMS", "message" => $custom_msg
                     ]));
                     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer 554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f", "Content-Type: application/json"]);
                     $resp = curl_exec($ch);
@@ -54,7 +93,7 @@ function broadcastToAllResidents($con, $type, $message) {
             // --- B. Resend (Email) ---
             if (!empty(getenv('RESEND_API_KEY')) && !empty($email) && strpos($email, '@') !== false) {
                 $subject = ($type == 'EVACUATE') ? "🚨 URGENT EVACUATION" : "⚠️ WEATHER WARNING";
-                $html = "<h1>{$type} ALERT</h1><p>Dear {$name},</p><p>{$message}</p>";
+                $html = "<h1>{$type} ALERT</h1><p>Dear {$name},</p><p>{$custom_msg}</p>";
 
                 $ch = curl_init('https://api.resend.com/emails');
                 curl_setopt($ch, CURLOPT_POST, true);
@@ -71,7 +110,7 @@ function broadcastToAllResidents($con, $type, $message) {
                 $count_email++;
             }
 
-            // Anti-Spam Throttle (0.2s delay)
+            // Anti-Spam Throttle
             usleep(200000);
         }
         $log .= "✅ Broadcast Complete.<br>Sent {$count_sms} SMS and {$count_email} Emails.";
@@ -125,17 +164,11 @@ try {
             $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.<br>";
             
             if ($status == 'evacuate') {
-                // EVACUATION MESSAGE
-                $evac_place = "Barangay Hall"; // You can make this dynamic later
-                $dist_text = "(Check App for Distance)"; 
-                $msg = "URGENT EVACUATION: Red Rainfall Category, flood is detected within the area. Proceed immediately to {$evac_place} {$dist_text}. It has space available";
-                
-                $page_message .= broadcastToAllResidents($con, "EVACUATE", $msg);
+                // Pass a placeholder message; the actual text is generated inside the function now
+                $page_message .= broadcastToAllResidents($con, "EVACUATE", "placeholder");
             } 
             elseif ($status == 'warn') {
-                // WARNING MESSAGE
-                $msg = "WARNING {$brgy}: Heavy rain detected. Please stay alert and monitor updates.";
-                $page_message .= broadcastToAllResidents($con, "WARN", $msg);
+                $page_message .= broadcastToAllResidents($con, "WARN", "placeholder");
             }
         }
     }
