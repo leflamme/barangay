@@ -272,7 +272,6 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                       
                       <div class="col-sm-6"><div class="form-group"><label>House Number</label><input type="text" class="form-control" id="add_house_number" name="add_house_number"></div></div>
                       <div class="col-sm-6"><div class="form-group"><label>Street</label><input type="text" class="form-control" id="add_street" name="add_street"></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Address <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_address" name="add_address"></div></div>
                       <div class="col-sm-6"><div class="form-group"><label>Contact Number <span class="text-danger">*</span></label><input type="text" maxlength="11" class="form-control" id="add_contact_number" name="add_contact_number"></div></div>
                       <div class="col-sm-6"><div class="form-group"><label>Email Address <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_email_address" name="add_email_address"></div></div>
                     </div>
@@ -329,61 +328,26 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
         <h5 class="modal-title" id="dataPrivacyModalLabel"><i class="fas fa-user-shield"></i> Data Privacy Agreement</h5>
       </div>
       <div class="modal-body" style="max-height:600px; overflow-y:auto;">
-        <p>
-          In compliance with the Data Privacy Act of 2012 (R.A. 10173), we are committed to protecting your personal information.
-          By proceeding with registration, you consent to the collection, processing, and storage of your data for Barangay records,
-          official transactions, and relevant services.
-        </p>
-        <p>
-          Your information will only be accessed by authorized personnel and will not be shared with third parties without your consent,
-          unless required by law. You have the right to access, correct, and request deletion of your data.
-        </p>
-        <p>
-          Please read this agreement carefully before continuing your registration.
-        </p>
+        <p>In compliance with the Data Privacy Act of 2012 (R.A. 10173), we are committed to protecting your personal information. By proceeding with registration, you consent to the collection, processing, and storage of your data for Barangay records, official transactions, and relevant services.</p>
+        <p>Your information will only be accessed by authorized personnel and will not be shared with third parties without your consent, unless required by law. You have the right to access, correct, and request deletion of your data.</p>
+        <p>Please read this agreement carefully before continuing your registration.</p>
         <h2>1. Introduction</h2>
         <p>The Barangay Kalusugan is committed to protecting the privacy and security of your personal information. This notice outlines how we collect, use, and safeguard your data in compliance with the Data Privacy Act of 2012 (Republic Act No. 10173) and its implementing rules and regulations.</p>
         <h2>2. Personal Information We Collect</h2>
         <p>We may collect the following types of personal information:</p>
-        <ul>
-            <li>Full Name</li>
-            <li>Address</li>
-            <li>Date of Birth</li>
-            <li>Contact Information (e.g., phone number, email address)</li>
-            <li>Identification Documents (e.g., government-issued ID)</li>
-            <li>Other relevant information necessary for barangay services</li>
-        </ul>
+        <ul><li>Full Name</li><li>Address</li><li>Date of Birth</li><li>Contact Information (e.g., phone number, email address)</li><li>Identification Documents (e.g., government-issued ID)</li><li>Other relevant information necessary for barangay services</li></ul>
         <h2>3. Purpose of Data Collection</h2>
         <p>Your personal information is collected for the following purposes:</p>
-        <ul>
-            <li>To provide and improve barangay services</li>
-            <li>To maintain accurate records of residents</li>
-            <li>To facilitate communication regarding barangay activities and announcements</li>
-        </ul>
+        <ul><li>To provide and improve barangay services</li><li>To maintain accurate records of residents</li><li>To facilitate communication regarding barangay activities and announcements</li></ul>
         <h2>4. Data Sharing and Disclosure</h2>
         <p>We may share your personal information with:</p>
-        <ul>
-            <li>Government agencies as required by law</li>
-            <li>Third-party service providers who assist us in delivering services (with appropriate safeguards)</li>
-            <li>Other entities with your consent</li>
-        </ul>
+        <ul><li>Government agencies as required by law</li><li>Third-party service providers who assist us in delivering services (with appropriate safeguards)</li><li>Other entities with your consent</li></ul>
         <h2>5. Data Security</h2>
         <p>We implement reasonable and appropriate security measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction. These measures include:</p>
-        <ul>
-            <li>Secure storage of physical and electronic records</li>
-            <li>Access controls to limit data access to authorized personnel only</li>
-            <li>Regular training for staff on data privacy and security</li>
-        </ul>
+        <ul><li>Secure storage of physical and electronic records</li><li>Access controls to limit data access to authorized personnel only</li><li>Regular training for staff on data privacy and security</li></ul>
         <h2>6. Your Rights</h2>
         <p>As a data subject, you have the following rights under the Data Privacy Act:</p>
-        <ul>
-            <li>The right to be informed about the collection and processing of your personal data</li>
-            <li>The right to access your personal data</li>
-            <li>The right to correct any inaccuracies in your personal data</li>
-            <li>The right to object to the processing of your personal data</li>
-            <li>The right to data portability</li>
-            <li>The right to erasure or blocking of your personal data</li>
-        </ul>
+        <ul><li>The right to be informed about the collection and processing of your personal data</li><li>The right to access your personal data</li><li>The right to correct any inaccuracies in your personal data</li><li>The right to object to the processing of your personal data</li><li>The right to data portability</li><li>The right to erasure or blocking of your personal data</li></ul>
         <h2>7. How to Exercise Your Rights</h2>
         <div class="contact-info">
             <p>To exercise your rights or for any inquiries regarding your personal information, please contact:</p>
@@ -486,8 +450,8 @@ $(document).ready(function(){
           add_pwd: { required: true },
           add_username:{ required: true, minlength: 8 },
           add_password:{ required: true, minlength: 8 },
-          add_confirm_password:{ required: true, minlength: 8, equalTo: "#add_password" },
-          add_address: { required: true }
+          add_confirm_password:{ required: true, minlength: 8, equalTo: "#add_password" }
+          // Removed 'add_address' rule
        },
        messages: {
           add_first_name: { required: "Required", minlength: "At least 2 chars" },

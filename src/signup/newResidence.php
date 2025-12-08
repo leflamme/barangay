@@ -89,14 +89,19 @@ try {
     }
 
     // Address Inputs
-    $add_municipality = 'Quezon City'; // Fixed for this Barangay
-    $add_barangay = 'Barangay Kalusugan'; // Fixed for this Barangay
-    $add_zip = '1112'; // Fixed for this Barangay
-
-    // Captured Inputs
-    $add_street = isset($_POST['add_street']) ? $con->real_escape_string($_POST['add_street']) : '';
+    // Strict values as requested
+    $add_municipality = 'Quezon City';
+    $add_barangay     = 'Barangay Kalusugan';
+    $add_zip          = '1112';
+    
+    // Captured inputs
+    $add_street       = isset($_POST['add_street']) ? $con->real_escape_string($_POST['add_street']) : '';
     $add_house_number = isset($_POST['add_house_number']) ? $con->real_escape_string($_POST['add_house_number']) : '';
-    $add_address = isset($_POST['add_address']) ? $con->real_escape_string($_POST['add_address']) : '';
+    
+    // --- UPDATED ADDRESS GENERATION ---
+    // Combine fields into one address string
+    $parts = array_filter([$add_house_number, $add_street, $add_barangay, $add_municipality, $add_zip]);
+    $add_address = implode(', ', $parts);
     
     // Household Action Inputs
     $household_action = isset($_POST['household_action']) ? $_POST['household_action'] : null;
