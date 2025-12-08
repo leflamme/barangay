@@ -874,65 +874,62 @@ $('#proceed-guardian').click(function(e) {
                     contentType: false,
                     cache: false,
                     success: function(data) {
-                      // Trim whitespace from the response
-                      var response = data.trim(); 
+    // 1. Handle data whether it comes as a JSON object or a string
+    var response;
+    try {
+        // If data is already an object, use it; otherwise, parse it
+        response = (typeof data === 'object') ? data : JSON.parse(data);
+    } catch (e) {
+        // Fallback if parsing fails (e.g., if PHP printed a raw error string)
+        response = { status: 'error', message: data }; 
+    }
 
-                      // Check 1: Perfect Success
-                      if (response == 'success') {
-                          // This is the ONLY success case
-                          Swal.fire({
-                              title: '<strong class="text-success">SUCCESS</strong>',
-                              type: 'success',
-                              html: '<b>Registered Successfully</b><br>You will now be redirected.',
-                              width: '400px',
-                              allowOutsideClick: false,
-                              showConfirmButton: false,
-                              timer: 2000,
-                          }).then(() => {
-                              window.location.href = 'login.php';
-                          });
+    // 2. Check the 'status' property inside the JSON object
+    if (response.status === 'success') {
+        Swal.fire({
+            title: '<strong class="text-success">SUCCESS</strong>',
+            icon: 'success', // changed 'type' to 'icon' for newer SweetAlert2
+            html: '<b>Registered Successfully</b><br>You will now be redirected.',
+            width: '400px',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            timer: 2000,
+        }).then(() => {
+            window.location.href = 'login.php';
+        });
 
-                      // Check 2 :Registration worked, but email failed
-                      } else if (response.includes('Registration successful, but the welcome email could not be sent')) {
-                          Swal.fire({
-                            title: '<strong class="text-warning">Registration Complete</strong>',
-                            icon: 'warning',
-                            html: '<b>Your account is active.</b><br>The welcome email could not be sent.<br>You will now be redirected.',
-                            width: '400px',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            timer: 3500, // Longer timer to read the warning
-                          }).then(() => {
-                            window.location.href = 'login.php';
-                          });
-                          
-                      } else if (response == 'errorPassword') {
-                          Swal.fire({
-                              title: '<strong class="text-danger">ERROR</strong>',
-                              icon: 'error',
-                              html: '<b>Password not Match</b>',
-                              confirmButtonColor: '#6610f2',
-                          });
+    } else if (response.status === 'errorPassword') {
+        Swal.fire({
+            title: '<strong class="text-danger">ERROR</strong>',
+            icon: 'error',
+            html: '<b>Passwords do not match</b>',
+            confirmButtonColor: '#6610f2',
+        });
 
-                      } else if (response == 'errorUsername') {
-                          Swal.fire({
-                              title: '<strong class="text-danger">ERROR</strong>',
-                              icon: 'error',
-                              html: '<b>Username is Already Taken</b>',
-                              confirmButtonColor: '#6610f2',
-                          });
+    } else if (response.status === 'errorUsername') {
+        Swal.fire({
+            title: '<strong class="text-danger">ERROR</strong>',
+            icon: 'error',
+            html: '<b>Username is Already Taken</b>',
+            confirmButtonColor: '#6610f2',
+        });
 
-                      } else {
-                          // THIS IS THE NEW ERROR HANDLER
-                          // It will show the exact PHP error message
-                          Swal.fire({
-                              title: '<strong class="text-danger">Registration Failed!</strong>',
-                              icon: 'error',
-                              html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + response + '</pre>',
-                              confirmButtonColor: '#d33',
-                          });
-                      }
-                  }
+    } else if (response.status === 'showHouseholdModal') {
+        // You have logic for this in the PHP, but it wasn't handled in your JS.
+        // You can add logic here if you want to support household joining later.
+        console.log("Household match found:", response.household);
+        
+    } else {
+        // Handle unexpected errors or the exception message from PHP
+        var errorMsg = response.message || JSON.stringify(response);
+        Swal.fire({
+            title: '<strong class="text-danger">Registration Failed!</strong>',
+            icon: 'error',
+            html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + errorMsg + '</pre>',
+            confirmButtonColor: '#d33',
+        });
+    }
+}
                 }).fail(function(){
                     Swal.fire({
                       title: '<strong class="text-danger">Ooppss..</strong>',
