@@ -3,54 +3,81 @@ session_start();
 require __DIR__ . '/../vendor/autoload.php';
 include_once '../connection.php';
 
-// CONFIG
-$MY_TEST_EMAIL = 'lawrencejohnmhinanay@tua.edu.ph'; 
-$MY_TEST_PHONE = '09274176508'; 
-
 $vars_status = [
     'PhilSMS API' => '✅ Integrated',
     'Resend Key'  => !empty(getenv('RESEND_API_KEY')) ? '✅ Loaded' : '❌ Missing',
 ];
 
-function sendCombinedAlert($type, $message, $phone, $email) {
+// ==========================================
+//   HELPER: BROADCAST FUNCTION (UPDATED)
+// ==========================================
+function broadcastToAllResidents($con, $type, $message) {
     $log = "";
-    
-    // 1. PhilSMS
-    if (!empty($phone)) {
-        $clean_phone = preg_replace('/[^0-9]/', '', $phone);
-        if (substr($clean_phone, 0, 1) == "0") $final_phone = "63" . substr($clean_phone, 1);
-        elseif (substr($clean_phone, 0, 1) == "9") $final_phone = "63" . $clean_phone;
-        else $final_phone = $clean_phone;
+    $count_sms = 0;
+    $count_email = 0;
 
-        $ch = curl_init("https://dashboard.philsms.com/api/v3/sms/send");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            "recipient" => $final_phone, "sender_id" => "PhilSMS", "message" => $message
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer 554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f", "Content-Type: application/json"]);
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $log .= ($code >= 200 && $code < 300) ? "✅ SMS Sent via PhilSMS.<br>" : "❌ SMS Failed.<br>";
-    }
+    // 1. Fetch ALL Residents
+    $sql = "SELECT r.contact_number, r.email_address, u.first_name 
+            FROM users u
+            JOIN residence_information r ON u.id = r.residence_id
+            WHERE u.user_type = 'resident'";
+    $result = $con->query($sql);
 
-    // 2. Resend
-    if (!empty(getenv('RESEND_API_KEY')) && !empty($email)) {
-        $ch = curl_init('https://api.resend.com/emails');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'from' => "Barangay Alert <onboarding@resend.dev>",
-            'to' => [$email], 
-            'subject' => "🚨 TEST ALERT: {$type}", 
-            'html' => "<h1>{$type} ALERT</h1><p>{$message}</p>"
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . getenv('RESEND_API_KEY'), 'Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $log .= ($code == 200) ? "✅ Email Sent via Resend.<br>" : "❌ Email Failed.<br>";
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $phone = $row['contact_number'];
+            $email = $row['email_address'];
+            $name  = $row['first_name'];
+            
+            // --- A. PhilSMS (SMS) ---
+            if (!empty($phone)) {
+                $clean_phone = preg_replace('/[^0-9]/', '', $phone);
+                if (substr($clean_phone, 0, 1) == "0") $final_phone = "63" . substr($clean_phone, 1);
+                elseif (substr($clean_phone, 0, 1) == "9") $final_phone = "63" . $clean_phone;
+                else $final_phone = $clean_phone;
+
+                if (strlen($final_phone) >= 10) {
+                    $ch = curl_init("https://dashboard.philsms.com/api/v3/sms/send");
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                        "recipient" => $final_phone, "sender_id" => "PhilSMS", "message" => $message
+                    ]));
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer 554|CayRg2wWAqSX68oeKVh7YmEg5MXKVVtemT16dIos75bdf39f", "Content-Type: application/json"]);
+                    $resp = curl_exec($ch);
+                    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+                    if ($code >= 200 && $code < 300) $count_sms++;
+                }
+            }
+
+            // --- B. Resend (Email) ---
+            // Only try if email looks valid
+            if (!empty(getenv('RESEND_API_KEY')) && !empty($email) && strpos($email, '@') !== false) {
+                $subject = ($type == 'EARTHQUAKE') ? "🚨 EARTHQUAKE ALERT" : "⚠️ WEATHER WARNING";
+                $html = "<h1>{$type} ALERT</h1><p>Dear {$name},</p><p>{$message}</p>";
+
+                $ch = curl_init('https://api.resend.com/emails');
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                    'from' => "Barangay Alert <onboarding@resend.dev>",
+                    'to' => [$email], 
+                    'subject' => $subject, 
+                    'html' => $html
+                ]));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . getenv('RESEND_API_KEY'), 'Content-Type: application/json']);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_exec($ch);
+                curl_close($ch);
+                $count_email++;
+            }
+
+            // Anti-Spam Throttle (0.2s delay)
+            usleep(200000);
+        }
+        $log .= "✅ Broadcast Complete.<br>Sent {$count_sms} SMS and {$count_email} Emails.";
+    } else {
+        $log .= "⚠️ No residents found in database.";
     }
     return $log;
 }
@@ -60,6 +87,18 @@ try {
     if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
         echo '<script>window.location.href = "../login.php";</script>'; exit;
     }
+    
+    // User Info Fetching (Restored for Sidebar)
+    $user_id = $_SESSION['user_id'];
+    $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
+    $stmt_user = $con->prepare($sql_user);
+    $stmt_user->bind_param('s',$user_id);
+    $stmt_user->execute();
+    $row_user = $stmt_user->get_result()->fetch_assoc();
+    $first_name_user = $row_user['first_name'];
+    $last_name_user = $row_user['last_name'];
+    $user_image = $row_user['image'];
+
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['trigger'])) {
         $trigger = $_POST['trigger'];
@@ -67,7 +106,7 @@ try {
 
         if ($trigger == 'earthquake') {
             $msg = "ALERT: Mag 6.5 Earthquake detected in TEST REGION. Distance: 50.0km from {$brgy}. Prepare for shaking.";
-            $page_message = "<strong>Simulated Earthquake Triggered.</strong><br>" . sendCombinedAlert("EARTHQUAKE", $msg, $MY_TEST_PHONE, $MY_TEST_EMAIL);
+            $page_message = "<strong>Simulated Earthquake Triggered.</strong><br>" . broadcastToAllResidents($con, "EARTHQUAKE", $msg);
         } else {
             // WEATHER LOGIC
             $stmt_info = $con->prepare("SELECT flood_history FROM barangay_information LIMIT 1");
@@ -93,7 +132,7 @@ try {
                 
                 if ($status == 'evacuate' || $status == 'warn') {
                     $msg = ($status == 'evacuate') ? "URGENT {$brgy}: EVACUATE NOW." : "WARNING {$brgy}: Heavy rain detected.";
-                    $page_message .= sendCombinedAlert("WEATHER", $msg, $MY_TEST_PHONE, $MY_TEST_EMAIL);
+                    $page_message .= broadcastToAllResidents($con, "WEATHER", $msg);
                 }
             }
         }
@@ -107,124 +146,49 @@ try {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Profile</title>
-    <!-- Website Logo -->
     <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
     <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* Navbar */
-        .main-header.navbar {
-        background-color: #050C9C !important;
-        border-bottom: none;
-        }
-
-        .navbar .nav-link,
-        .navbar .nav-link:hover {
-        color: #ffffff !important;
-        }
-
-        /* Sidebar */
-        .main-sidebar {
-        background-color: #050C9C !important;
-        }
-
-        .brand-link {
-        background-color: transparent !important;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar .nav-link {
-        color: #A7E6FF !important;
-        transition: all 0.3s;
-        }
-
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-        background-color: #3572EF !important;
-        color: #ffffff !important;
-        }
-
-        .sidebar .nav-icon {
-        color: #3ABEF9 !important;
-        }
-
-        .dropdown-menu {
-        border-radius: 10px;
-        border: none;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-item {
-        font-weight: 600;
-        transition: 0.2s ease-in-out;
-        }
-
-        .dropdown-item:hover {
-        background-color: #F5587B;
-        color: white;
-        }
+        .main-header.navbar { background-color: #050C9C !important; border-bottom: none; }
+        .navbar .nav-link, .navbar .nav-link:hover { color: #ffffff !important; }
+        .main-sidebar { background-color: #050C9C !important; }
+        .brand-link { background-color: transparent !important; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .nav-link { color: #A7E6FF !important; transition: all 0.3s; }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover { background-color: #3572EF !important; color: #ffffff !important; }
+        .sidebar .nav-icon { color: #3ABEF9 !important; }
+        .dropdown-menu { border-radius: 10px; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .dropdown-item { font-weight: 600; transition: 0.2s ease-in-out; }
+        .dropdown-item:hover { background-color: #F5587B; color: white; }
     </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-footer-fixed">
 <div class="wrapper">
 
-    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-dark">
-        <!-- Left navbar links -->
         <ul class="navbar-nav">
-        <li class="nav-item">
-            <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block" style="font-variant: small-caps;">
-            <h5 class="nav-link text-white">Barangay Kalusugan</h5>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <h5 class="nav-link text-white">-</h5>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <h5 class="nav-link text-white">Area 213</h5>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <h5 class="nav-link text-white">-</h5>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <h5 class="nav-link text-white">District IV</h5>
-        </li>
+        <li class="nav-item"><h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5></li>
+        <li class="nav-item d-none d-sm-inline-block"><h5 class="nav-link text-white">Barangay Kalusugan</h5></li>
         </ul>
-
-        <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
-
-        <!-- Messages Dropdown Menu -->
         <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#">
-            <i class="far fa-user"></i>
-            </a>
+            <a class="nav-link" data-toggle="dropdown" href="#"><i class="far fa-user"></i></a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
             <a href="myProfile.php" class="dropdown-item">
-                <!-- Message Start -->
                 <div class="media">
                     <?php 
-                        // Ensure variables are set to avoid "Undefined Variable" warnings
                         $u_img = isset($user_image) ? $user_image : ''; 
-                        
                         if($u_img != '' && $u_img != null){
-                            // FIXED QUOTES BELOW
                             echo '<img src="../assets/dist/img/'.$u_img.'" class="img-size-50 mr-3 img-circle" alt="User Image">';
                         } else {
-                            // FIXED QUOTES BELOW
                             echo '<img src="../assets/dist/img/image.png" class="img-size-50 mr-3 img-circle" alt="User Image">';
                         }
                     ?>
-
                     <div class="media-body">
-                        <h3 class="dropdown-item-title py-3">
-                        <?= ucfirst($first_name_user ?? 'Admin') .' '. ucfirst($last_name_user ?? 'User') ?>
-                        </h3>
+                        <h3 class="dropdown-item-title py-3"><?= ucfirst($first_name_user ?? 'Admin') .' '. ucfirst($last_name_user ?? 'User') ?></h3>
                     </div>
                 </div>
-                <!-- Message End -->
             </a>         
             <div class="dropdown-divider"></div>
             <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
@@ -232,17 +196,10 @@ try {
         </li>
         </ul>
     </nav>
-    <!-- /.navbar -->
 
-    <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-        <!-- Brand Logo -->
-        <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
-
-        <!-- Sidebar -->
+        <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
         <div class="sidebar">
-
-        <!-- Sidebar Menu -->
         <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item"><a href="dashboard.php" class="nav-link "><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
@@ -273,15 +230,11 @@ try {
             <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
             <li class="nav-item"><a href="forceTrigger.php" class="nav-link bg-indigo"><i class="nav-icon fas fa-exclamation-triangle"></i><p>Force Trigger Emergency</p></a></li>
             <li class="nav-item"><a href="systemLog.php" class="nav-link"><i class="nav-icon fas fa-history"></i><p>System Logs</p></a></li>
-            
             </ul>
         </nav>
-        <!-- /.sidebar-menu -->
         </div>
-        <!-- /.sidebar -->
     </aside>
 
-    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <section class="content-header"><h1>Force Trigger (Weather & Earthquake)</h1></section>
     <section class="content">
@@ -295,7 +248,7 @@ try {
                         <div class="col-md-3"><strong><?= $key ?>:</strong> <?= $val ?></div>
                     <?php endforeach; ?>
                 </div>
-                <small class="text-danger mt-2 d-block">Test Mode: Alerts sent to Admin Only.</small>
+                <small class="text-success mt-2 d-block">Production Mode: Alerts broadcast to ALL residents.</small>
             </div>
         </div>
 
@@ -333,5 +286,8 @@ try {
     </section>
   </div>
 </div>
+<script src="../assets/plugins/jquery/jquery.min.js"></script>
+<script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/dist/js/adminlte.min.js"></script>
 </body>
 </html>
