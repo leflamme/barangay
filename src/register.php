@@ -679,66 +679,67 @@ $sql = "SELECT * FROM `barangay_information`";
 <script>
   $(document).ready(function(){
     // Function to check if all required fields in the active/current tab are valid
-function isCurrentStepValid(tabId) {
-    var isValid = true;
-    $('#' + tabId + ' :input').each(function() {
-        if (!$(this).valid()) {
-            isValid = false;
+    function isCurrentStepValid(tabId) {
+        var isValid = true;
+        $('#' + tabId + ' :input').each(function() {
+            if (!$(this).valid()) {
+                isValid = false;
+            }
+        });
+        return isValid;
+    }
+    // Proceed from Basic Info to Other Info
+    $('#proceed-basic').click(function(e) {
+        e.preventDefault();
+        if (isCurrentStepValid('basic-info')) {
+            $('#other-info-tab').removeClass('disabled-tab').tab('show');
+            $('#basic-info-tab').removeClass('active');
+            $('#basic-info').removeClass('active show');
+            $('#other-info').addClass('active show');
+        } else {
+            Swal.fire({
+                title: 'Please Enter Information needed',
+                text: 'Complete required fields before proceeding.',
+                icon: 'warning',
+                confirmButtonColor: '#28a745'
+            });
         }
     });
-    return isValid;
-}
-// Proceed from Basic Info to Other Info
-$('#proceed-basic').click(function(e) {
-    e.preventDefault();
-    if (isCurrentStepValid('basic-info')) {
-        $('#other-info-tab').removeClass('disabled-tab').tab('show');
-        $('#basic-info-tab').removeClass('active');
-        $('#basic-info').removeClass('active show');
-        $('#other-info').addClass('active show');
-    } else {
-        Swal.fire({
-            title: 'Please Enter Information needed',
-            text: 'Complete required fields before proceeding.',
-            icon: 'warning',
-            confirmButtonColor: '#28a745'
-        });
-    }
-});
-// Proceed from Other Info to Guardian
-$('#proceed-other').click(function(e) {
-    e.preventDefault();
-    if (isCurrentStepValid('other-info')) {
-        $('#guardian-tab').removeClass('disabled-tab').tab('show');
-        $('#other-info-tab').removeClass('active');
-        $('#other-info').removeClass('active show');
-        $('#guardian').addClass('active show');
-    } else {
-        Swal.fire({
-            title: 'Please Enter Information needed',
-            text: 'Complete required fields before proceeding.',
-            icon: 'warning',
-            confirmButtonColor: '#28a745'
-        });
-    }
-});
-// Proceed from Guardian to Account
-$('#proceed-guardian').click(function(e) {
-    e.preventDefault();
-    if (isCurrentStepValid('guardian')) {
-        $('#account-tab').removeClass('disabled-tab').tab('show');
-        $('#guardian-tab').removeClass('active');
-        $('#guardian').removeClass('active show');
-        $('#account').addClass('active show');
-    } else {
-        Swal.fire({
-            title: 'Please Enter Information needed',
-            text: 'Complete required fields before proceeding.',
-            icon: 'warning',
-            confirmButtonColor: '#28a745'
-        });
-    }
-});
+    // Proceed from Other Info to Guardian
+    $('#proceed-other').click(function(e) {
+        e.preventDefault();
+        if (isCurrentStepValid('other-info')) {
+            $('#guardian-tab').removeClass('disabled-tab').tab('show');
+            $('#other-info-tab').removeClass('active');
+            $('#other-info').removeClass('active show');
+            $('#guardian').addClass('active show');
+        } else {
+            Swal.fire({
+                title: 'Please Enter Information needed',
+                text: 'Complete required fields before proceeding.',
+                icon: 'warning',
+                confirmButtonColor: '#28a745'
+            });
+        }
+    });
+    // Proceed from Guardian to Account
+    $('#proceed-guardian').click(function(e) {
+        e.preventDefault();
+        if (isCurrentStepValid('guardian')) {
+            $('#account-tab').removeClass('disabled-tab').tab('show');
+            $('#guardian-tab').removeClass('active');
+            $('#guardian').removeClass('active show');
+            $('#account').addClass('active show');
+        } else {
+            Swal.fire({
+                title: 'Please Enter Information needed',
+                text: 'Complete required fields before proceeding.',
+                icon: 'warning',
+                confirmButtonColor: '#28a745'
+            });
+        }
+    });
+    
     $("#add_pwd").change(function(){
       var pwd_check = $(this).val();
       if(pwd_check == 'YES'){
@@ -748,7 +749,7 @@ $('#proceed-guardian').click(function(e) {
         $("#pwd_check").css('display', 'none');
         $("#add_pwd_info").prop('disabled', true);
       }
-    })
+    });
     
     // Initialize form validation
     $('#registerResidentForm').validate({
@@ -825,9 +826,6 @@ $('#proceed-guardian').click(function(e) {
           add_gender: {
             required: "This Field is required",
           },
-          add_residency_type: {
-            required: "Please select Residency Type",
-          },
           add_pwd: {
             required: "This Field is required",
           },
@@ -857,112 +855,99 @@ $('#proceed-guardian').click(function(e) {
           $(element).removeClass('is-invalid');
         },
         // Handle form submission
-submitHandler: function (form) {
-    // Show Data Privacy modal first
-    $('#dataPrivacyModal').modal('show');
-    
-    // One-time click handler for the "I Agree" button
-    $('#agreeButton').off('click').on('click', function() {
-        $('#dataPrivacyModal').modal('hide');
-        
-        // Create FormData object from the form
-        var formData = new FormData(form);
-        
-        // Call our custom submit function
-        submitRegistration(formData);
-    });
-    
-    return false; // Prevent default form submission
-}
-
-// --- NEW HELPER FUNCTION TO HANDLE REGISTRATION ---
-function submitRegistration(formData) {
-    $.ajax({
-        url: 'signup/newResidence.php',
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        cache: false,
-        success: function(data) {
-            var response;
-            try {
-                response = (typeof data === 'object') ? data : JSON.parse(data);
-            } catch (e) {
-                response = { status: 'error', message: data };
-            }
-
-            // CASE 1: SUCCESS
-            if (response.status === 'success') {
-                Swal.fire({
-                    title: '<strong class="text-success">SUCCESS</strong>',
-                    icon: 'success',
-                    html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number + '<br>Redirecting...',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    allowOutsideClick: false
-                }).then(() => {
-                    window.location.href = 'login.php';
-                });
-
-            // CASE 2: HOUSEHOLD FOUND (The logic from your screenshot)
-            } else if (response.status === 'showHouseholdModal') {
-                Swal.fire({
-                    title: '<strong>Existing Household Found</strong>',
-                    icon: 'question',
-                    html: `
-                        <p>We found an existing household at this address:</p>
-                        <ul style="text-align:left; font-size: 0.9em; list-style:none; padding-left:10px;">
-                            <li><strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}</li>
-                            <li><strong>Household #:</strong> ${response.household.household_number}</li>
-                        </ul>
-                        <p>Do you want to join this household or create a new one?</p>
-                    `,
-                    showCancelButton: true,
-                    showDenyButton: true,
-                    confirmButtonText: 'Join Existing',
-                    denyButtonText: 'Create New',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // User chose to JOIN
-                        formData.append('household_action', 'join');
-                        formData.append('household_id', response.household.id);
-                        submitRegistration(formData); // Resubmit with new data
-
-                    } else if (result.isDenied) {
-                        // User chose to CREATE NEW
-                        formData.append('household_action', 'new');
-                        submitRegistration(formData); // Resubmit with new data
-                    }
-                });
-
-            // CASE 3: SPECIFIC ERRORS
-            } else if (response.status === 'errorPassword') {
-                Swal.fire('Error', 'Passwords do not match', 'error');
-            } else if (response.status === 'errorUsername') {
-                Swal.fire('Error', 'Username is already taken', 'error');
-
-            // CASE 4: UNKNOWN ERRORS
-            } else {
-                Swal.fire({
-                    title: 'Registration Failed',
-                    icon: 'error',
-                    html: 'Server Message: ' + (response.message || 'Unknown Error')
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("AJAX Error:", xhr.responseText);
-            Swal.fire({
-                title: 'System Error',
-                icon: 'error',
-                text: 'Something went wrong with the request. Check console for details.'
+        submitHandler: function (form) {
+            // 1. Show Data Privacy modal
+            $('#dataPrivacyModal').modal('show');
+            
+            // 2. Set up one-time agree handler
+            $('#agreeButton').off('click').on('click', function() {
+                $('#dataPrivacyModal').modal('hide');
+                
+                // 3. Prepare data and call the helper function
+                var formData = new FormData(form);
+                submitRegistration(formData); 
             });
+            
+            return false; // Prevent default submit
         }
-    });
-}
-    });
+    }); // <--- THIS CLOSES THE VALIDATE() FUNCTION. CRITICAL!
+
+    // --- HELPER FUNCTION (MUST BE OUTSIDE THE VALIDATE OBJECT BUT INSIDE READY) ---
+    function submitRegistration(formData) {
+        $.ajax({
+            url: 'signup/newResidence.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function(data) {
+                var response;
+                try {
+                    response = (typeof data === 'object') ? data : JSON.parse(data);
+                } catch (e) {
+                    response = { status: 'error', message: data };
+                }
+
+                if (response.status === 'success') {
+                    Swal.fire({
+                        title: '<strong class="text-success">SUCCESS</strong>',
+                        icon: 'success',
+                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number + '<br>Redirecting...',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.href = 'login.php';
+                    });
+
+                } else if (response.status === 'showHouseholdModal') {
+                    // HOUSEHOLD FOUND POPUP
+                    Swal.fire({
+                        title: '<strong>Existing Household Found</strong>',
+                        icon: 'question',
+                        html: `
+                            <p>We found an existing household at this address:</p>
+                            <ul style="text-align:left; font-size: 0.9em; list-style:none; padding-left:10px;">
+                                <li><strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}</li>
+                                <li><strong>Household #:</strong> ${response.household.household_number}</li>
+                            </ul>
+                            <p>Do you want to join this household or create a new one?</p>
+                        `,
+                        showCancelButton: true,
+                        showDenyButton: true,
+                        confirmButtonText: 'Join Existing',
+                        denyButtonText: 'Create New',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            formData.set('household_action', 'join'); // Use .set() to avoid duplicates
+                            formData.set('household_id', response.household.id);
+                            submitRegistration(formData); // Recursion
+                        } else if (result.isDenied) {
+                            formData.set('household_action', 'new');
+                            submitRegistration(formData); // Recursion
+                        }
+                    });
+
+                } else if (response.status === 'errorPassword') {
+                    Swal.fire('Error', 'Passwords do not match', 'error');
+                } else if (response.status === 'errorUsername') {
+                    Swal.fire('Error', 'Username is already taken', 'error');
+                } else {
+                    Swal.fire({
+                        title: 'Registration Failed',
+                        icon: 'error',
+                        html: 'Server Message: ' + (response.message || 'Unknown Error')
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", xhr.responseText);
+                Swal.fire('System Error', 'Something went wrong. Check console.', 'error');
+            }
+        });
+    }
 
     // Fix password toggle
     $("#show_hide_password a").on('click', function(event) {
@@ -977,6 +962,7 @@ function submitRegistration(formData) {
             $('#show_hide_password i').addClass( "fa-eye" );
         }
     });
+
     $("#show_hide_password_confirm a").on('click', function(event) {
         event.preventDefault();
         if($('#show_hide_password_confirm input').attr("type") == "text"){
@@ -993,7 +979,8 @@ function submitRegistration(formData) {
     // Image preview
     $("#image_residence").click(function(){
           $("#add_image_residence").click();
-      });
+    });
+    
     function displayImge(input){
       if(input.files && input.files[0]){
         var reader = new FileReader();
@@ -1022,8 +1009,10 @@ function submitRegistration(formData) {
     $("#add_image_residence").change(function(){
       displayImge(this);
     })
-  });
+
+}); // <--- END OF DOCUMENT READY
 </script>
+
 <script>
 // Restricts input for each element in the set of matched elements to the given inputFilter.
 (function($) {
@@ -1054,4 +1043,3 @@ function submitRegistration(formData) {
 </script>
 </body>
 </html>
-
