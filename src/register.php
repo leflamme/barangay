@@ -856,92 +856,112 @@ $('#proceed-guardian').click(function(e) {
         unhighlight: function (element, errorClass, validClass) {
           $(element).removeClass('is-invalid');
         },
-        // Handle form submission ONLY after validation passes
-        submitHandler: function (form) {
-            // Show Data Privacy modal instead of submitting immediately
-            $('#dataPrivacyModal').modal('show');
-            
-            // Set up one-time agree handler
-            $('#agreeButton').off('click').on('click', function() {
-                $('#dataPrivacyModal').modal('hide');
-                
-                // Now submit via AJAX
-                $.ajax({
-                    url: 'signup/newResidence.php',
-                    type: 'POST',
-                    data: new FormData(form),
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    success: function(data) {
-    // 1. Handle data whether it comes as a JSON object or a string
-    var response;
-    try {
-        // If data is already an object, use it; otherwise, parse it
-        response = (typeof data === 'object') ? data : JSON.parse(data);
-    } catch (e) {
-        // Fallback if parsing fails (e.g., if PHP printed a raw error string)
-        response = { status: 'error', message: data }; 
-    }
-
-    // 2. Check the 'status' property inside the JSON object
-    if (response.status === 'success') {
-        Swal.fire({
-            title: '<strong class="text-success">SUCCESS</strong>',
-            icon: 'success', // changed 'type' to 'icon' for newer SweetAlert2
-            html: '<b>Registered Successfully</b><br>You will now be redirected.',
-            width: '400px',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            timer: 2000,
-        }).then(() => {
-            window.location.href = 'login.php';
-        });
-
-    } else if (response.status === 'errorPassword') {
-        Swal.fire({
-            title: '<strong class="text-danger">ERROR</strong>',
-            icon: 'error',
-            html: '<b>Passwords do not match</b>',
-            confirmButtonColor: '#6610f2',
-        });
-
-    } else if (response.status === 'errorUsername') {
-        Swal.fire({
-            title: '<strong class="text-danger">ERROR</strong>',
-            icon: 'error',
-            html: '<b>Username is Already Taken</b>',
-            confirmButtonColor: '#6610f2',
-        });
-
-    } else if (response.status === 'showHouseholdModal') {
-        // You have logic for this in the PHP, but it wasn't handled in your JS.
-        // You can add logic here if you want to support household joining later.
-        console.log("Household match found:", response.household);
+        // Handle form submission
+submitHandler: function (form) {
+    // Show Data Privacy modal first
+    $('#dataPrivacyModal').modal('show');
+    
+    // One-time click handler for the "I Agree" button
+    $('#agreeButton').off('click').on('click', function() {
+        $('#dataPrivacyModal').modal('hide');
         
-    } else {
-        // Handle unexpected errors or the exception message from PHP
-        var errorMsg = response.message || JSON.stringify(response);
-        Swal.fire({
-            title: '<strong class="text-danger">Registration Failed!</strong>',
-            icon: 'error',
-            html: '<b>The server returned an error:</b><br><pre style="text-align: left; background: #eee; padding: 10px; border-radius: 5px;">' + errorMsg + '</pre>',
-            confirmButtonColor: '#d33',
-        });
-    }
+        // Create FormData object from the form
+        var formData = new FormData(form);
+        
+        // Call our custom submit function
+        submitRegistration(formData);
+    });
+    
+    return false; // Prevent default form submission
 }
-                }).fail(function(){
-                    Swal.fire({
-                      title: '<strong class="text-danger">Ooppss..</strong>',
-                      icon: 'error',
-                      html: '<b>Something went wrong with ajax!</b>',
-                      confirmButtonColor: '#6610f2',
-                    })
+
+// --- NEW HELPER FUNCTION TO HANDLE REGISTRATION ---
+function submitRegistration(formData) {
+    $.ajax({
+        url: 'signup/newResidence.php',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(data) {
+            var response;
+            try {
+                response = (typeof data === 'object') ? data : JSON.parse(data);
+            } catch (e) {
+                response = { status: 'error', message: data };
+            }
+
+            // CASE 1: SUCCESS
+            if (response.status === 'success') {
+                Swal.fire({
+                    title: '<strong class="text-success">SUCCESS</strong>',
+                    icon: 'success',
+                    html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number + '<br>Redirecting...',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                }).then(() => {
+                    window.location.href = 'login.php';
                 });
+
+            // CASE 2: HOUSEHOLD FOUND (The logic from your screenshot)
+            } else if (response.status === 'showHouseholdModal') {
+                Swal.fire({
+                    title: '<strong>Existing Household Found</strong>',
+                    icon: 'question',
+                    html: `
+                        <p>We found an existing household at this address:</p>
+                        <ul style="text-align:left; font-size: 0.9em; list-style:none; padding-left:10px;">
+                            <li><strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}</li>
+                            <li><strong>Household #:</strong> ${response.household.household_number}</li>
+                        </ul>
+                        <p>Do you want to join this household or create a new one?</p>
+                    `,
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: 'Join Existing',
+                    denyButtonText: 'Create New',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User chose to JOIN
+                        formData.append('household_action', 'join');
+                        formData.append('household_id', response.household.id);
+                        submitRegistration(formData); // Resubmit with new data
+
+                    } else if (result.isDenied) {
+                        // User chose to CREATE NEW
+                        formData.append('household_action', 'new');
+                        submitRegistration(formData); // Resubmit with new data
+                    }
+                });
+
+            // CASE 3: SPECIFIC ERRORS
+            } else if (response.status === 'errorPassword') {
+                Swal.fire('Error', 'Passwords do not match', 'error');
+            } else if (response.status === 'errorUsername') {
+                Swal.fire('Error', 'Username is already taken', 'error');
+
+            // CASE 4: UNKNOWN ERRORS
+            } else {
+                Swal.fire({
+                    title: 'Registration Failed',
+                    icon: 'error',
+                    html: 'Server Message: ' + (response.message || 'Unknown Error')
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", xhr.responseText);
+            Swal.fire({
+                title: 'System Error',
+                icon: 'error',
+                text: 'Something went wrong with the request. Check console for details.'
             });
-            
-            return false; // Prevent default submit
         }
+    });
+}
     });
 
     // Fix password toggle
