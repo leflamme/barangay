@@ -682,16 +682,13 @@ $sql = "SELECT * FROM `barangay_information`";
     // --- 1. TAB NAVIGATION LOGIC ---
     function isCurrentStepValid(tabId) {
         var isValid = true;
-        // Validate all inputs in the current tab
         $('#' + tabId + ' :input').each(function() {
-            if (!$(this).valid()) {
-                isValid = false;
-            }
+            if (!$(this).valid()) isValid = false;
         });
         return isValid;
     }
 
-    // Button: Basic Info -> Other Info
+    // Navigation Buttons
     $('#proceed-basic').click(function(e) {
         e.preventDefault();
         if (isCurrentStepValid('basic-info')) {
@@ -700,11 +697,10 @@ $sql = "SELECT * FROM `barangay_information`";
             $('#basic-info').removeClass('active show');
             $('#other-info').addClass('active show');
         } else {
-            Swal.fire({ title: 'Missing Information', text: 'Please complete the required fields.', icon: 'warning', confirmButtonColor: '#28a745' });
+            Swal.fire({ title: 'Missing Information', text: 'Please complete required fields.', type: 'warning', confirmButtonColor: '#28a745' });
         }
     });
 
-    // Button: Other Info -> Guardian
     $('#proceed-other').click(function(e) {
         e.preventDefault();
         if (isCurrentStepValid('other-info')) {
@@ -713,11 +709,10 @@ $sql = "SELECT * FROM `barangay_information`";
             $('#other-info').removeClass('active show');
             $('#guardian').addClass('active show');
         } else {
-            Swal.fire({ title: 'Missing Information', text: 'Please complete the required fields.', icon: 'warning', confirmButtonColor: '#28a745' });
+            Swal.fire({ title: 'Missing Information', text: 'Please complete required fields.', type: 'warning', confirmButtonColor: '#28a745' });
         }
     });
 
-    // Button: Guardian -> Account
     $('#proceed-guardian').click(function(e) {
         e.preventDefault();
         if (isCurrentStepValid('guardian')) {
@@ -726,7 +721,7 @@ $sql = "SELECT * FROM `barangay_information`";
             $('#guardian').removeClass('active show');
             $('#account').addClass('active show');
         } else {
-            Swal.fire({ title: 'Missing Information', text: 'Please complete the required fields.', icon: 'warning', confirmButtonColor: '#28a745' });
+            Swal.fire({ title: 'Missing Information', text: 'Please complete required fields.', type: 'warning', confirmButtonColor: '#28a745' });
         }
     });
     
@@ -741,9 +736,9 @@ $sql = "SELECT * FROM `barangay_information`";
       }
     });
     
-    // --- 3. FORM VALIDATION & SUBMISSION ---
+    // --- 3. FORM VALIDATION ---
     $('#registerResidentForm').validate({
-       ignore: [], // Validate hidden fields/tabs
+       ignore: [], 
        rules: {
           add_first_name: { required: true, minlength: 2 },
           add_last_name: { required: true, minlength: 2 },
@@ -771,15 +766,10 @@ $sql = "SELECT * FROM `barangay_information`";
        highlight: function (element) { $(element).addClass('is-invalid'); },
        unhighlight: function (element) { $(element).removeClass('is-invalid'); },
        
-       // Handle the actual submit
        submitHandler: function (form) {
             $('#dataPrivacyModal').modal('show');
-            
-            // Unbind previous clicks to avoid duplicates, then bind new click
             $('#agreeButton').off('click').on('click', function() {
                 $('#dataPrivacyModal').modal('hide');
-                
-                // Create FormData and call the AJAX function
                 var formData = new FormData(form);
                 submitRegistration(formData); 
             });
@@ -787,10 +777,9 @@ $sql = "SELECT * FROM `barangay_information`";
         }
     }); 
 
-    // --- 4. AJAX SUBMIT FUNCTION ---
+    // --- 4. AJAX SUBMIT FUNCTION (FIXED FOR OLD SWEETALERT) ---
     function submitRegistration(formData) {
-        // Debug: Log the action to the console to verify "join" is set
-        console.log("Submitting... Action:", formData.get('household_action'), "ID:", formData.get('household_id'));
+        console.log("Submitting... Action:", formData.get('household_action'));
 
         $.ajax({
             url: 'signup/newResidence.php',
@@ -809,8 +798,8 @@ $sql = "SELECT * FROM `barangay_information`";
 
                 if (response.status === 'success') {
                     Swal.fire({
-                        title: '<strong class="text-success">SUCCESS</strong>',
-                        icon: 'success',
+                        title: 'SUCCESS',
+                        type: 'success', // Changed 'icon' to 'type'
                         html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
                         timer: 2000,
                         showConfirmButton: false,
@@ -820,33 +809,43 @@ $sql = "SELECT * FROM `barangay_information`";
                     });
 
                 } else if (response.status === 'showHouseholdModal') {
-                    // HOUSEHOLD FOUND POPUP
+                    // STEP 1: Ask to JOIN
                     Swal.fire({
-                        title: '<strong>Existing Household Found</strong>',
-                        icon: 'question',
+                        title: 'Existing Household Found',
+                        type: 'question',
                         html: `
-                            <p>We found an existing household at this address:</p>
-                            <ul style="text-align:left; font-size: 0.9em; list-style:none; padding-left:10px;">
+                            <p>We found a household at this address:</p>
+                            <ul style="text-align:left; list-style:none;">
                                 <li><strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}</li>
                                 <li><strong>Household #:</strong> ${response.household.household_number}</li>
                             </ul>
-                            <p>Do you want to join this household or create a new one?</p>
-                        `,
+                            <br><b>Do you want to JOIN this household?</b>`,
                         showCancelButton: true,
-                        showDenyButton: true,
-                        confirmButtonText: 'Join Existing',
-                        denyButtonText: 'Create New',
-                        cancelButtonText: 'Cancel'
+                        confirmButtonText: 'Yes, Join It',
+                        cancelButtonText: 'No, Wait...',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33'
                     }).then((result) => {
-                        if (result.isConfirmed) {
-                            // User clicked "Join Existing"
+                        // Check if User clicked YES (Join)
+                        if (result.value) {
                             formData.set('household_action', 'join'); 
                             formData.set('household_id', response.household.id);
-                            submitRegistration(formData); // Send again with new data
-                        } else if (result.isDenied) {
-                            // User clicked "Create New"
-                            formData.set('household_action', 'new');
-                            submitRegistration(formData); // Send again with new data
+                            submitRegistration(formData); // Resubmit
+                        } else {
+                            // STEP 2: Ask to CREATE NEW (If they said No to Join)
+                            Swal.fire({
+                                title: 'Create New Household?',
+                                text: 'Do you want to create a brand new household record instead?',
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, Create New',
+                                cancelButtonText: 'Cancel'
+                            }).then((res2) => {
+                                if (res2.value) {
+                                    formData.set('household_action', 'new');
+                                    submitRegistration(formData); // Resubmit
+                                }
+                            });
                         }
                     });
 
@@ -857,7 +856,7 @@ $sql = "SELECT * FROM `barangay_information`";
                 } else {
                     Swal.fire({
                         title: 'Registration Failed',
-                        icon: 'error',
+                        type: 'error',
                         html: 'Server Message: ' + (response.message || 'Unknown Error')
                     });
                 }
@@ -869,7 +868,7 @@ $sql = "SELECT * FROM `barangay_information`";
         });
     }
 
-    // --- 5. PASSWORD TOGGLE ---
+    // --- 5. PASSWORD TOGGLE & IMAGE PREVIEW ---
     $("#show_hide_password a, #show_hide_password_confirm a").on('click', function(event) {
         event.preventDefault();
         var input = $(this).closest('.input-group').find('input');
@@ -883,7 +882,6 @@ $sql = "SELECT * FROM `barangay_information`";
         }
     });
     
-    // --- 6. IMAGE PREVIEW ---
     $("#image_residence").click(function(){ $("#add_image_residence").click(); });
     $("#add_image_residence").change(function(){
       if(this.files && this.files[0]){
