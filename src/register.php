@@ -1,5 +1,3 @@
-register.php
-
 <?php
 session_start();
 include_once 'connection.php';
@@ -302,7 +300,7 @@ $sql = "SELECT * FROM `barangay_information`";
         <select name="add_residency_type" id="add_residency_type" class="form-control">
             <option value=""></option>
             <option value="Resident">Resident</option>
-           <option value="tenant">tenant</option>
+           <option value="Tenant">Tenant</option>
               </select>
             </div>
           </div>
