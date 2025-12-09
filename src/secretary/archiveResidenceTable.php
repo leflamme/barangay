@@ -33,7 +33,7 @@ try{
         $whereClause[] = "residence_information.last_name LIKE '%" .$last_name. "%'";
     }
 
-    // UPDATED: Filter by residency_type using UPPER for consistency
+    // Filter by residency_type using UPPER for consistency
     if (!empty($residency_type)) {
         $whereClause[] = "UPPER(residence_status.residency_type) = '" . strtoupper($residency_type) . "'";
     }
@@ -80,13 +80,13 @@ try{
     INNER JOIN residence_status ON residence_information.residence_id = residence_status.residence_id 
     WHERE residence_status.archive = '$archive_status'" .$where;
 
-    // --- 5. ORDERING LOGIC (Updated to match 1.php structure for security) ---
+    // --- 5. ORDERING LOGIC ---
     $columns = [
         0 => 'residence_information.image_path',
         1 => 'residence_information.residence_id',
         2 => 'residence_information.first_name',
         3 => 'residence_information.age',
-        4 => 'residence_status.pwd_info',
+        4 => 'residence_status.pwd', // Fixed: Sort by pwd status, not info
         5 => 'residence_status.single_parent',
         6 => 'residence_status.residency_type', 
         7 => 'residence_status.status',
@@ -129,7 +129,7 @@ try{
             $middle_name = '';
         }
 
-        // --- UPDATED: Residency Type Badge Logic (from 1.php) ---
+        // --- Residency Type Badge Logic ---
         $db_residency_type_upper = strtoupper($row['residency_type']);
 
         if($db_residency_type_upper == 'RESIDENT'){
@@ -137,8 +137,16 @@ try{
         } else if ($db_residency_type_upper == 'TENANT') {
             $residency_type_label = '<span class="badge badge-danger text-md">TENANT</span>';
         } else {
-            // Fallback
             $residency_type_label = '<span class="badge badge-secondary text-md">'.$row['residency_type'].'</span>';
+        }
+
+        // --- FIXED: PWD Status Logic ---
+        if($row['pwd'] == 'YES'){
+            $pwd_status = '<span class="badge badge-info text-md">YES</span>';
+        } else {
+            // If empty or NO, default to NO
+            $display_pwd = !empty($row['pwd']) ? $row['pwd'] : 'NO';
+            $pwd_status = '<span class="badge badge-warning text-md">'.$display_pwd.'</span>';
         }
 
         // Single Parent Logic
@@ -172,12 +180,11 @@ try{
         $subdata[] = $row['residence_id'];
         $subdata[] = ucfirst($row['first_name']).' '. $middle_name .' '. ucfirst($row['last_name']); 
         $subdata[] = $row['age'];
-        $subdata[] = $row['pwd_info']; 
+        $subdata[] = $pwd_status; // CHANGED: Now displays the PWD badge (Yes/No)
         $subdata[] = $single_parent; 
         $subdata[] = $residency_type_label; 
         $subdata[] = $status;
         
-        // Preserved the 'fa-box-open' icon (Lime) from hosted file as it indicates "Restore/Unarchive" better than 'fa-times'
         $subdata[] = '<i style="cursor: pointer;  color: yellow;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-user-edit text-lg px-3 viewResidence" id="'.$row['residence_id'].'"></i>
         <i style="cursor: pointer;  color: lime;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fas fa-box-open text-lg px-2 unArchiveResidence" id="'.$row['residence_id'].'"></i>';
         
@@ -194,7 +201,6 @@ try{
     echo json_encode($json_data);
 
 } catch(Exception $e){
-    // Return JSON error if something breaks
     echo json_encode(['error' => $e->getMessage()]);
 }
 ?>
