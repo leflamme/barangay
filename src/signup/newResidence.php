@@ -113,11 +113,6 @@ try {
     // Only check if user hasn't made a choice yet
     if (empty($household_action)) {
         
-        // UPDATED LOGIC:
-        // Search by (Street AND House Number) OR by the exact combined Address string.
-        // We removed Municipality/Barangay from the WHERE clause to ensure we find matches 
-        // even if the database has empty values for those columns.
-        
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
                       LEFT JOIN users u ON h.household_head_id = u.id 
@@ -140,8 +135,9 @@ try {
             ]);
             exit(); 
         } else {
-            // None found, creating new
-            $household_action = 'new';
+            // --- CHANGE: Do NOT auto-create. Ask user instead. ---
+            echo json_encode(['status' => 'askCreateNew']);
+            exit();
         }
     }
 
@@ -202,6 +198,7 @@ try {
         }
     } else {
         // CREATING NEW
+        // (This block runs if action is 'new' - passed from the frontend after user confirms)
         $new_household_number = date("Y") . '-' . mt_rand(1000, 9999);
         
         $sql_hh = "INSERT INTO households (household_number, household_head_id, municipality, barangay, street, house_number, address, zip_code, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";

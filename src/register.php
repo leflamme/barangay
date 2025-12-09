@@ -479,8 +479,6 @@ $(document).ready(function(){
 
     // --- AJAX HELPER WITH LEGACY SWEETALERT CHAINING ---
     function submitRegistration(formData) {
-        // We do NOT have relationship here yet. We will ask in popup.
-        
         $.ajax({
             url: 'signup/newResidence.php',
             type: 'POST',
@@ -509,44 +507,64 @@ $(document).ready(function(){
                     });
 
                 } else if (response.status === 'showHouseholdModal') {
-                    // STEP 1: Household Found. Join or Create?
+                    // SCENARIO: Household Exists (Same Address/Condo)
                     Swal.fire({
-                        title: 'Existing Household Found',
+                        title: 'Household Found!',
                         type: 'question',
                         html: `
-                            <p>We found a household at this address:</p>
-                            <ul style="text-align:left; list-style:none;">
-                                <li><strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}</li>
-                                <li><strong>Household #:</strong> ${response.household.household_number}</li>
-                            </ul>
-                            <br><b>Do you want to JOIN this household?</b>`,
+                            <p class="text-left">We found a registered household at this address:</p>
+                            <div class="alert alert-info text-left">
+                                <strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}<br>
+                                <strong>Household #:</strong> ${response.household.household_number}
+                            </div>
+                            <p class="small text-muted">Do you belong to this family (Join), or do you have a separate household in this building/unit (Create New)?</p>`,
                         showCancelButton: true,
-                        confirmButtonText: 'Yes, Join It',
-                        cancelButtonText: 'No, Create New', // This button now serves as the "Create" trigger
+                        confirmButtonText: '<i class="fas fa-users"></i> Join This Household',
+                        cancelButtonText: '<i class="fas fa-home"></i> Create New Household',
                         confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33'
+                        cancelButtonColor: '#28a745' // Green for "Create New" to make it look positive
                     }).then((result) => {
-                        
                         if (result.value) {
                             // --- JOIN FLOW ---
                             askRelationshipAndSubmit('join', response.household.id);
-
-                        } else {
-                            // --- CREATE NEW FLOW ---
-                            // Check if they really want to create new (since they clicked "No" to Join)
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            // --- CREATE NEW FLOW (Condo Scenario) ---
+                            // Confirmation ensures they didn't click by mistake
                              Swal.fire({
-                                title: 'Create New Household?',
-                                text: 'Do you want to create a brand new household record instead?',
+                                title: 'Create Separate Household?',
+                                text: 'You are about to create a NEW household record at the same address. Continue?',
                                 type: 'warning',
                                 showCancelButton: true,
                                 confirmButtonText: 'Yes, Create New',
-                                cancelButtonText: 'Cancel'
+                                cancelButtonText: 'Back'
                             }).then((res2) => {
                                 if (res2.value) {
-                                    // Even if Creating New, we ask relationship (e.g. Son of a new household)
                                     askRelationshipAndSubmit('new', null);
                                 }
                             });
+                        }
+                    });
+
+                } else if (response.status === 'askCreateNew') {
+                    // SCENARIO: No Household Found (New Logic)
+                    // We prompt the user instead of assuming.
+                    Swal.fire({
+                        title: 'No Household Found',
+                        type: 'info',
+                        html: `
+                            <p>No existing household record was found for this address.</p>
+                            <p>Do you want to create a <b>New Household</b>?</p>
+                            <small class="text-muted">(If you expected to join a family, please check if your address matches exactly with the Head of Household's record)</small>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Create New Household',
+                        cancelButtonText: 'Cancel / Edit Address',
+                        confirmButtonColor: '#28a745',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.value) {
+                            // User confirms they are the first/head
+                            askRelationshipAndSubmit('new', null);
                         }
                     });
 
