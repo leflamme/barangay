@@ -49,7 +49,6 @@ fieldset {
     legend {
       font-size: 1.2em !important;
       font-weight: bold !important;
-      /* CHANGED: Color from white (#fff) to Dark Blue (#050C9C) for visibility */
       color: #050C9C; 
       text-align: left !important;
       width:auto;
@@ -58,17 +57,13 @@ fieldset {
     }
     .editInfo {
     background-color:rgba(0, 0, 0, 0);
-    /* CHANGED: Color from white (#fff) to Black (#000) for visibility */
     color: #000; 
     border: none;
     outline:none;
     width: 100%;
     }
    #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, #edit_single_parent select {
-      /* for Firefox */
       -moz-appearance: none;
-      /* for Chrome */
-  
       border: none;
       width: 100%;
     }
@@ -78,7 +73,6 @@ fieldset {
       box-shadow:none;
     }
 
-    /* For IE10 */
     #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, select::-ms-expand {
       display: none;
     }
@@ -94,10 +88,9 @@ fieldset {
     }
     
     #blotterPersonTable{
-
- padding: 5px;
- margin-bottom: 5px;
-}
+     padding: 5px;
+     margin-bottom: 5px;
+    }
 
 </style>
 
@@ -109,7 +102,6 @@ fieldset {
         
         <div class="container-fluid">
          
-        
         <div class="dynamic_form">
        
         <table width="80%" style="font-size:9pt;" class="table table-borderless">
@@ -133,7 +125,6 @@ fieldset {
               <td  class="text-center">
                 
                 <?php 
-                // Display Residence Image
                 if($row_view_residence['image'] != '' || $row_view_residence['image'] != null || !empty($row_view_residence['image'])){
                   echo '<img src="'.$row_view_residence['image_path'].'" style="cursor: pointer" alt="residence_image" class="img-thumbnail" width="120" id="display_edit_image_residence">
                           <input type="file" id="edit_image_residence" name="edit_image_residence" style="display: none;">';
@@ -142,18 +133,15 @@ fieldset {
                         <input type="file" id="edit_image_residence" name="edit_image_residence" style="display: none;">';
                 }
                 echo '<br>';
-                // Display Residence Status
+                
                 if($row_view_residence['status'] == 'ACTIVE'){
                   echo '<span class="badge bg-success text-md mt-1">'.$row_view_residence['status'].'</span>
                   ';
                 }else{
                   echo '<span class="badge bg-danger text-md mt-1">'.$row_view_residence['status'].'</span>';
                 }
-
                 ?>
-               
                 <br>
-               
               </td>
             </tr>
           </tbody>
@@ -203,21 +191,18 @@ fieldset {
       <td>
          DATE OF BIRTH
           <br>
-          
           <input type="date" class="editInfo  form-control form-control-sm" value="<?= !empty($row_view_residence['birth_date']) ? date('Y-m-d', strtotime($row_view_residence['birth_date'])) : '' ?>" name="edit_birth_date" id="edit_birth_date"/>
           <input type="hidden" id="edit_birth_date_check" value='false'>
       </td>
       <td>
         PLACE OF BIRTH
           <br>
-        
         <input type="text" class="editInfo  form-control form-control-sm" value=" <?= $row_view_residence['birth_place'] ?>"  name="edit_birth_place" id="edit_birth_place" > 
         <input type="hidden" id="edit_birth_place_check" value="false">
       </td>
       <td >
         AGE
           <br>
-       
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['age'] ?>"  name="edit_age" id="edit_age" disabled> 
       </td>
       <td >
@@ -229,8 +214,6 @@ fieldset {
           </select>
         <input type="hidden" id="edit_single_parent_check" value="false">
       </td>
-   
-   
     </tr>
     <tr>
     <td >
@@ -266,8 +249,6 @@ fieldset {
         </select>
         <input type="hidden" id="edit_civil_status_check" value="false">
       </td>
-    
-         
     </tr>
 
     <tr>
@@ -295,7 +276,6 @@ fieldset {
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['zip'] ?>" name="edit_zip" id="edit_zip">
         <input type="hidden" id="edit_zip_check" value="false">
       </td>
-     
     </tr>
 
     <tr>
@@ -311,18 +291,16 @@ fieldset {
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['house_number'] ?>" name="edit_house_number" id="edit_house_number">
         <input type="hidden" id="edit_house_number_check" value="false">
       </td>
-      <td>
+      
+      <td colspan="2">
         STREET
         <br>
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['street'] ?>" name="edit_street" id="edit_street">
         <input type="hidden" id="edit_street_check" value="false">
-      </td>
-      <td colspan="2">
-        ADDRESS
-        <br>
-        <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['address'] ?>" name="edit_address" id="edit_address">
+        
+        <input type="hidden" value="<?= $row_view_residence['address'] ?>" name="edit_address" id="edit_address">
         <input type="hidden" id="edit_address_check" value="false">
-      </td>      
+      </td>
     </tr>
 
     <tr>
@@ -1158,9 +1136,9 @@ function blotterPersonTable(){
           edit_birth_date: {
             required: true,
           },
-          edit_address:{
-            required: true,
-          },
+          
+          /* REMOVED ADDRESS VALIDATION to support hidden field */
+          
           edit_contact_number:{
             required: true,
             minlength: 11
@@ -1186,9 +1164,9 @@ function blotterPersonTable(){
           edit_birth_date: {
             required: "<span class='text-danger text-bold'>Birth Date is Required</span>",
           },
-          edit_address: {
-            required: "<span class='text-danger text-bold'>Address is Required</span>",
-          },
+          
+          /* REMOVED ADDRESS MESSAGE */
+          
           edit_contact_number: {
             required: "<span class='text-danger text-bold'>Contact Number is Required</span>",
             minlength: "<span class='text-danger'>Input Exact Contact Number</span>"
