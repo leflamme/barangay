@@ -1,5 +1,9 @@
 <?php 
 session_start();
+// 1. PREVENT TIMEOUT: Allow script to run for 5 minutes (300 seconds)
+set_time_limit(300); 
+ini_set('max_execution_time', 300);
+
 require __DIR__ . '/../vendor/autoload.php';
 include_once '../connection.php';
 
@@ -11,18 +15,17 @@ $vars_status = [
 // ==========================================
 //   CONFIGURATION: EVACUATION CENTER
 // ==========================================
-// Coordinates for Barangay Kalusugan Hall (or your specific Evac Center)
 $EVAC_CENTER_NAME = "Barangay Hall";
 $EVAC_LAT = 14.6231; 
 $EVAC_LON = 121.0219;
 
 // ==========================================
-//   HELPER: DISTANCE CALCULATOR (Haversine)
+//   HELPER: DISTANCE CALCULATOR
 // ==========================================
 function calculateDistance($lat1, $lon1, $lat2, $lon2) {
     if (empty($lat1) || empty($lon1) || empty($lat2) || empty($lon2)) return 0;
 
-    $R = 6371; // Earth radius in km
+    $R = 6371; 
     $dLat = deg2rad($lat2 - $lat1);
     $dLon = deg2rad($lon2 - $lon1);
     $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
@@ -39,9 +42,9 @@ function broadcastToAllResidents($con, $type, $base_message) {
     $log = "";
     $count_sms = 0;
     $count_email = 0;
+    $errors = 0;
 
-    // 1. Fetch Residents WITH Coordinates
-    // Make sure your table 'residence_information' has 'latitude' and 'longitude' columns
+    // Fetch Residents
     $sql = "SELECT r.contact_number, r.email_address, r.latitude, r.longitude, u.first_name 
             FROM users u
             JOIN residence_information r ON u.id = r.residence_id
@@ -56,15 +59,14 @@ function broadcastToAllResidents($con, $type, $base_message) {
             $r_lat = $row['latitude'];
             $r_lon = $row['longitude'];
 
-            // 2. Calculate Distance for THIS specific resident
+            // Calculate Distance
             $dist_km = calculateDistance($EVAC_LAT, $EVAC_LON, $r_lat, $r_lon);
             $dist_str = number_format($dist_km, 2);
 
-            // 3. Customize Message
+            // Customize Message
             if ($type == 'EVACUATE') {
                 $custom_msg = "URGENT EVACUATION: Red Rainfall Category, flood is detected within the area. Proceed immediately to {$EVAC_CENTER_NAME} ({$dist_str}km). It has space available.";
             } else {
-                // Keep generic warning for non-evacuation events
                 $custom_msg = "WARNING: Heavy rain detected. Please stay alert.";
             }
 
@@ -105,15 +107,26 @@ function broadcastToAllResidents($con, $type, $base_message) {
                 ]));
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . getenv('RESEND_API_KEY'), 'Content-Type: application/json']);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_exec($ch);
+                
+                $response_body = curl_exec($ch); // Capture response
+                $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
-                $count_email++;
+
+                if ($code == 200) {
+                    $count_email++;
+                } else {
+                    $errors++;
+                    // Optional: Logs specific error if you need to debug later
+                    // error_log("Resend Failed ($code): " . $response_body); 
+                }
             }
 
-            // Anti-Spam Throttle
-            usleep(200000);
+            // 2. SLOW DOWN THE LOOP (Crucial Fix)
+            // Wait 1 second between residents to avoid hitting API Rate Limits (429 Too Many Requests)
+            sleep(1); 
         }
         $log .= "✅ Broadcast Complete.<br>Sent {$count_sms} SMS and {$count_email} Emails.";
+        if ($errors > 0) $log .= "<br>⚠️ {$errors} emails failed (likely invalid address or rate limit).";
     } else {
         $log .= "⚠️ No residents found in database.";
     }
@@ -164,7 +177,6 @@ try {
             $page_message = "Triggered: <strong>$trigger</strong>. Result: <strong>$status</strong>.<br>";
             
             if ($status == 'evacuate') {
-                // Pass a placeholder message; the actual text is generated inside the function now
                 $page_message .= broadcastToAllResidents($con, "EVACUATE", "placeholder");
             } 
             elseif ($status == 'warn') {
