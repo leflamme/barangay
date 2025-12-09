@@ -84,11 +84,11 @@ try {
                      FROM household_members hm6 
                      JOIN residence_status rs6 ON hm6.user_id = rs6.residence_id 
                      WHERE hm6.household_id = h.id AND rs6.residency_type = 'Resident') as resident_count,
-                    -- Count Workers
+                    -- Count Tenants (Replaced Workers with Tenants for clarity)
                     (SELECT COUNT(*) 
-                     FROM household_members hm7 
-                     JOIN residence_status rs7 ON hm7.user_id = rs7.residence_id 
-                     WHERE hm7.household_id = h.id AND rs7.residency_type = 'Worker') as worker_count,
+                    FROM household_members hm8 
+                    JOIN residence_status rs8 ON hm8.user_id = rs8.residence_id 
+                    WHERE hm8.household_id = h.id AND rs8.residency_type = 'Tenant') as tenant_count,
                     
                     -- Get household head name
                     CONCAT(ri.first_name, ' ', ri.last_name) as head_name
@@ -176,8 +176,8 @@ try {
 
                 <td class="text-center">
                     ' . ($row['resident_count'] > 0 ? '<span class="badge badge-success mb-1">' . $row['resident_count'] . ' Resident</span><br>' : '') . '
-                    ' . ($row['worker_count'] > 0 ? '<span class="badge badge-info">' . $row['worker_count'] . ' Worker</span>' : '') . '
-                    ' . ($row['resident_count'] == 0 && $row['worker_count'] == 0 ? '<span class="text-muted">None</span>' : '') . '
+                    ' . ($row['tenant_count'] > 0 ? '<span class="badge badge-warning mb-1" style="background-color: #fd7e14; color: white;">' . $row['tenant_count'] . ' Tenant</span><br>' : '') . '
+                    ' . ($row['resident_count'] == 0 && $row['tenant_count'] == 0 ? '<span class="text-muted">None</span>' : '') . '
                 </td>
                 
                 <td class="text-center">
@@ -972,8 +972,11 @@ $(document).on('click', '.view-members', function(e) {
                         if(member.single_parent === 'YES') html += '<span class="badge badge-danger mr-1 mb-1" title="Single Parent"><i class="fas fa-user-friends"></i> Single Parent</span>';
                         if(member.residency_type === 'Resident') {
                             html += '<span class="badge badge-success mr-1 mb-1" title="Resident"><i class="fas fa-home"></i> Resident</span>';
-                        } else if (member.residency_type === 'Worker') {
-                            html += '<span class="badge badge-info mr-1 mb-1" title="Worker"><i class="fas fa-briefcase"></i> Worker</span>';
+                        } else if (member.residency_type === 'Tenant') {
+                            html += '<span class="badge badge-warning mr-1 mb-1" title="Tenant" style="background-color: #fd7e14; color: white;"><i class="fas fa-building"></i> Tenant</span>';
+                        } else if (member.residency_type) {
+                            // Catch-all for any other types
+                            html += '<span class="badge badge-secondary mr-1 mb-1">' + member.residency_type + '</span>';
                         }
                         html += '</div>';
                         html += '</div>';
