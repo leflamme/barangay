@@ -2,6 +2,7 @@
 session_start();
 include_once '../connection.php';
 
+// Ensure only logged-in residents can access
 if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'resident'){
  echo '<script>window.location.href = "../login.php";</script>';
  exit();
@@ -13,7 +14,7 @@ try {
     // --- 1. CAPTURE ALL INPUTS ---
     $edit_residency_type = $con->real_escape_string($_POST['edit_residency_type']);
     $edit_residence_id = $con->real_escape_string(trim($_POST['edit_residence_id']));
-    $edit_voters = $con->real_escape_string($_POST['edit_voters']);
+    $edit_voters = isset($_POST['edit_voters']) ? $con->real_escape_string($_POST['edit_voters']) : 'NO'; // Added default check
     $edit_pwd = $con->real_escape_string($_POST['edit_pwd']);
     
     $edit_pwd_info = isset($_POST['edit_pwd_info']) ? $con->real_escape_string($_POST['edit_pwd_info']) : '';
@@ -29,7 +30,10 @@ try {
     $edit_nationality = $con->real_escape_string($_POST['edit_nationality']);
     $edit_contact_number = $con->real_escape_string($_POST['edit_contact_number']);
     $edit_email_address = $con->real_escape_string($_POST['edit_email_address']);
-    $edit_address = $con->real_escape_string($_POST['edit_address']);
+    
+    // Check if address is set, otherwise build it or leave empty
+    $edit_address = isset($_POST['edit_address']) ? $con->real_escape_string($_POST['edit_address']) : '';
+    
     $edit_birth_date = $con->real_escape_string($_POST['edit_birth_date']);
     $edit_birth_place = $con->real_escape_string($_POST['edit_birth_place']);
     $edit_municipality = $con->real_escape_string($_POST['edit_municipality']);
@@ -78,7 +82,7 @@ try {
     `mothers_name`= ?, `guardian`= ?, `guardian_contact`= ?, `image`= ?, `image_path`= ? 
     WHERE `residence_id` = ?";
     
-    $stmt_edit_residence = $con->prepare($sql_edit_residence) or die ($con->error);
+    $stmt_edit_residence = $con->prepare($sql_edit_residence) or die ("Error updating info: " . $con->error);
     $stmt_edit_residence->bind_param('ssssssssssssssssssssssssss',
         $edit_first_name, $edit_middle_name, $edit_last_name, $edit_age_date, $edit_suffix,
         $edit_gender, $edit_civil_status, $edit_religion, $edit_nationality, $edit_contact_number,
@@ -87,35 +91,51 @@ try {
         $edit_mothers_name, $edit_guardian, $edit_guardian_contact, $new_edit_image_name, $new_edit_image_path,
         $edit_residence_id
     );
-    $stmt_edit_residence->execute();
+    if(!$stmt_edit_residence->execute()){
+        throw new Exception("Execute failed for residence info: " . $stmt_edit_residence->error);
+    }
     $stmt_edit_residence->close();
 
     // --- 3. UPDATE RESIDENCE STATUS ---
     $sql_edit_residence_status = "UPDATE `residence_status` SET `voters` = ?, `senior` = ?, `pwd` = ?, `pwd_info`= ? , `single_parent` = ?, `residency_type` = ? WHERE `residence_id` = ?";
-    $stmt_edit_residence_status = $con->prepare($sql_edit_residence_status) or die ($con->error);
+    $stmt_edit_residence_status = $con->prepare($sql_edit_residence_status) or die ("Error updating status: " . $con->error);
     $stmt_edit_residence_status->bind_param('sssssss', $edit_voters, $senior, $edit_pwd, $edit_pwd_info, $edit_single_parent, $edit_residency_type, $edit_residence_id);
-    $stmt_edit_residence_status->execute();
+    if(!$stmt_edit_residence_status->execute()){
+        throw new Exception("Execute failed for status: " . $stmt_edit_residence_status->error);
+    }
     $stmt_edit_residence_status->close();
 
     // --- 4. UPDATE USER TABLE ---
     $sql_edit_residence_users = "UPDATE `users` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ?, `image` = ?, `image_path`= ? WHERE `id` = ?";
-    $stmt_edit_residence_users = $con->prepare($sql_edit_residence_users) or die ($con->error);
+    $stmt_edit_residence_users = $con->prepare($sql_edit_residence_users) or die ("Error updating users: " . $con->error);
     $stmt_edit_residence_users->bind_param('sssssss', $edit_first_name, $edit_middle_name, $edit_last_name, $edit_contact_number, $new_edit_image_name, $new_edit_image_path, $edit_residence_id);
-    $stmt_edit_residence_users->execute();
+    if(!$stmt_edit_residence_users->execute()){
+         throw new Exception("Execute failed for user table: " . $stmt_edit_residence_users->error);
+    }
     $stmt_edit_residence_users->close();
 
     // ============================================================
-    // --- 5. CLOSE THE EDIT REQUEST (THIS WAS MISSING) ---
+    // --- 5. CLOSE THE EDIT REQUEST (FIXED) ---
     // ============================================================
     $status_completed = 'COMPLETED';
     $status_approved = 'APPROVED';
     
-    // We only close requests that are currently marked as APPROVED
+    // Prepare the update statement
     $sql_close_request = "UPDATE `edit_requests` SET `status` = ? WHERE `user_id` = ? AND `status` = ?";
     $stmt_close = $con->prepare($sql_close_request);
-    $stmt_close->bind_param('sss', $status_completed, $user_id, $status_approved);
-    $stmt_close->execute();
-    $stmt_close->close();
+
+    if ($stmt_close) {
+        $stmt_close->bind_param('sss', $status_completed, $user_id, $status_approved);
+        
+        if (!$stmt_close->execute()) {
+             // If execution fails, log it but don't stop the whole process as data is already saved
+             error_log("Failed to close request: " . $stmt_close->error);
+        }
+        $stmt_close->close();
+    } else {
+        // SQL Prepare failed
+        die("Error preparing close request: " . $con->error);
+    }
     // ============================================================
 
 
@@ -129,8 +149,14 @@ try {
          $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
          $stmt_activity_log->execute();
     }
+    
+    // IMPORTANT: Return a success message explicitly if needed, 
+    // though the frontend relies on HTTP 200 OK.
+    echo "success"; 
 
 } catch(Exception $e) {
+    // Send a 500 error so the AJAX .fail() block catches it
+    http_response_code(500);
     echo $e->getMessage();
 }
 ?>
