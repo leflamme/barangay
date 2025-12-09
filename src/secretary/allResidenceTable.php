@@ -3,13 +3,13 @@ include_once '../connection.php';
 
 try{
 
-// 1. CAPTURE DATA (Updated voters to residency_type)
+// 1. CAPTURE DATA
 $first_name = $con->real_escape_string($_POST['first_name']);
 $middle_name = $con->real_escape_string($_POST['middle_name']);
 $last_name = $con->real_escape_string($_POST['last_name']);
 $status = $con->real_escape_string($_POST['status']);
 
-// CHANGED: Captured residency_type instead of voters
+// Capturing residency_type correctly
 $residency_type = isset($_POST['residency_type']) ? $con->real_escape_string($_POST['residency_type']) : '';
 
 $age =  $con->real_escape_string($_POST['age']);
@@ -41,7 +41,7 @@ $whereClause[] = "residence_status.senior='".$senior."'";
 if(!empty($status))  
 $whereClause[] = "residence_status.status='".$status."'";
 
-// 2. UPDATE FILTER LOGIC (Replaced voters check)
+// 2. UPDATE FILTER LOGIC (Matches allResidenceTable1.php using UPPER for safety)
 if(!empty($residency_type))
 $whereClause[] = "UPPER(residence_status.residency_type)='".strtoupper($residency_type)."'";
 
@@ -58,7 +58,7 @@ if(count($whereClause) > 0){
   $where .= ' AND ' .implode(' AND ', $whereClause);
 }
 
-// 3. UPDATE SQL SELECT (Replaced voters column)
+// 3. SQL QUERY
 $sql = "SELECT 
 residence_information.residence_id, 
 residence_information.first_name,  
@@ -137,14 +137,15 @@ while($row = $result->fetch_assoc()){
               </label> ';
   }
 
-  // 4. UPDATE DISPLAY LOGIC (Replaced voters badging with residency_type)
+  // 4. UPDATE DISPLAY LOGIC (Replaced WORKER with TENANT from allResidenceTable1.php)
   $db_residency_type_upper = strtoupper($row['residency_type']);
 
   if($db_residency_type_upper == 'RESIDENT'){ 
     $residency_type_label = '<span class="badge badge-success text-md">RESIDENT</span>'; 
-  } else if ($db_residency_type_upper == 'WORKER') {
-    $residency_type_label = '<span class="badge badge-danger text-md">WORKER</span>'; 
+  } else if ($db_residency_type_upper == 'TENANT') { // Updated to check for TENANT
+    $residency_type_label = '<span class="badge badge-danger text-md">TENANT</span>'; 
   } else {
+    // Fallback for unknown types
     $residency_type_label = '<span class="badge badge-secondary text-md">'.$row['residency_type'].'</span>';
   }
 
@@ -161,7 +162,7 @@ while($row = $result->fetch_assoc()){
   $subdata[] =  $row['age'];
   $subdata[] =  $row['pwd_info']; 
   $subdata[] =  $single_parent; 
-  $subdata[] = $residency_type_label; // Display the new label
+  $subdata[] = $residency_type_label; // Display the updated label
   $subdata[] = $status;
   $subdata[] = '<i style="cursor: pointer;  color: yellow;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-user-edit text-lg px-3 viewResidence" id="'.$row['residence_id'].'"></i>
   <i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 deleteResidence" id="'.$row['residence_id'].'"></i>';

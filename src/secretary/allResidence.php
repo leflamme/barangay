@@ -46,26 +46,19 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Residents List</title>
-  <!-- Website Logo -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-  <!-- Website Icon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-  <!-- Google Fonts DONT FORGET-->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
  
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
@@ -325,14 +318,11 @@ div.dataTables_scrollHead table.dataTable thead th {
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
-<!-- Preloader -->
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand dark-mode">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
@@ -355,17 +345,14 @@ div.dataTables_scrollHead table.dataTable thead th {
     </ul>
 
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-       <!-- Messages Dropdown Menu -->
-      <li class="nav-item dropdown">
+       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="myProfile.php" class="dropdown-item">
-            <!-- Message Start -->
             <div class="media">
               <?php 
                 if($user_image != '' || $user_image != null || !empty($user_image)){
@@ -381,164 +368,62 @@ div.dataTables_scrollHead table.dataTable thead th {
                 </h3>
               </div>
             </div>
-            <!-- Message End -->
-          </a>         
+            </a>         
           <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar elevation-4 sidebar-no-expand dark-mode">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display:block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
 
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item">
-            <a href="dashboard.php" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>
-                Dashboard
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-users-cog"></i>
-              <p>
-              Barangay Official
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-             
-              <li class="nav-item">
-                <a href="allOfficial.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>List of Official</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="officialEndTerm.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Official End Term</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-item menu-open">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-users"></i>
-              <p>
-                Residence
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="newResidence.php" class="nav-link">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>New Residence</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="allResidence.php" class="nav-link bg-indigo">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>All Residence</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="archiveResidence.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Archive Residence</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-item ">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-user-shield"></i>
-              <p>
-                Users
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="usersResident.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Resident</p>
-                </a>
-              </li>
+        <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+        
+        <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon fas fa-users-cog"></i><p>Barangay Official<i class="right fas fa-angle-left"></i></p></a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item"><a href="allOfficial.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>List of Official</p></a></li>
+            <li class="nav-item"><a href="officialEndTerm.php" class="nav-link "><i class="fas fa-circle nav-icon text-red"></i><p>Official End Term</p></a></li>
+          </ul>
+        </li>
 
-            </ul>
-          </li>
+        <li class="nav-item menu-open"><a href="#" class="nav-link"><i class="nav-icon fas fa-users"></i><p>Residence<i class="right fas fa-angle-left"></i></p></a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item"><a href="newResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>New Residence</p></a></li>
+            <li class="nav-item"><a href="allResidence.php" class="nav-link bg-indigo"><i class="fas fa-circle nav-icon text-red"></i><p>All Residence</p></a></li>
+            <li class="nav-item"><a href="archiveResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Archive Residence</p></a></li>
+          </ul>
+        </li>
+          
+        <li class="nav-item "><a href="#" class="nav-link"><i class="nav-icon fas fa-user-shield"></i><p>Users<i class="right fas fa-angle-left"></i></p></a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item"><a href="usersResident.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Resident</p></a></li>
+            <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
+          </ul>
+        </li>
        
-          <!-- DRM Part   (START)   -->
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-exclamation-triangle"></i>
-              <p>
-                DRRM
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-              
-              <ul class="nav nav-treeview">
-                
-                <li class="nav-item">
-                  <a href="drrmEvacuation.php" class="nav-link">
-                    <i class="fas fa-house-damage nav-icon text-red"></i>
-                    <p>Evacuation Center</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="report.php" class="nav-link">
-                    <i class="nav-icon fas fa-bookmark"></i>
-                    <p>
-                      Masterlist Report
-                    </p>
-                  </a>
-                </li>
-              </ul>
-          </li>
-        <!-- End of DRM Part -->
-          <li class="nav-item ">
-            <a href="requestCertificate.php" class="nav-link">
-              <i class="nav-icon fas fa-certificate"></i>
-              <p>
-                Certificate
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="blotterRecord.php" class="nav-link">
-              <i class="nav-icon fas fa-clipboard"></i>
-              <p>
-                Blotter Record
-              </p>
-            </a>
-          </li>
+        <li class="nav-item has-treeview"><a href="#" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>DRRM<i class="right fas fa-angle-left"></i></p></a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item"><a href="drrmEvacuation.php" class="nav-link"><i class="fas fa-house-damage nav-icon text-red"></i><p>Evacuation Center</p></a></li>
+            <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Masterlist Report</p></a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item "><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
+        <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
+
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
    
 
-    <!-- Main content -->
     <section class="content mt-3">
       <div class="container-fluid">
 
@@ -581,9 +466,9 @@ div.dataTables_scrollHead table.dataTable thead th {
                       <span class="input-group-text">RESIDENCY TYPE</span>
                     </div>
                       <select name="residency_type" id="residency_type" class="form-control">
-                        <option value="">--SELECT RESIDENCY TYPE--</option> 
-                        <option value="Resident">Resident</option> 
-                        <option value="Worker">Worker</option>
+                       <option value="">--SELECT RESIDENCY TYPE--</option> 
+                       <option value="RESIDENT">RESIDENT</option> 
+                       <option value="TENANT">TENANT</option>
                       </select>
                   </div>
                 </div>
@@ -683,15 +568,8 @@ div.dataTables_scrollHead table.dataTable thead th {
       </div>   
 
 
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
- <!-- Main Footer -->
+      </div></section>
+    </div>
   <footer class="main-footer">
     <strong>Copyright &copy; <?php echo date("Y"); ?> - <?php echo date('Y', strtotime('+1 year'));  ?> </strong>
  
@@ -700,8 +578,6 @@ div.dataTables_scrollHead table.dataTable thead th {
   </footer>
 
 </div>
-<!-- ./wrapper -->
-
 <div id="imagemodal" class="modal " tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content" style="background-color: #000">
@@ -715,14 +591,9 @@ div.dataTables_scrollHead table.dataTable thead th {
 
 
 
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -870,7 +741,6 @@ div.dataTables_scrollHead table.dataTable thead th {
 
     function filterData(){
         var status = $("#status").val();
-        // CHANGED: voters to residency_type
         var residency_type = $("#residency_type").val();
         var age = $("#age").val();
         var pwd = $("#pwd").val();
@@ -960,7 +830,7 @@ div.dataTables_scrollHead table.dataTable thead th {
 
     $(document).on('click', '#search',function(){
       var status = $("#status").val();
-      // CHANGED: voters to residency_type
+      // UPDATED: Use residency_type consistently
       var residency_type = $("#residency_type").val();
       var age = $("#age").val();
       var pwd = $("#pwd").val();
@@ -971,7 +841,6 @@ div.dataTables_scrollHead table.dataTable thead th {
       var resident_id = $("#resident_id").val();
       var single_parent = $("#single_parent").val();
       
-      // CHANGED: Check residency_type
       if(status != '' || residency_type != '' || age != '' || first_name != '' ||  middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
         $("#allResidenceTable").DataTable().destroy();
         filterData();
@@ -980,7 +849,7 @@ div.dataTables_scrollHead table.dataTable thead th {
 
     $(document).on('click', '#reset',function(){
       var status = $("#status").val();
-      // CHANGED: voters to residency_type
+      // UPDATED: Use residency_type consistently
       var residency_type = $("#residency_type").val();
       var age = $("#age").val();
       var pwd = $("#pwd").val();
@@ -991,10 +860,9 @@ div.dataTables_scrollHead table.dataTable thead th {
       var resident_id = $("#resident_id").val();
       var single_parent = $("#single_parent").val();
       
-      // CHANGED: Check residency_type and clear #residency_type
       if(status != '' || residency_type != '' || age != '' || first_name != '' || middle_name != '' || last_name != '' || pwd != '' || senior != '' || resident_id != '' || single_parent != ''){
         $("#status").val('');
-        $("#residency_type").val(''); // Clears the new dropdown
+        $("#residency_type").val(''); 
         $("#age").val('');
         $("#pwd").val('');
         $("#senior").val('');
@@ -1043,9 +911,6 @@ div.dataTables_scrollHead table.dataTable thead th {
   };
 }(jQuery));
 
-
-
-
   $("#first_name, #middle_name, #last_name").inputFilter(function(value) {
   return /^[a-z, ]*$/i.test(value); 
   });
@@ -1053,8 +918,6 @@ div.dataTables_scrollHead table.dataTable thead th {
   return /^-?\d*$/.test(value); 
   
   });
-  
- 
 
 </script>
 
