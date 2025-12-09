@@ -70,6 +70,7 @@ residence_information.image_path,
 residence_status.residence_id,
 residence_status.residency_type,
 residence_status.single_parent,
+residence_status.pwd,
 residence_status.pwd_info,
 residence_status.status
 FROM residence_information
@@ -130,8 +131,8 @@ while($row = $result->fetch_assoc()){
 
   if($db_residency_type_upper == 'RESIDENT'){ 
     $residency_type_label = '<span class="badge badge-success text-md">RESIDENT</span>'; 
-  } else if ($db_residency_type_upper == 'WORKER') { 
-    $residency_type_label = '<span class="badge badge-danger text-md">WORKER</span>'; 
+  } else if ($db_residency_type_upper == 'TENANT') { 
+    $residency_type_label = '<span class="badge badge-danger text-md">TENANT</span>'; 
   } else {
     $residency_type_label = '<span class="badge badge-secondary text-md">UNKNOWN ('.$row['residency_type'].')</span>';
   }
@@ -140,6 +141,12 @@ while($row = $result->fetch_assoc()){
     $single_parent = '<span class="badge badge-info text-md ">'.$row['single_parent'].'</span>';
   }else{
     $single_parent = '<span class="badge badge-warning text-md ">'.$row['single_parent'].'</span>';
+  }
+
+  if($row['pwd'] == 'YES'){
+     $pwd_display = $row['pwd_info'];
+  } else {
+     $pwd_display = 'NO';
   }
 
 
@@ -166,7 +173,7 @@ while($row = $result->fetch_assoc()){
   $subdata[] =  $row['residence_id'];
   $subdata[] =  ucfirst($row['first_name']).' '. $middle_name .' '. ucfirst($row['last_name']); 
   $subdata[] =  $row['age'];
-  $subdata[] =  $row['pwd_info']; 
+  $subdata[] =  $pwd_display; 
   $subdata[] =  $single_parent; 
   // CHANGED: Added residency type label to array instead of voters
   $subdata[] = $residency_type_label;

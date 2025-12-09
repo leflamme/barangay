@@ -523,7 +523,7 @@ select.form-control {
                       <select name="residency_type" id="residency_type" class="form-control">
                         <option value="">--SELECT RESIDENCY TYPE--</option> 
                         <option value="RESIDENT">RESIDENT</option> 
-                        <option value="WORKER">WORKER</option>
+                        <option value="TENANT">TENANT</option>
                       </select>
                   </div>
                 </div>

@@ -211,7 +211,7 @@ fieldset {
         <?php $residency_type_value = $row_view_residence['residency_type']; ?>
         <select name="edit_residency_type" id="edit_residency_type" class="form-control">
           <option value="Resident" <?= $residency_type_value == 'Resident' ? 'selected' : ''; ?>>Resident</option>
-          <option value="Worker" <?= $residency_type_value == 'Worker' ? 'selected' : ''; ?>>Worker</option>
+          <option value="Tenant" <?= $residency_type_value == 'Tenant' ? 'selected' : ''; ?>>Tenant</option>
         </select>
         <input type="hidden" value="false" id="edit_residency_type_check">
       </td>
@@ -300,13 +300,13 @@ fieldset {
           <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['nationality'] ?>" name="edit_nationality" id="edit_nationality">
           <input type="hidden" id="edit_nationality_check" value="false">
       </td> 
-      <td>
+      <td style="display:none">
        MUNICIPALITY
         <br>
        <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['municipality'] ?>" name="edit_municipality" id="edit_municipality">
        <input type="hidden" id="edit_municipality_check" value="false">
       </td>
-      <td>
+      <td style="display:none">
         ZIP
         <br>
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['zip'] ?>" name="edit_zip" id="edit_zip">
@@ -315,7 +315,7 @@ fieldset {
      
     </tr>
 
-    <tr>
+    <tr style="display:none">
     <td>
         BARANGAY
         <br>
