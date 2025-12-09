@@ -2,7 +2,6 @@
 session_start();
 include_once '../connection.php';
 
-// Ensure only logged-in residents can access
 if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'resident'){
  echo '<script>window.location.href = "../login.php";</script>';
  exit();
@@ -11,12 +10,13 @@ if(!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'resident'){
 try {
     $user_id = $_SESSION['user_id'];
     
-    // --- 1. CAPTURE ALL INPUTS ---
+    // --- 1. CAPTURE INPUTS ---
+    // Note: 'edit_voters' removed because it is no longer in the form.
+    
     $edit_residency_type = $con->real_escape_string($_POST['edit_residency_type']);
     $edit_residence_id = $con->real_escape_string(trim($_POST['edit_residence_id']));
-    $edit_voters = isset($_POST['edit_voters']) ? $con->real_escape_string($_POST['edit_voters']) : 'NO'; // Added default check
-    $edit_pwd = $con->real_escape_string($_POST['edit_pwd']);
     
+    $edit_pwd = $con->real_escape_string($_POST['edit_pwd']);
     $edit_pwd_info = isset($_POST['edit_pwd_info']) ? $con->real_escape_string($_POST['edit_pwd_info']) : '';
     $edit_single_parent = isset($_POST['edit_single_parent']) ? $con->real_escape_string($_POST['edit_single_parent']) : 'NO';
 
@@ -31,9 +31,6 @@ try {
     $edit_contact_number = $con->real_escape_string($_POST['edit_contact_number']);
     $edit_email_address = $con->real_escape_string($_POST['edit_email_address']);
     
-    // Check if address is set, otherwise build it or leave empty
-    $edit_address = isset($_POST['edit_address']) ? $con->real_escape_string($_POST['edit_address']) : '';
-    
     $edit_birth_date = $con->real_escape_string($_POST['edit_birth_date']);
     $edit_birth_place = $con->real_escape_string($_POST['edit_birth_place']);
     $edit_municipality = $con->real_escape_string($_POST['edit_municipality']);
@@ -45,6 +42,9 @@ try {
     $edit_mothers_name = $con->real_escape_string($_POST['edit_mothers_name']);
     $edit_guardian = $con->real_escape_string($_POST['edit_guardian']);
     $edit_guardian_contact = $con->real_escape_string($_POST['edit_guardian_contact']);
+
+    // FIXED: Construct address manually because $_POST['edit_address'] does not exist in your form
+    $edit_address = $edit_house_number . ' ' . $edit_street . ', ' . $edit_barangay . ', ' . $edit_municipality;
 
     // --- Image Handling ---
     $sql_check_image = "SELECT `image`, `image_path` FROM `residence_information` WHERE `residence_id` = ?";
@@ -82,7 +82,7 @@ try {
     `mothers_name`= ?, `guardian`= ?, `guardian_contact`= ?, `image`= ?, `image_path`= ? 
     WHERE `residence_id` = ?";
     
-    $stmt_edit_residence = $con->prepare($sql_edit_residence) or die ("Error updating info: " . $con->error);
+    $stmt_edit_residence = $con->prepare($sql_edit_residence) or die ($con->error);
     $stmt_edit_residence->bind_param('ssssssssssssssssssssssssss',
         $edit_first_name, $edit_middle_name, $edit_last_name, $edit_age_date, $edit_suffix,
         $edit_gender, $edit_civil_status, $edit_religion, $edit_nationality, $edit_contact_number,
@@ -92,52 +92,41 @@ try {
         $edit_residence_id
     );
     if(!$stmt_edit_residence->execute()){
-        throw new Exception("Execute failed for residence info: " . $stmt_edit_residence->error);
+        throw new Exception("Error updating info: " . $stmt_edit_residence->error);
     }
     $stmt_edit_residence->close();
 
-    // --- 3. UPDATE RESIDENCE STATUS ---
-    $sql_edit_residence_status = "UPDATE `residence_status` SET `voters` = ?, `senior` = ?, `pwd` = ?, `pwd_info`= ? , `single_parent` = ?, `residency_type` = ? WHERE `residence_id` = ?";
-    $stmt_edit_residence_status = $con->prepare($sql_edit_residence_status) or die ("Error updating status: " . $con->error);
-    $stmt_edit_residence_status->bind_param('sssssss', $edit_voters, $senior, $edit_pwd, $edit_pwd_info, $edit_single_parent, $edit_residency_type, $edit_residence_id);
+    // --- 3. UPDATE RESIDENCE STATUS (REMOVED 'voters') ---
+    // I removed `voters` = ? from the query below so it keeps the existing value in the database.
+    $sql_edit_residence_status = "UPDATE `residence_status` SET `senior` = ?, `pwd` = ?, `pwd_info`= ? , `single_parent` = ?, `residency_type` = ? WHERE `residence_id` = ?";
+    $stmt_edit_residence_status = $con->prepare($sql_edit_residence_status) or die ($con->error);
+    
+    // Adjusted bind_param to 6 variables (removed voters)
+    $stmt_edit_residence_status->bind_param('ssssss', $senior, $edit_pwd, $edit_pwd_info, $edit_single_parent, $edit_residency_type, $edit_residence_id);
+    
     if(!$stmt_edit_residence_status->execute()){
-        throw new Exception("Execute failed for status: " . $stmt_edit_residence_status->error);
+        throw new Exception("Error updating status: " . $stmt_edit_residence_status->error);
     }
     $stmt_edit_residence_status->close();
 
     // --- 4. UPDATE USER TABLE ---
     $sql_edit_residence_users = "UPDATE `users` SET `first_name` = ?, `middle_name` = ?, `last_name` = ?, `contact_number` = ?, `image` = ?, `image_path`= ? WHERE `id` = ?";
-    $stmt_edit_residence_users = $con->prepare($sql_edit_residence_users) or die ("Error updating users: " . $con->error);
+    $stmt_edit_residence_users = $con->prepare($sql_edit_residence_users) or die ($con->error);
     $stmt_edit_residence_users->bind_param('sssssss', $edit_first_name, $edit_middle_name, $edit_last_name, $edit_contact_number, $new_edit_image_name, $new_edit_image_path, $edit_residence_id);
     if(!$stmt_edit_residence_users->execute()){
-         throw new Exception("Execute failed for user table: " . $stmt_edit_residence_users->error);
+        throw new Exception("Error updating users: " . $stmt_edit_residence_users->error);
     }
     $stmt_edit_residence_users->close();
 
-    // ============================================================
-    // --- 5. CLOSE THE EDIT REQUEST (FIXED) ---
-    // ============================================================
+    // --- 5. CLOSE THE EDIT REQUEST (Successfully sets to COMPLETED) ---
     $status_completed = 'COMPLETED';
     $status_approved = 'APPROVED';
     
-    // Prepare the update statement
     $sql_close_request = "UPDATE `edit_requests` SET `status` = ? WHERE `user_id` = ? AND `status` = ?";
     $stmt_close = $con->prepare($sql_close_request);
-
-    if ($stmt_close) {
-        $stmt_close->bind_param('sss', $status_completed, $user_id, $status_approved);
-        
-        if (!$stmt_close->execute()) {
-             // If execution fails, log it but don't stop the whole process as data is already saved
-             error_log("Failed to close request: " . $stmt_close->error);
-        }
-        $stmt_close->close();
-    } else {
-        // SQL Prepare failed
-        die("Error preparing close request: " . $con->error);
-    }
-    // ============================================================
-
+    $stmt_close->bind_param('sss', $status_completed, $user_id, $status_approved);
+    $stmt_close->execute();
+    $stmt_close->close();
 
     // --- 6. LOGGING ---
     if(isset($_POST['edit_first_name_check']) && ($_POST['edit_first_name_check'] == 'true')){
@@ -150,13 +139,10 @@ try {
          $stmt_activity_log->execute();
     }
     
-    // IMPORTANT: Return a success message explicitly if needed, 
-    // though the frontend relies on HTTP 200 OK.
-    echo "success"; 
+    echo "success";
 
 } catch(Exception $e) {
-    // Send a 500 error so the AJAX .fail() block catches it
-    http_response_code(500);
+    http_response_code(500); // Trigger the error in AJAX
     echo $e->getMessage();
 }
 ?>
