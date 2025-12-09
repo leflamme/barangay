@@ -183,7 +183,9 @@ try{
       outline:none;
       width: 100%;
     }
-    #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, select {
+    
+    /* UPDATED SELECTOR FROM personalInformation1.php */
+    #edit_gender, #edit_civil_status, #edit_residency_type, #edit_pwd, select {
       /* for Firefox */
       -moz-appearance: none;
       /* for Chrome */
@@ -193,7 +195,9 @@ try{
       background-color: transparent;
     color: #fff;
     }
-    #edit_gender, #edit_civil_status, #edit_voters, #edit_pwd, option:focus{
+    
+    /* UPDATED SELECTOR FROM personalInformation1.php */
+    #edit_gender, #edit_civil_status, #edit_residency_type, #edit_pwd, option:focus{
       outline:none;
       border:none;
       box-shadow:none;
@@ -338,8 +342,8 @@ try{
                      RESIDENCY TYPE
                       <br>
                         <select name="edit_residency_type" id="edit_residency_type" class="form-control" <?= $disable_attr ?>>
-                        <option value="Resident" <?= $row_resident['residency_type'] == 'Resident' ? 'selected' : '' ?>>Resident</option>
-                        <option value="Worker" <?= $row_resident['residency_type'] == 'Worker' ? 'selected' : '' ?>>Worker</option>
+                        <option value="Resident" <?= ucfirst(strtolower($row_resident['residency_type'])) == 'Resident' ? 'selected' : '' ?>>Resident</option>
+                        <option value="Tenant" <?= ucfirst(strtolower($row_resident['residency_type'])) == 'Tenant' ? 'selected' : '' ?>>Tenant</option>
                       </select>
                     </td>
                   </tr>
@@ -653,9 +657,8 @@ try{
           edit_birth_date: {
             required: true,
           },
-          edit_address:{
-            required: true,
-          },
+          // REMOVED 'edit_address' validation (as per personalInformation1.php)
+          // because the form uses specific inputs (edit_barangay, edit_house_number, edit_street)
           edit_email_address:{
             email: true,
           },
@@ -671,9 +674,6 @@ try{
           },
           edit_birth_date: {
             required: "<span class='text-danger text-bold'>Birth Date is Required</span>",
-          },
-          edit_address: {
-            required: "<span class='text-danger text-bold'>Address is Required</span>",
           },
           edit_email_address:{
             email:"<span class='text-danger text-bold'>Enter Valid Email!</span>",
