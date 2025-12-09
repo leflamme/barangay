@@ -49,28 +49,21 @@ try{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>List: Archived Residents</title>
-  <!-- Website Logo -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
  
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-     <!-- DONT FORGET -->
-<link rel="stylesheet" href="../assets/dist/css/secretary.css?v=2">
+     <link rel="stylesheet" href="../assets/dist/css/secretary.css?v=2">
 
  <style>
 
@@ -311,14 +304,11 @@ legend {
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
-<!-- Preloader -->
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand dark-mode">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
@@ -340,17 +330,14 @@ legend {
       </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-      <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="myProfile.php" class="dropdown-item">
-            <!-- Message Start -->
             <div class="media">
               <?php 
                 if($user_image != '' || $user_image != null || !empty($user_image)){
@@ -366,25 +353,18 @@ legend {
                 </h3>
               </div>
             </div>
-            <!-- Message End -->
-          </a>         
+            </a>         
           <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar elevation-4 sidebar-no-expand dark-mode">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display:block;">
 
-    <!-- Sidebar -->
     <div class="sidebar">
   
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
@@ -473,7 +453,6 @@ legend {
             </ul>
           </li>
        
-          <!-- DRM Part   (START)   -->
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -501,8 +480,7 @@ legend {
                 </li>
               </ul>
           </li>
-        <!-- End of DRM Part -->
-          <li class="nav-item ">
+        <li class="nav-item ">
             <a href="requestCertificate.php" class="nav-link">
               <i class="nav-icon fas fa-certificate"></i>
               <p>
@@ -521,16 +499,12 @@ legend {
          
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
    
 
-    <!-- Main content -->
     <section class="content mt-3">
       <div class="container-fluid">
 
@@ -572,7 +546,7 @@ legend {
                         <input type="text" class="form-control" id="resident_id" name="resident_id">
                       </div>
                     </div>
-
+                    
                     <div class="col-sm-4 text-center">
                       <button type="button" class="btn btn-warning  elevation-5 px-3 text-white" id="search"><i class="fas fa-search"></i> SEARCH</button>
                       <button type="button" class="btn btn-danger  elevation-5 px-3 text-white" id="reset"><i class="fas fa-undo"></i> RESET</button>
@@ -586,7 +560,7 @@ legend {
                         <select name="residency_type" id="residency_type" class="form-control">
                           <option value="">--SELECT TYPE--</option>
                           <option value="RESIDENT">RESIDENT</option>
-                          <option value="WORKER">WORKER</option>
+                          <option value="TENANT">TENANT</option>
                         </select>
                       </div>
                     </div>
@@ -615,15 +589,8 @@ legend {
       </div>   
 
 
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
-  <!-- Main Footer -->
+      </div></section>
+    </div>
   <footer class="main-footer">
     <strong>Copyright &copy; <?php echo date("Y"); ?> - <?php echo date('Y', strtotime('+1 year'));  ?> </strong>
     
@@ -631,8 +598,6 @@ legend {
     </div>
   </footer>
 </div>
-<!-- ./wrapper -->
-
 <div id="imagemodal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content" style="background-color: #000">
@@ -644,14 +609,9 @@ legend {
   </div>
 </div>
 
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
