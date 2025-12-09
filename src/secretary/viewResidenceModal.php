@@ -97,14 +97,8 @@ fieldset {
  margin-bottom: 5px;
 }
 
-
-
-   
 </style>
 
-
-
-<!-- Modal -->
 <div class="modal" id="viewResidenceModal"  role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="modelTitleId" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
@@ -120,7 +114,6 @@ fieldset {
           <tbody>
             <tr>
               <td class="text-center">
-                <!-- Barangay Logo -->
                 <img src="../assets/logo/ksugan.jpg" alt="Barangay Logo" class="img-circle" id="barangay_logo">
               </td>
 
@@ -198,8 +191,8 @@ fieldset {
         <br>
         <?php $residency_type_value = $row_view_residence['residency_type']; ?>
         <select name="edit_residency_type" id="edit_residency_type" class="form-control">
-          <option value="Resident" <?= $residency_type_value == 'Resident' ? 'selected' : ''; ?>>Resident</option>
-          <option value="Worker" <?= $residency_type_value == 'Worker' ? 'selected' : ''; ?>>Worker</option>
+          <option value="Resident" <?= ucfirst(strtolower($residency_type_value)) == 'Resident' ? 'selected' : ''; ?>>Resident</option>
+          <option value="Tenant" <?= ucfirst(strtolower($residency_type_value)) == 'Tenant' ? 'selected' : ''; ?>>Tenant</option>
         </select>
         <input type="hidden" value="false" id="edit_residency_type_check">
       </td>
@@ -400,13 +393,7 @@ fieldset {
 
   </fieldset>         
 
-
-
-  
-
 </div>
-
-
                
         </div>
       </div>
@@ -429,9 +416,6 @@ fieldset {
     deleteResidenceRecord();
     deleteResidenceRecordPerson();
     viewResidentRecord()
-
-   
-   
 
     function viewResidentRecord(){
 
@@ -462,20 +446,9 @@ fieldset {
             })
         })
         
-
-
       })
 
-
-      
-
     }
- 
-
-    
-
-    
-
 
     function deleteResidenceRecord(){
       $(document).on('click','.deleteRecordComplainant',function(){
@@ -588,9 +561,6 @@ fieldset {
       })
     }
 
-   
-
-
 function blotterPersonTable(){
 
   var edit_residence_id = $("#edit_residence_id").val();
@@ -679,7 +649,6 @@ function blotterPersonTable(){
           $("#edit_pwd_info").prop('disabled', true)
         }
 
-
       })
 
            var edit_first_name = $("#edit_first_name").val();
@@ -741,7 +710,6 @@ function blotterPersonTable(){
 
             })
 
-
             $("#edit_first_name").change(function(){
 
                 var newFirstName = $(this).val();
@@ -756,8 +724,6 @@ function blotterPersonTable(){
                 }
 
             })
-
-
 
               $("#edit_last_name").change(function(){
 
@@ -774,8 +740,6 @@ function blotterPersonTable(){
                 }
 
               })
-
-          
 
                 $("#edit_residency_type").change(function(){
                   var newResidencyType = $(this).val();
@@ -873,13 +837,9 @@ function blotterPersonTable(){
                   if(!(newGender == edit_gender )){
 
                   $("#edit_gender_check").val('true');
-
                   }else{
-
                     $("#edit_gender_check").val('false');
-
                   }
-
                 })
 
                 $("#edit_civil_status").change(function(){
@@ -894,9 +854,7 @@ function blotterPersonTable(){
 
                     $("#edit_civil_status_check").val('false');
                   }
-
                 })
-
 
                 $("#edit_religion").change(function(){
 
@@ -910,9 +868,7 @@ function blotterPersonTable(){
 
                     $("#edit_religion_check").val('false');
                   }
-
                   })
-
 
                 $("#edit_nationality").change(function(){
 
@@ -941,10 +897,7 @@ function blotterPersonTable(){
 
                 $("#edit_municipality_check").val('false');
                 }
-
                 })
-
-
 
                 $("#edit_zip").change(function(){
 
@@ -958,9 +911,7 @@ function blotterPersonTable(){
 
                 $("#edit_zip_check").val('false');
                 }
-
                 })
-
 
                 $("#edit_barangay").change(function(){
 
@@ -1109,10 +1060,7 @@ function blotterPersonTable(){
 
                   $("#edit_guardian_contact_check").val('false');
                 }
-
                 })
-
-
 
         $.validator.setDefaults({
           submitHandler: function (form) {
@@ -1158,7 +1106,6 @@ function blotterPersonTable(){
                   formData.append("edit_pwd_info_check",$("#edit_pwd_info_check").val())
                   formData.append("edit_single_parent_check",$("#edit_single_parent_check").val())
                   
-
                   $.ajax({
                     url: 'editResidence.php',
                     type: 'POST',
@@ -1194,7 +1141,6 @@ function blotterPersonTable(){
                 })
               }
             })
-            
           }
         });
       $('#editResidenceForm').validate({
@@ -1254,7 +1200,6 @@ function blotterPersonTable(){
             placement: 'bottom',
             html:true,
           },
-          
         },
       });
     })
@@ -1266,9 +1211,6 @@ function blotterPersonTable(){
     $("#edit_image_residence").change(function(){
         editDsiplayImage(this);
       })
-
-    
-
 
       function editDsiplayImage(input){
         if(input.files && input.files[0]){
@@ -1297,10 +1239,9 @@ function blotterPersonTable(){
             reader.readAsDataURL(input.files[0]);
         }
       }
-    
- 
   })
 </script>
+
 <script>
 // Restricts input for each element in the set of matched elements to the given inputFilter.
 (function($) {
@@ -1320,12 +1261,9 @@ function blotterPersonTable(){
   };
 }(jQuery));
 
- 
   $("#edit_contact_number, #edit_zip, #edit_guardian_contact, #edit_age").inputFilter(function(value) {
   return /^-?\d*$/.test(value); 
-  
   });
-
 
   $("#edit_first_name, #edit_middle_name, #edit_last_name, #edit_suffix, #edit_religion, #edit_nationality, #edit_municipality, #edit_fathers_name, #edit_mothers_name, #edit_guardian").inputFilter(function(value) {
   return /^[a-z, ]*$/i.test(value); 
