@@ -1,6 +1,6 @@
 <?php 
 session_start();
-// 1. PREVENT TIMEOUT: Allow script to run for 5 minutes (300 seconds)
+// Prevent Timeout
 set_time_limit(300); 
 ini_set('max_execution_time', 300);
 
@@ -12,19 +12,14 @@ $vars_status = [
     'Resend Key'  => !empty(getenv('RESEND_API_KEY')) ? '✅ Loaded' : '❌ Missing',
 ];
 
-// ==========================================
-//   CONFIGURATION: EVACUATION CENTER
-// ==========================================
+// CONFIGURATION
 $EVAC_CENTER_NAME = "Barangay Hall";
 $EVAC_LAT = 14.6231; 
 $EVAC_LON = 121.0219;
 
-// ==========================================
-//   HELPER: DISTANCE CALCULATOR
-// ==========================================
+// DISTANCE CALCULATOR
 function calculateDistance($lat1, $lon1, $lat2, $lon2) {
     if (empty($lat1) || empty($lon1) || empty($lat2) || empty($lon2)) return 0;
-
     $R = 6371; 
     $dLat = deg2rad($lat2 - $lat1);
     $dLon = deg2rad($lon2 - $lon1);
@@ -33,9 +28,7 @@ function calculateDistance($lat1, $lon1, $lat2, $lon2) {
     return $R * $c;
 }
 
-// ==========================================
-//   HELPER: BROADCAST FUNCTION
-// ==========================================
+// BROADCAST FUNCTION
 function broadcastToAllResidents($con, $type, $base_message) {
     global $EVAC_CENTER_NAME, $EVAC_LAT, $EVAC_LON;
     
@@ -44,7 +37,6 @@ function broadcastToAllResidents($con, $type, $base_message) {
     $count_email = 0;
     $errors = 0;
 
-    // Fetch Residents
     $sql = "SELECT r.contact_number, r.email_address, r.latitude, r.longitude, u.first_name 
             FROM users u
             JOIN residence_information r ON u.id = r.residence_id
@@ -59,18 +51,16 @@ function broadcastToAllResidents($con, $type, $base_message) {
             $r_lat = $row['latitude'];
             $r_lon = $row['longitude'];
 
-            // Calculate Distance
             $dist_km = calculateDistance($EVAC_LAT, $EVAC_LON, $r_lat, $r_lon);
             $dist_str = number_format($dist_km, 2);
 
-            // Customize Message
             if ($type == 'EVACUATE') {
                 $custom_msg = "URGENT EVACUATION: Red Rainfall Category, flood is detected within the area. Proceed immediately to {$EVAC_CENTER_NAME} ({$dist_str}km). It has space available.";
             } else {
                 $custom_msg = "WARNING: Heavy rain detected. Please stay alert.";
             }
 
-            // --- A. PhilSMS (SMS) ---
+            // --- A. PhilSMS ---
             if (!empty($phone)) {
                 $clean_phone = preg_replace('/[^0-9]/', '', $phone);
                 if (substr($clean_phone, 0, 1) == "0") $final_phone = "63" . substr($clean_phone, 1);
@@ -92,7 +82,7 @@ function broadcastToAllResidents($con, $type, $base_message) {
                 }
             }
 
-            // --- B. Resend (Email) ---
+            // --- B. Resend (UPDATED WITH VERIFIED DOMAIN) ---
             if (!empty(getenv('RESEND_API_KEY')) && !empty($email) && strpos($email, '@') !== false) {
                 $subject = ($type == 'EVACUATE') ? "🚨 URGENT EVACUATION" : "⚠️ WEATHER WARNING";
                 $html = "<h1>{$type} ALERT</h1><p>Dear {$name},</p><p>{$custom_msg}</p>";
@@ -100,7 +90,8 @@ function broadcastToAllResidents($con, $type, $base_message) {
                 $ch = curl_init('https://api.resend.com/emails');
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                    'from' => "Barangay Alert <onboarding@resend.dev>",
+                    // UPDATED LINE BELOW:
+                    'from' => "Barangay Kalusugan Alert <noreply@qc-brgy-kalusugan.online>",
                     'to' => [$email], 
                     'subject' => $subject, 
                     'html' => $html
@@ -108,7 +99,7 @@ function broadcastToAllResidents($con, $type, $base_message) {
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . getenv('RESEND_API_KEY'), 'Content-Type: application/json']);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 
-                $response_body = curl_exec($ch); // Capture response
+                $response_body = curl_exec($ch); 
                 $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
 
@@ -116,17 +107,13 @@ function broadcastToAllResidents($con, $type, $base_message) {
                     $count_email++;
                 } else {
                     $errors++;
-                    // Optional: Logs specific error if you need to debug later
-                    // error_log("Resend Failed ($code): " . $response_body); 
                 }
             }
-
-            // 2. SLOW DOWN THE LOOP (Crucial Fix)
-            // Wait 1 second between residents to avoid hitting API Rate Limits (429 Too Many Requests)
+            // Anti-Spam Throttle
             sleep(1); 
         }
         $log .= "✅ Broadcast Complete.<br>Sent {$count_sms} SMS and {$count_email} Emails.";
-        if ($errors > 0) $log .= "<br>⚠️ {$errors} emails failed (likely invalid address or rate limit).";
+        if ($errors > 0) $log .= "<br>⚠️ {$errors} emails failed (Check Resend Logs).";
     } else {
         $log .= "⚠️ No residents found in database.";
     }
@@ -139,7 +126,7 @@ try {
         echo '<script>window.location.href = "../login.php";</script>'; exit;
     }
     
-    // User Info Fetching
+    // User Info Logic
     $user_id = $_SESSION['user_id'];
     $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
     $stmt_user = $con->prepare($sql_user);
