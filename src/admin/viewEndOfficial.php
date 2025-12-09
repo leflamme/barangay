@@ -64,38 +64,176 @@ if(isset($_REQUEST['request'])){
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
-
+  <title>View End Term Official</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
  
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
  
+  <style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #ffffff;
+  }
+
+  .wrapper,
+  .content-wrapper,
+  .main-footer,
+  .content,
+  .content-header {
+    background-color: #ffffff !important;
+    color: #050C9C;
+  }
+
+  /* Navbar */
+  .main-header.navbar {
+    background-color: #050C9C !important;
+    border-bottom: none;
+  }
+
+  .navbar .nav-link,
+  .navbar .nav-link:hover {
+    color: #ffffff !important;
+  }
+
+  /* Sidebar */
+  .main-sidebar {
+    background-color: #050C9C !important;
+  }
+
+  .brand-link {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar .nav-link {
+    color: #A7E6FF !important;
+    transition: all 0.3s;
+  }
+
+  .sidebar .nav-link.active,
+  .sidebar .nav-link:hover {
+    background-color: #3572EF !important;
+    color: #ffffff !important;
+  }
+
+  .sidebar .nav-icon {
+    color: #3ABEF9 !important;
+  }
+
+  .dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+
+  .dropdown-item {
+    font-weight: 600;
+    transition: 0.2s ease-in-out;
+  }
+
+  .dropdown-item:hover {
+    background-color: #F5587B;
+    color: white;
+  }
+
+  /* Tabs - form */
+  .tab-content .lead {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .tab-nav-link {
+    background-color: #ffffff !important;
+    color: #003366 !important;
+    border: 1px solid #cccccc !important;
+    font-weight: 600;
+  }
+
+  .tab-nav-link.active {
+    background-color: #003366 !important;
+    color: #ffffff !important;
+  }
+
+  .tab-nav-link:hover {
+    background-color: #f0f0f0 !important;
+    color: #003366 !important;
+  }
+
+  /* Fix dark background issue */
+  .card,
+  .card-body,
+  .card-header,
+  .card-footer {
+    background-color: #ffffff !important;
+    color: #050C9C !important;
+  }
+
+  .form-control {
+    background-color: #ffffff !important;
+    color: #000000 !important; /* input text now black */
+    border: 1px solid #dcdfe3 !important;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Make disabled inputs look better */
+  .form-control:disabled, .form-control[readonly] {
+    background-color: #e9ecef !important;
+  }
+
+  /* Image card on left */
+  .card-indigo.card-outline {
+    border-color: #003366 !important;
+    background-color: #ffffff !important;
+  }
+
+  /* Fix image section text */
+  .box-profile h3 {
+    color: #003366 !important;
+  }
+
+  .btn-success {
+    background-color: #2E8B57 !important;
+    border-color: #2E8B57 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border-radius: 10px !important;
+    padding: 10px 20px;
+  }
+
+  .btn-success:hover {
+    background-color: #256d47 !important;
+    border-color: #256d47 !important;
+  }
+  
+  .btn-flat {
+    border-radius: 10px !important;
+  }
+  
+  </style>
  
  
 </head>
-<body class="hold-transition dark-mode sidebar-mini   ">
+<body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
-<!-- Preloader -->
 <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
@@ -117,17 +255,14 @@ if(isset($_REQUEST['request'])){
       </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-      <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <i class="far fa-user"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="#" class="dropdown-item">
-            <!-- Message Start -->
             <div class="media">
               <?php 
                 if($user_image != '' || $user_image != null || !empty($user_image)){
@@ -143,44 +278,19 @@ if(isset($_REQUEST['request'])){
                 </h3>
               </div>
             </div>
-            <!-- Message End -->
-          </a>         
+            </a>         
           <div class="dropdown-divider"></div>
           <a href="../logout.php" class="dropdown-item dropdown-footer">LOGOUT</a>
         </div>
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
 
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
-    <a href="#" class="brand-link text-center">
-    <?php 
-        if($image != '' || $image != null || !empty($image)){
-          echo '<img src="'.$image_path.'" id="logo_image" class="img-circle elevation-5 img-bordered-sm" alt="logo" style="width: 70%;">';
-        }else{
-          echo ' <img src="../assets//logo//logo.png" id="logo_image" class="img-circle elevation-5 img-bordered-sm" alt="logo" style="width: 70%;">';
-        }
+    <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-      ?>
-      <span class="brand-text font-weight-light"></span>
-    </a>
-
-    <!-- Sidebar -->
     <div class="sidebar">
     
-
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="../assets/dist/img/logo.png" class="img-circle elevation-5 img-bordered-sm" alt="User Image">
-        </div>
-        <div class="info text-center">
-          <a href="#" class="d-block text-bold"><?= strtoupper($user_type) ?></a>
-        </div>
-      </div>
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
@@ -320,30 +430,12 @@ if(isset($_REQUEST['request'])){
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="settings.php" class="nav-link">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>
-                Settings
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="backupRestore.php" class="nav-link">
-              <i class="nav-icon fas fa-database"></i>
-              <p>
-                Backup/Restore
-              </p>
-            </a>
-          </li>
+          
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     
   <div class="content-header">
@@ -351,16 +443,11 @@ if(isset($_REQUEST['request'])){
           <div class="row mb-2">
             <div class="col-sm-6">
             
-            </div><!-- /.col -->
-            <div class="col-sm-6">
+            </div><div class="col-sm-6">
             <a href="#" class="btn bg-black float-lg-right elevation-5 px-3 btn-flat" onclick="history.go(-1)"><i class="fas fa-backward"></i>  BACK</a>
-            </div><!-- /.col -->
-          </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-      </div>
+            </div></div></div></div>
    
 
-    <!-- Main content -->
     <section class="content mt-3">
       <div class="container-fluid">
 
@@ -492,21 +579,20 @@ if(isset($_REQUEST['request'])){
 
                
               </div>
-              <!-- /.card-body -->
-            </div>
+              </div>
           </div>
           <div class="col-sm-8">
             <div class="card card-indigo card-tabs h-100">
               <div class="card-header p-0 pt-1">
                 <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                   <li class="nav-item">
-                    <a class="nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info" role="tab" aria-controls="basic-info" aria-selected="true">Basic Info</a>
+                    <a class="nav-link tab-nav-link active" id="basic-info-tab" data-toggle="pill" href="#basic-info" role="tab" aria-controls="basic-info" aria-selected="true">Basic Info</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" id="other-info-tab" data-toggle="pill" href="#other-info" role="tab" aria-controls="other-info" aria-selected="false">Other Info</a>
+                    <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info" role="tab" aria-controls="other-info" aria-selected="false">Other Info</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" id="guardian-tab" data-toggle="pill" href="#guardian" role="tab" aria-controls="guardian" aria-selected="false">Guardian</a>
+                    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian" role="tab" aria-controls="guardian" aria-selected="false">Guardian</a>
                   </li>
                 </ul>
               </div>
@@ -689,23 +775,15 @@ if(isset($_REQUEST['request'])){
               <div class="card-footer">
                 <button type="submit"  class="btn btn-success px-4 elevation-3"> <i class="fas fa-edit"></i> UPDATE</button>
               </div> 
-              <!-- /.card -->
-            </div>
+              </div>
 
           </div>
         </div>
         </form>
 
 
-      </div><!--/. container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
- 
-
-  <!-- Main Footer -->
+      </div></section>
+    </div>
   <footer class="main-footer">
     <strong>Copyright &copy; <?php echo date("Y"); ?> - <?php echo date('Y', strtotime('+1 year'));  ?> </strong>
     
@@ -713,18 +791,9 @@ if(isset($_REQUEST['request'])){
     </div>
   </footer>
 </div>
-<!-- ./wrapper -->
-
-
-
-<!-- REQUIRED SCRIPTS -->
-<!-- jQuery -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- overlayScrollbars -->
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <script src="../assets/plugins/popper/umd/popper.min.js"></script>
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>

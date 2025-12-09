@@ -65,7 +65,8 @@ if(isset($_REQUEST['request'])){
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>View/Edit Official</title>
-
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
  
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
@@ -412,14 +413,7 @@ if(isset($_REQUEST['request'])){
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="settings.php" class="nav-link">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>
-                Settings
-              </p>
-            </a>
-          </li>
+         
           <li class="nav-item">
             <a href="systemLog.php" class="nav-link">
               <i class="nav-icon fas fa-history"></i>
@@ -428,14 +422,7 @@ if(isset($_REQUEST['request'])){
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="backupRestore.php" class="nav-link">
-              <i class="nav-icon fas fa-database"></i>
-              <p>
-                Backup/Restore
-              </p>
-            </a>
-          </li>
+          
         </ul>
       </nav>
       </div>
