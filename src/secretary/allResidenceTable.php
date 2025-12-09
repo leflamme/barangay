@@ -149,6 +149,15 @@ while($row = $result->fetch_assoc()){
     $residency_type_label = '<span class="badge badge-secondary text-md">'.$row['residency_type'].'</span>';
   }
 
+  // Logic to format PWD status with badges
+  if($row['pwd'] == 'YES'){
+    $pwd_status = '<span class="badge badge-info text-md">'.$row['pwd'].'</span>';
+  } else {
+    // Check if empty or NO
+    $display_pwd = !empty($row['pwd']) ? $row['pwd'] : 'NO';
+    $pwd_status = '<span class="badge badge-warning text-md">'.$display_pwd.'</span>';
+  }
+
   if($row['single_parent'] == 'YES'){
     $single_parent = '<span class="badge badge-info text-md ">'.$row['single_parent'].'</span>';
   }else{
@@ -160,7 +169,7 @@ while($row = $result->fetch_assoc()){
   $subdata[] =  $row['residence_id'];
   $subdata[] =  ucfirst($row['first_name']).' '. $middle_name .' '. ucfirst($row['last_name']); 
   $subdata[] =  $row['age'];
-  $subdata[] =  $row['pwd_info']; 
+  $subdata[] =  $pwd_status; 
   $subdata[] =  $single_parent; 
   $subdata[] = $residency_type_label; // Display the updated label
   $subdata[] = $status;
