@@ -12,11 +12,9 @@ require __DIR__ . '/../vendor/autoload.php';
 // Load the database connection
 require __DIR__ . '/../connection.php';
 
-/**
- * ---------------------------------------------------------
- * EMAIL FUNCTION
- * ---------------------------------------------------------
- */
+// ---------------------------------------------------------
+// EMAIL FUNCTION
+// ---------------------------------------------------------
 function sendBarangayWelcomeEmail($recipientEmail, $recipientName, $userData) {
     $apiKey = getenv('RESEND_API_KEY');
     $barangay_name = getenv('BARANGAY_NAME');
@@ -67,7 +65,7 @@ try {
     $date = new DateTime();
     $today = date("Y/m/d");
 
-    // --- 1. CAPTURE DATA ---
+    // --- 1. CAPTURE INPUTS ---
     $add_username = isset($_POST['add_username']) ? $con->real_escape_string($_POST['add_username']) : '';
     $add_password = isset($_POST['add_password']) ? $con->real_escape_string($_POST['add_password']) : '';
     $add_confirm_password = isset($_POST['add_confirm_password']) ? $con->real_escape_string($_POST['add_confirm_password']) : '';
@@ -88,29 +86,26 @@ try {
         exit();
     }
 
-    // --- CAPTURE AND COMBINE ADDRESS (MOVED TO TOP) ---
-    // 1. Strict values
+    // --- CAPTURE ADDRESS ---
     $add_municipality = 'Quezon City';
     $add_barangay     = 'Barangay Kalusugan';
     $add_zip          = '1112';
     
-    // 2. User inputs
     $add_street       = isset($_POST['add_street']) ? $con->real_escape_string($_POST['add_street']) : '';
     $add_house_number = isset($_POST['add_house_number']) ? $con->real_escape_string($_POST['add_house_number']) : '';
     
-    // 3. COMBINE THEM IMMEDIATELY
-    // Format: "House No., Street, Barangay, City, Zip"
+    // Combine Address
     $parts = array_filter([$add_house_number, $add_street, $add_barangay, $add_municipality, $add_zip]);
     $add_address = implode(', ', $parts);
     
-    // Household Action Inputs
+    // Action Inputs (passed from JS confirmation)
     $household_action = isset($_POST['household_action']) ? $_POST['household_action'] : null;
     $target_household_id = isset($_POST['household_id']) ? $_POST['household_id'] : null;
     $relationship = isset($_POST['relationship_to_head']) ? $_POST['relationship_to_head'] : 'Head';
 
     // --- 2. HOUSEHOLD CHECK LOGIC ---
     
-    // Only check if user hasn't made a choice yet
+    // IF the user hasn't chosen an action yet, we check the DB.
     if (empty($household_action)) {
         
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
@@ -121,13 +116,12 @@ try {
                       LIMIT 1";
         
         $stmt_h = $con->prepare($check_sql);
-        // Bind: street, house_number, address
         $stmt_h->bind_param("sss", $add_street, $add_house_number, $add_address);
         $stmt_h->execute();
         $result_h = $stmt_h->get_result();
 
         if ($result_h->num_rows > 0) {
-            // Found one! Ask user what to do.
+            // SCENARIO 1: MATCH FOUND -> Return data so JS can show "Join or Create"
             $household_data = $result_h->fetch_assoc();
             echo json_encode([
                 'status' => 'showHouseholdModal',
@@ -135,7 +129,7 @@ try {
             ]);
             exit(); 
         } else {
-            // --- CHANGE: Do NOT auto-create. Ask user instead. ---
+            // SCENARIO 2: NO MATCH -> Return status so JS can show "No detected, Create?"
             echo json_encode(['status' => 'askCreateNew']);
             exit();
         }
@@ -143,18 +137,19 @@ try {
 
     // --- 3. PREPARE GENERAL DATA ---
     
-    // ID Generation
     $number = mt_rand(100000, 999999) . $date->format("mdHis");
     $date_added = date("m/d/Y h:i A");
     $archive = 'NO';
     $user_type = 'resident';
     $add_status = 'ACTIVE';
 
-    // Other Inputs
+    // Optional Inputs
     $add_pwd_check = isset($_POST['add_pwd_info']) ? $con->real_escape_string($_POST['add_pwd_info']) : '';
     $add_single_parent = isset($_POST['add_single_parent']) ? $con->real_escape_string($_POST['add_single_parent']) : 'NO';
     $add_pwd = isset($_POST['add_pwd']) ? $con->real_escape_string($_POST['add_pwd']) : 'NO';
     $add_residency_type = isset($_POST['add_residency_type']) ? $con->real_escape_string($_POST['add_residency_type']) : '';
+    
+    // Basic Info
     $add_first_name = isset($_POST['add_first_name']) ? $con->real_escape_string($_POST['add_first_name']) : '';
     $add_middle_name = isset($_POST['add_middle_name']) ? $con->real_escape_string($_POST['add_middle_name']) : '';
     $add_last_name = isset($_POST['add_last_name']) ? $con->real_escape_string($_POST['add_last_name']) : '';
@@ -167,6 +162,8 @@ try {
     $add_email_address = isset($_POST['add_email_address']) ? $con->real_escape_string($_POST['add_email_address']) : '';
     $add_birth_date = isset($_POST['add_birth_date']) ? $con->real_escape_string($_POST['add_birth_date']) : '';
     $add_birth_place = isset($_POST['add_birth_place']) ? $con->real_escape_string($_POST['add_birth_place']) : '';
+    
+    // Parents/Guardian
     $add_fathers_name = isset($_POST['add_fathers_name']) ? $con->real_escape_string($_POST['add_fathers_name']) : '';
     $add_mothers_name = isset($_POST['add_mothers_name']) ? $con->real_escape_string($_POST['add_mothers_name']) : '';
     $add_guardian = isset($_POST['add_guardian']) ? $con->real_escape_string($_POST['add_guardian']) : '';
@@ -190,20 +187,19 @@ try {
     $final_household_number = '';
     
     if ($household_action === 'join' && !empty($target_household_id)) {
-        // JOINING
+        // --- JOIN EXISTING ---
         $final_household_id = $target_household_id;
         $get_num = $con->query("SELECT household_number FROM households WHERE id = '$final_household_id'");
         if ($get_num && $row_num = $get_num->fetch_assoc()) {
             $final_household_number = $row_num['household_number'];
         }
     } else {
-        // CREATING NEW
-        // (This block runs if action is 'new' - passed from the frontend after user confirms)
+        // --- CREATE NEW ---
+        // Runs if action is 'new' (passed from Frontend)
         $new_household_number = date("Y") . '-' . mt_rand(1000, 9999);
         
         $sql_hh = "INSERT INTO households (household_number, household_head_id, municipality, barangay, street, house_number, address, zip_code, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt_hh = $con->prepare($sql_hh);
-        // Important: We use the $add_address we constructed at the top
         $stmt_hh->bind_param("ssssssss", $new_household_number, $number, $add_municipality, $add_barangay, $add_street, $add_house_number, $add_address, $add_zip);
         
         if ($stmt_hh->execute()) {
@@ -241,7 +237,6 @@ try {
     
     $stmt = $con->prepare($sql);
     if (!$stmt) throw new Exception($con->error);
-    // Important: We pass $add_address here to save the Combined Address in the 'address' column
     $stmt->bind_param('ssssssssssssssssssssssssssss', 
       $number, $add_first_name, $add_middle_name, $add_last_name, $age_val,
       $add_suffix, $add_gender, $add_civil_status, $add_religion, $add_nationality,
@@ -260,7 +255,7 @@ try {
     $stmt_status->execute();
     $stmt_status->close();
 
-    // D. Household Members
+    // D. Household Members (Insert only if table exists)
     $check_table = $con->query("SHOW TABLES LIKE 'household_members'");
     if($check_table->num_rows > 0) {
         $is_head_val = ($relationship === 'Head') ? 1 : 0;

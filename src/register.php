@@ -477,7 +477,7 @@ $(document).ready(function(){
         }
     });
 
-    // --- AJAX HELPER WITH LEGACY SWEETALERT CHAINING ---
+    // --- AJAX SUBMISSION WITH ENHANCED CONFIRMATION LOGIC ---
     function submitRegistration(formData) {
         $.ajax({
             url: 'signup/newResidence.php',
@@ -494,6 +494,7 @@ $(document).ready(function(){
                     response = { status: 'error', message: data };
                 }
 
+                // --- 1. SUCCESS ---
                 if (response.status === 'success') {
                     Swal.fire({
                         title: 'SUCCESS',
@@ -506,33 +507,34 @@ $(document).ready(function(){
                         window.location.href = 'login.php';
                     });
 
+                // --- 2. MATCH FOUND (Show JOIN or CREATE) ---
                 } else if (response.status === 'showHouseholdModal') {
-                    // SCENARIO: Household Exists (Same Address/Condo)
                     Swal.fire({
                         title: 'Household Found!',
-                        type: 'question',
+                        type: 'info',
                         html: `
-                            <p class="text-left">We found a registered household at this address:</p>
-                            <div class="alert alert-info text-left">
+                            <p>We found a registered household at this address:</p>
+                            <div style="background:#f1f9ff; padding:10px; border-radius:5px; text-align:left; margin-bottom:10px;">
                                 <strong>Head:</strong> ${response.household.head_first_name} ${response.household.head_last_name}<br>
-                                <strong>Household #:</strong> ${response.household.household_number}
+                                <strong>Address:</strong> ${response.household.address}
                             </div>
-                            <p class="small text-muted">Do you belong to this family (Join), or do you have a separate household in this building/unit (Create New)?</p>`,
+                            <p>Do you want to join this household or create a new one?</p>
+                        `,
                         showCancelButton: true,
-                        confirmButtonText: '<i class="fas fa-users"></i> Join This Household',
-                        cancelButtonText: '<i class="fas fa-home"></i> Create New Household',
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#28a745' // Green for "Create New" to make it look positive
+                        confirmButtonText: 'Join Household',
+                        cancelButtonText: 'Create a New Household',
+                        confirmButtonColor: '#007bff', // Blue for Join
+                        cancelButtonColor: '#28a745'  // Green for Create New
                     }).then((result) => {
                         if (result.value) {
-                            // --- JOIN FLOW ---
+                            // User Clicked "Join Household"
                             askRelationshipAndSubmit('join', response.household.id);
                         } else if (result.dismiss === Swal.DismissReason.cancel) {
-                            // --- CREATE NEW FLOW (Condo Scenario) ---
-                            // Confirmation ensures they didn't click by mistake
-                             Swal.fire({
-                                title: 'Create Separate Household?',
-                                text: 'You are about to create a NEW household record at the same address. Continue?',
+                            // User Clicked "Create a New Household" (cancelButton)
+                            // We double confirm just to be safe (optional, but good for data integrity)
+                            Swal.fire({
+                                title: 'Create New Household?',
+                                text: 'You are creating a separate household record at the same address. Continue?',
                                 type: 'warning',
                                 showCancelButton: true,
                                 confirmButtonText: 'Yes, Create New',
@@ -545,25 +547,23 @@ $(document).ready(function(){
                         }
                     });
 
+                // --- 3. NO MATCH (Show NO HOUSEHOLD DETECTED) ---
                 } else if (response.status === 'askCreateNew') {
-                    // SCENARIO: No Household Found (New Logic)
-                    // We prompt the user instead of assuming.
                     Swal.fire({
-                        title: 'No Household Found',
-                        type: 'info',
-                        html: `
-                            <p>No existing household record was found for this address.</p>
-                            <p>Do you want to create a <b>New Household</b>?</p>
-                            <small class="text-muted">(If you expected to join a family, please check if your address matches exactly with the Head of Household's record)</small>
-                        `,
+                        title: 'No household detected',
+                        type: 'question',
+                        html: 'No existing household record was found for this address.<br><b>Create a household?</b>',
                         showCancelButton: true,
-                        confirmButtonText: 'Yes, Create New Household',
-                        cancelButtonText: 'Cancel / Edit Address',
+                        confirmButtonText: 'Yes, Create Household',
+                        cancelButtonText: 'Cancel',
                         confirmButtonColor: '#28a745',
                         cancelButtonColor: '#d33'
                     }).then((result) => {
                         if (result.value) {
-                            // User confirms they are the first/head
+                            // User Clicked "Yes, Create Household"
+                            // For new households, relationship is usually "Head", but we can ask or default to Head.
+                            // To keep it simple, let's ask, or default to "Head" if they are the first.
+                            // Let's ask to be consistent.
                             askRelationshipAndSubmit('new', null);
                         }
                     });
@@ -582,6 +582,44 @@ $(document).ready(function(){
             },
             error: function(xhr, status, error) {
                 Swal.fire('System Error', 'Check console.', 'error');
+            }
+        });
+    }
+
+    // Helper function to ask relationship inside SweetAlert
+    function askRelationshipAndSubmit(action, id) {
+        Swal.fire({
+            title: 'Select Relationship',
+            text: 'What is your relationship to the Household Head?',
+            input: 'select',
+            inputOptions: {
+                'Head': 'Head of Household',
+                'Wife': 'Wife',
+                'Husband': 'Husband',
+                'Son': 'Son',
+                'Daughter': 'Daughter',
+                'Relative': 'Relative',
+                'Tenant': 'Tenant',
+                'Worker': 'Worker'
+            },
+            inputPlaceholder: 'Select relationship',
+            showCancelButton: true,
+            confirmButtonText: 'Submit Registration',
+            inputValidator: (value) => {
+                return !value && 'You need to choose an option!'
+            }
+        }).then((relResult) => {
+            if (relResult.value) {
+                // User selected a relationship, now submit FINAL data
+                var form = $('#registerResidentForm')[0];
+                var formData = new FormData(form);
+                
+                formData.set('household_action', action);
+                if(id) formData.set('household_id', id);
+                formData.set('relationship_to_head', relResult.value);
+                
+                // RECURSIVE CALL: This time it will succeed because 'household_action' is set
+                submitRegistration(formData);
             }
         });
     }
