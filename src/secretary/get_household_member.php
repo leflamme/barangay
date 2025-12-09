@@ -53,10 +53,6 @@ try {
     }
     
     $check_result = $check_stmt->get_result();
-    if (!$check_result) {
-        throw new Exception("Get result check failed: " . $con->error);
-    }
-    
     $check_row = $check_result->fetch_assoc();
     
     if ($check_row['count'] == 0) {
@@ -66,7 +62,8 @@ try {
     }
     
     // Get household members
-    // FIXED: Removed 'rs.voters' to prevent the "Unknown column" error
+    // FIXED: Removed the forced 'Resident' default so it reflects actual DB data
+    // FIXED: Selecting rs.residency_type directly
     $sql = "SELECT 
                 hm.id as member_id,
                 hm.relationship_to_head,
@@ -79,7 +76,7 @@ try {
                 COALESCE(rs.pwd, 'NO') as pwd,
                 COALESCE(rs.senior, 'NO') as senior,
                 COALESCE(rs.single_parent, 'NO') as single_parent,
-                COALESCE(rs.residency_type, 'Resident') as residency_type,
+                rs.residency_type,
                 COALESCE(rs.status, 'ACTIVE') as status
             FROM household_members hm
             LEFT JOIN users u ON hm.user_id = u.id
@@ -102,9 +99,6 @@ try {
     }
     
     $result = $stmt->get_result();
-    if (!$result) {
-        throw new Exception("Get result failed: " . $con->error);
-    }
     
     $members = [];
     $total_members = $result->num_rows;
@@ -124,6 +118,9 @@ try {
             } elseif (!empty($row['relationship_to_head'])) {
                 $relationship = $row['relationship_to_head'];
             }
+
+            // CLEAN UP DATA: Trim whitespace to ensure JS checks match exactly
+            $residency_type = isset($row['residency_type']) ? trim($row['residency_type']) : null;
             
             $members[] = [
                 'name' => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
@@ -133,8 +130,7 @@ try {
                 'pwd' => $row['pwd'],
                 'senior' => $row['senior'],
                 'single_parent' => $row['single_parent'],
-                'residency_type' => $row['residency_type'],
-                // Removed 'voters' key here as well
+                'residency_type' => $residency_type, 
                 'status' => $row['status']
             ];
         }
@@ -148,25 +144,15 @@ try {
     ];
     
 } catch (Exception $e) {
-    // Log the error
     error_log("Error in get_household_member.php: " . $e->getMessage());
-    
     $response['message'] = 'An error occurred: ' . $e->getMessage();
 }
 
-// Output the JSON response
 echo json_encode($response);
 
 // Close connections
-if (isset($stmt) && $stmt) {
-    $stmt->close();
-}
-if (isset($check_stmt) && $check_stmt) {
-    $check_stmt->close();
-}
-if (isset($con) && $con) {
-    $con->close();
-}
-
+if (isset($stmt) && $stmt) $stmt->close();
+if (isset($check_stmt) && $check_stmt) $check_stmt->close();
+if (isset($con) && $con) $con->close();
 exit;
 ?>
