@@ -266,12 +266,40 @@ if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
                   <div class="tab-pane fade" id="other-info">
                     <p class="lead text-center lead-bold">Address</p>
                     <div class="row">
-                      <div class="col-sm-6"><div class="form-group"><label>Municipality</label><input type="text" class="form-control" id="add_municipality" name="add_municipality" value="Quezon City" readonly></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Zip</label><input type="text" class="form-control" id="add_zip" name="add_zip" value="1112" readonly></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Barangay</label><input type="text" class="form-control" id="add_barangay" name="add_barangay" value="Barangay Kalusugan" readonly></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Municipality <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_municipality" name="add_municipality" value="Quezon City" readonly></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Zip <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_zip" name="add_zip" value="1112" readonly></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>Barangay <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_barangay" name="add_barangay" value="Barangay Kalusugan" readonly></div></div>
                       
-                      <div class="col-sm-6"><div class="form-group"><label>House Number</label><input type="text" class="form-control" id="add_house_number" name="add_house_number"></div></div>
-                      <div class="col-sm-6"><div class="form-group"><label>Street</label><input type="text" class="form-control" id="add_street" name="add_street"></div></div>
+                      <div class="col-sm-6"><div class="form-group"><label>House Number <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_house_number" name="add_house_number"></div></div>
+                      
+                      <div class="col-sm-6">
+                          <div class="form-group">
+                              <label>Street <span class="text-danger">*</span></label>
+                              <select class="form-control" id="add_street" name="add_street">
+                                <option value="">Select Street</option>
+                                <option value="16th">16th</option>
+                                <option value="17th">17th</option>
+                                <option value="18th">18th</option>
+                                <option value="19th">19th</option>
+                                <option value="Alexander St">Alexander St</option>
+                                <option value="Anniston St">Anniston St</option>
+                                <option value="Bryant St">Bryant St</option>
+                                <option value="Clayton St">Clayton St</option>
+                                <option value="E. Rodriquez Sr. Ave">E. Rodriquez Sr. Ave</option>
+                                <option value="Fairhope St">Fairhope St</option>
+                                <option value="Florence St">Florence St</option>
+                                <option value="Glenwood St">Glenwood St</option>
+                                <option value="Hamilton St">Hamilton St</option>
+                                <option value="Jasper St">Jasper St</option>
+                                <option value="Madison Loop">Madison Loop</option>
+                                <option value="Meridien St">Meridien St</option>
+                                <option value="Montgomery Rd">Montgomery Rd</option>
+                                <option value="Sta. Ignacia">Sta. Ignacia</option>
+                                <option value="Trinity Dr">Trinity Dr</option>
+                              </select>
+                          </div>
+                      </div>
+                      
                       <div class="col-sm-6"><div class="form-group"><label>Contact Number <span class="text-danger">*</span></label><input type="text" maxlength="11" class="form-control" id="add_contact_number" name="add_contact_number"></div></div>
                       <div class="col-sm-6"><div class="form-group"><label>Email Address <span class="text-danger">*</span></label><input type="text" class="form-control" id="add_email_address" name="add_email_address"></div></div>
                     </div>
@@ -441,17 +469,18 @@ $(document).ready(function(){
        rules: {
           add_first_name: { required: true, minlength: 2 },
           add_last_name: { required: true, minlength: 2 },
-          // Removed relationship rule here since it's now in popup
           add_birth_date: { required: true },
           add_gender: { required: true },
           add_contact_number: { required: true, minlength: 11 },
           add_email_address: { required: true, email: true },
           add_residency_type: { required: true },
           add_pwd: { required: true },
+          add_single_parent: { required: true },
+          add_house_number: { required: true },
+          add_street: { required: true },
           add_username:{ required: true, minlength: 8 },
           add_password:{ required: true, minlength: 8 },
           add_confirm_password:{ required: true, minlength: 8, equalTo: "#add_password" }
-          // Removed 'add_address' rule
        },
        messages: {
           add_first_name: { required: "Required", minlength: "At least 2 chars" },
@@ -561,9 +590,6 @@ $(document).ready(function(){
                     }).then((result) => {
                         if (result.value) {
                             // User Clicked "Yes, Create Household"
-                            // For new households, relationship is usually "Head", but we can ask or default to Head.
-                            // To keep it simple, let's ask, or default to "Head" if they are the first.
-                            // Let's ask to be consistent.
                             askRelationshipAndSubmit('new', null);
                         }
                     });
@@ -620,75 +646,6 @@ $(document).ready(function(){
                 
                 // RECURSIVE CALL: This time it will succeed because 'household_action' is set
                 submitRegistration(formData);
-            }
-        });
-    }
-
-    // Helper function to ask relationship inside SweetAlert
-    function askRelationshipAndSubmit(action, id) {
-        Swal.fire({
-            title: 'Select Relationship',
-            text: 'What is your relationship to the Household Head?',
-            input: 'select',
-            inputOptions: {
-                'Head': 'Head of Household',
-                'Wife': 'Wife',
-                'Husband': 'Husband',
-                'Son': 'Son',
-                'Daughter': 'Daughter',
-                'Relative': 'Relative',
-                'Tenant': 'Tenant',
-                'Worker': 'Worker'
-            },
-            inputPlaceholder: 'Select relationship',
-            showCancelButton: true,
-            inputValidator: (value) => {
-                return !value && 'You need to choose an option!'
-            }
-        }).then((relResult) => {
-            if (relResult.value) {
-                // User selected a relationship, now submit
-                var form = $('#registerResidentForm')[0];
-                var formData = new FormData(form);
-                
-                formData.set('household_action', action);
-                if(id) formData.set('household_id', id);
-                formData.set('relationship_to_head', relResult.value);
-                
-                // Call main function again, but this time it will succeed because action is set
-                // Actually, let's call the recursive part manually to avoid validation loops
-                submitFinalData(formData);
-            }
-        });
-    }
-
-    function submitFinalData(formData) {
-        $.ajax({
-            url: 'signup/newResidence.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            cache: false,
-            success: function(data) {
-                 var response;
-                try { response = (typeof data === 'object') ? data : JSON.parse(data); } 
-                catch (e) { response = { status: 'error', message: data }; }
-
-                if (response.status === 'success') {
-                    Swal.fire({
-                        title: 'SUCCESS',
-                        type: 'success',
-                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
-                        timer: 2000,
-                        showConfirmButton: false,
-                        allowOutsideClick: false
-                    }).then(() => {
-                        window.location.href = 'login.php';
-                    });
-                } else {
-                     Swal.fire('Error', response.message || 'Unknown Error', 'error');
-                }
             }
         });
     }
