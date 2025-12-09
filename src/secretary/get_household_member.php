@@ -66,6 +66,7 @@ try {
     }
     
     // Get household members
+    // FIXED: Removed 'rs.voters' to prevent the "Unknown column" error
     $sql = "SELECT 
                 hm.id as member_id,
                 hm.relationship_to_head,
@@ -78,7 +79,7 @@ try {
                 COALESCE(rs.pwd, 'NO') as pwd,
                 COALESCE(rs.senior, 'NO') as senior,
                 COALESCE(rs.single_parent, 'NO') as single_parent,
-                COALESCE(rs.voters, 'NO') as voters,
+                COALESCE(rs.residency_type, 'Resident') as residency_type,
                 COALESCE(rs.status, 'ACTIVE') as status
             FROM household_members hm
             LEFT JOIN users u ON hm.user_id = u.id
@@ -132,7 +133,8 @@ try {
                 'pwd' => $row['pwd'],
                 'senior' => $row['senior'],
                 'single_parent' => $row['single_parent'],
-                'voters' => $row['voters'],
+                'residency_type' => $row['residency_type'],
+                // Removed 'voters' key here as well
                 'status' => $row['status']
             ];
         }
