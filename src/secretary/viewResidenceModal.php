@@ -49,7 +49,8 @@ fieldset {
     legend {
       font-size: 1.2em !important;
       font-weight: bold !important;
-      color: #fff;
+      /* CHANGED: Color from white (#fff) to Dark Blue (#050C9C) for visibility */
+      color: #050C9C; 
       text-align: left !important;
       width:auto;
       padding:0 10px;
@@ -57,7 +58,8 @@ fieldset {
     }
     .editInfo {
     background-color:rgba(0, 0, 0, 0);
-    color:#fff;
+    /* CHANGED: Color from white (#fff) to Black (#000) for visibility */
+    color: #000; 
     border: none;
     outline:none;
     width: 100%;
