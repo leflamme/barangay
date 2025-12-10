@@ -508,6 +508,17 @@ $(document).ready(function(){
 
     // --- AJAX SUBMISSION WITH CHAINING ---
     function submitRegistration(formData) {
+        
+        // --- 0. INITIAL INDICATOR: SAVING ---
+        // Helpful debugging: identifying if the issue is in newResidence.php
+        Swal.fire({
+            title: 'Processing...',
+            text: 'Saving registration details...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            onBeforeOpen: () => { Swal.showLoading() }
+        });
+
         $.ajax({
             url: 'signup/newResidence.php',
             type: 'POST',
@@ -523,10 +534,11 @@ $(document).ready(function(){
                 // --- 1. SUCCESS: START CHAINING ---
                 if (response.status === 'success') {
                     
-                    // Show Loading State
-                    Swal.fire({
+                    // --- 1. INDICATOR: MAP COORDINATES ---
+                    // Helpful debugging: identifying if the issue is in fix_locations.php
+                    Swal.fire({ // Use fire() to ensure it overrides the previous swal
                         title: 'Registration Saved!',
-                        html: 'Please wait...<br><b>Calculating Map Coordinates...</b>',
+                        html: 'Please wait...<br><b>Finding your coordinates</b>', // <--- UPDATED TEXT
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         onBeforeOpen: () => { Swal.showLoading() }
@@ -534,24 +546,25 @@ $(document).ready(function(){
 
                     // CHAIN 1: Fix Locations (Geocoding)
                     $.ajax({
-                        url: 'signup/fix_locations.php', // Check your path!
+                        url: 'signup/fix_locations.php', 
                         type: 'POST',
                         data: { request: response.residence_id },
-                        timeout: 10000, // 10 seconds timeout
+                        timeout: 10000, 
                         success: function() {
                             
-                            // CHAIN 2: Assign Residents (Evacuation)
-                            Swal.update({ html: 'Please wait...<br><b>Assigning Evacuation Center...</b>' });
+                            // --- 2. INDICATOR: ASSIGNMENT ---
+                            // Helpful debugging: identifying if the issue is in assign_residents.php
+                            Swal.update({ html: 'Please wait...<br><b>currently assigning the nearest evacuation center for you</b>' }); // <--- UPDATED TEXT
                             
                             $.ajax({
-                                url: 'signup/assign_residents.php', // Check your path!
+                                url: 'signup/assign_residents.php', 
                                 type: 'POST',
                                 data: { request: response.residence_id },
                                 success: function() {
                                     
                                     // FINAL SUCCESS: Redirect
                                     Swal.fire({
-                                        title: 'SUCCESS',
+                                        title: 'Registration Complete', // <--- UPDATED TEXT
                                         type: 'success',
                                         html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
                                         timer: 2000,
@@ -561,20 +574,21 @@ $(document).ready(function(){
                                     });
                                 },
                                 error: function() {
-                                    // If assignment fails, we still redirect (it can be fixed by admin later)
+                                    // If assignment fails, we still redirect
                                     window.location.href = 'login.php';
                                 }
                             });
                         },
                         error: function(jqXHR, textStatus) {
-                            // If it times out or fails, just force redirect to login
                             console.log("Geocoding failed or timed out: " + textStatus);
                             window.location.href = 'login.php';
                         }
                     });
 
-                // --- REMAINING LOGIC (Match Found / No Match) STAYS THE SAME ---
                 } else if (response.status === 'showHouseholdModal') {
+                    // Close the loading swal if showing modal
+                    Swal.close(); 
+                    
                     Swal.fire({
                         title: 'Household Found!',
                         type: 'info',
@@ -611,6 +625,9 @@ $(document).ready(function(){
                     });
 
                 } else if (response.status === 'askCreateNew') {
+                    // Close the loading swal
+                    Swal.close();
+                    
                     Swal.fire({
                         title: 'No household detected',
                         type: 'question',
