@@ -59,7 +59,6 @@ if(isset($_REQUEST['request'])){
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>View End Official</title>
-  <!-- Website Logo -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
  
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
@@ -352,8 +351,7 @@ if(isset($_REQUEST['request'])){
                 </a>
               </li>
 
-              <!-- DRM Part   (START)   -->
-          <li class="nav-item has-treeview">
+              <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-exclamation-triangle"></i>
               <p>
@@ -380,8 +378,7 @@ if(isset($_REQUEST['request'])){
                 </li>
               </ul>
           </li>
-        <!-- End of DRM Part -->
-          <li class="nav-item ">
+        <li class="nav-item ">
             <a href="requestCertificate.php" class="nav-link">
               <i class="nav-icon fas fa-certificate"></i>
               <p>
@@ -560,10 +557,7 @@ if(isset($_REQUEST['request'])){
                   <li class="nav-item">
                     <a class="nav-link tab-nav-link" id="other-info-tab" data-toggle="pill" href="#other-info" role="tab" aria-controls="other-info" aria-selected="false">Other Info</a>
                   </li>
-                  <li class="nav-item">
-                    <a class="nav-link tab-nav-link" id="guardian-tab" data-toggle="pill" href="#guardian" role="tab" aria-controls="guardian" aria-selected="false">Guardian</a>
-                  </li>
-                </ul>
+                  </ul>
               </div>
               <div class="card-body">
                 <div class="tab-content" id="custom-tabs-one-tabContent">
@@ -699,47 +693,8 @@ if(isset($_REQUEST['request'])){
                             </div>
                           </div>
                         </div>
-     
-
                   </div>
-                  <div class="tab-pane fade" id="guardian" role="tabpanel" aria-labelledby="guardian-tab">
-                   
-                      <p class="lead text-center">Guardian</p>
-                      <div class="row">
-
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Father's Name</label>
-                            <input type="text" class="form-control" id="edit_fathers_name" name="edit_fathers_name" value="<?= $row_official['fathers_name'] ?>">
-                            <input type="hidden" id="edit_fathers_name_check" value="false">
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Mother's Name</label>
-                            <input type="text" class="form-control" id="edit_mothers_name" name="edit_mothers_name" value="<?= $row_official['mothers_name'] ?>">
-                            <input type="hidden" id="edit_mothers_name_check" value="false">
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Guardian</label>
-                            <input type="text" class="form-control" id="edit_guardian" name="edit_guardian" value="<?= $row_official['guardian'] ?>">
-                            <input type="hidden" id="edit_guardian_check" value="false">
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <div class="form-group">
-                            <label>Guardian Contact</label>
-                            <input type="text" class="form-control" maxlength="11" id="edit_guardian_contact" name="edit_guardian_contact" value="<?= $row_official['guardian_contact'] ?>">
-                            <input type="hidden" id="edit_guardian_contact_check" value="false">
-                          </div>
-                        </div>
-
-                      </div>
-                    
                   </div>
-                </div>
               </div>
             
               </div>
@@ -805,13 +760,13 @@ if(isset($_REQUEST['request'])){
 }(jQuery));
 
  
-  $("#edit_contact_number, #edit_zip, #edit_guardian_contact, #edit_age").inputFilter(function(value) {
+  $("#edit_contact_number, #edit_zip, #edit_age").inputFilter(function(value) {
   return /^-?\d*$/.test(value); 
   
   });
 
 
-  $("#edit_first_name, #edit_middle_name, #edit_last_name, #edit_suffix, #edit_religion, #edit_nationality, #edit_municipality, #edit_fathers_name, #edit_mothers_name, #edit_guardian").inputFilter(function(value) {
+  $("#edit_first_name, #edit_middle_name, #edit_last_name, #edit_suffix, #edit_religion, #edit_nationality, #edit_municipality").inputFilter(function(value) {
   return /^[a-z, ]*$/i.test(value); 
   });
   
