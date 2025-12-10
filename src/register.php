@@ -652,6 +652,8 @@ $(document).ready(function(){
                 'Head': 'Head of Household',
                 'Wife': 'Wife',
                 'Husband': 'Husband',
+                'Mother': 'Mother',
+                'Father': 'Father',
                 'Son': 'Son',
                 'Daughter': 'Daughter',
                 'Relative': 'Relative',
