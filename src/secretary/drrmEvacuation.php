@@ -391,32 +391,38 @@ try{
 $(document).ready(function() {
     $('.table').DataTable();
 
-    // Open Modal
+    // 1. OPEN MODAL & LOAD FAMILY LIST
     $(document).on('click', '.view-family-btn', function() {
         var surname = $(this).data('surname');
         
-        $('.modal-title').text('Family: ' + surname);
-        $('#familyModalBody').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+        // Reset Modal State
+        $('.modal-title').text('Family Checklist: ' + surname);
+        $('#familyModalBody').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><br>Loading...</div>');
         $('#familyModal').modal('show');
 
-        // Calls the NEW file we created
+        // Fetch Data
         $.ajax({
             url: 'get_evacuation_family.php',
             type: 'POST',
             data: { surname: surname }, 
             success: function(response) {
                 $('#familyModalBody').html(response);
+            },
+            error: function(xhr, status, error) {
+                // This will show if the file is missing or has a PHP error
+                $('#familyModalBody').html('<div class="alert alert-danger">Error loading data.<br>Status: ' + status + '<br>Error: ' + error + '</div>');
             }
         });
     });
 
-    // Toggle Status Logic
+    // 2. TOGGLE STATUS (Arrived / Missing)
     $(document).on('click', '.toggle-status-btn', function() {
         var btn = $(this);
         var residence_id = btn.data('id');
         var current_status = btn.data('status');
         var new_status = (current_status === 'Arrived') ? 'Missing' : 'Arrived';
 
+        // Disable button while processing
         btn.prop('disabled', true);
 
         $.ajax({
@@ -424,17 +430,21 @@ $(document).ready(function() {
             type: 'POST',
             data: { residence_id: residence_id, status: new_status },
             success: function(response) {
+                // Re-enable and Update Button
                 btn.prop('disabled', false);
                 btn.data('status', new_status);
-                btn.text(new_status);
-                // Update button color immediately
-                btn.html( (new_status === 'Arrived' ? '<i class="fas fa-check"></i> ' : '<i class="fas fa-times"></i> ') + new_status );
                 
                 if(new_status === 'Arrived') {
                     btn.removeClass('btn-danger').addClass('btn-success');
+                    btn.html('<i class="fas fa-check"></i> Arrived');
                 } else {
                     btn.removeClass('btn-success').addClass('btn-danger');
+                    btn.html('<i class="fas fa-times"></i> Missing');
                 }
+            },
+            error: function() {
+                alert('Failed to update status.');
+                btn.prop('disabled', false);
             }
         });
     });
