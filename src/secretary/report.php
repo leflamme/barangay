@@ -673,9 +673,6 @@ try {
                 </div>
               </div>
               <div class="col-md-4 text-right">
-                <a href="newResidence.php?type=household" class="btn btn-success">
-                  <i class="fas fa-plus-circle"></i> New Household
-                </a>
                 <a href="report.php" class="btn btn-secondary">
                   <i class="fas fa-redo"></i> Reset
                 </a>
