@@ -23,10 +23,12 @@ function getGeo($query) {
 }
 
 // --- SAFETY CHECK ---
-// If this script is called via POST (AJAX) but NO ID is provided, STOP immediately.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request'])) {
-    echo "Error: No ID provided for AJAX request.";
-    exit(); // Stop the script here
+// STRICTER: If called via POST, the ID must be present AND not empty.
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['request']) || empty(trim($_POST['request']))) {
+        echo "Error: ID provided is empty.";
+        exit(); // Stop the script immediately
+    }
 }
 
 // 1. SELECT TARGETS
