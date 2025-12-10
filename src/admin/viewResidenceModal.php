@@ -328,13 +328,13 @@ fieldset {
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['house_number'] ?>" name="edit_house_number" id="edit_house_number">
         <input type="hidden" id="edit_house_number_check" value="false">
       </td>
-      <td>
+      <td colspan="2">
         STREET
         <br>
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['street'] ?>" name="edit_street" id="edit_street">
         <input type="hidden" id="edit_street_check" value="false">
       </td>
-      <td colspan="2">
+      <td style="display:none">
         ADDRESS
         <br>
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['address'] ?>" name="edit_address" id="edit_address">
