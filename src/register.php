@@ -510,7 +510,6 @@ $(document).ready(function(){
     function submitRegistration(formData) {
         
         // --- 0. INITIAL INDICATOR: SAVING ---
-        // Helpful debugging: identifying if the issue is in newResidence.php
         Swal.fire({
             title: 'Processing...',
             text: 'Saving registration details...',
@@ -535,10 +534,9 @@ $(document).ready(function(){
                 if (response.status === 'success') {
                     
                     // --- 1. INDICATOR: MAP COORDINATES ---
-                    // Helpful debugging: identifying if the issue is in fix_locations.php
-                    Swal.fire({ // Use fire() to ensure it overrides the previous swal
+                    Swal.fire({
                         title: 'Registration Saved!',
-                        html: 'Please wait...<br><b>Finding your coordinates</b>', // <--- UPDATED TEXT
+                        html: 'Please wait...<br><b>Finding your coordinates</b>',
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         onBeforeOpen: () => { Swal.showLoading() }
@@ -553,8 +551,14 @@ $(document).ready(function(){
                         success: function() {
                             
                             // --- 2. INDICATOR: ASSIGNMENT ---
-                            // Helpful debugging: identifying if the issue is in assign_residents.php
-                            Swal.update({ html: 'Please wait...<br><b>currently assigning the nearest evacuation center for you</b>' }); // <--- UPDATED TEXT
+                            // FIXED: Replaced Swal.update() with Swal.fire() to prevent errors
+                            Swal.fire({
+                                title: 'Processing...',
+                                html: 'Please wait...<br><b>currently assigning the nearest evacuation center for you</b>',
+                                allowOutsideClick: false,
+                                showConfirmButton: false,
+                                onBeforeOpen: () => { Swal.showLoading() }
+                            });
                             
                             $.ajax({
                                 url: 'signup/assign_residents.php', 
@@ -564,7 +568,7 @@ $(document).ready(function(){
                                     
                                     // FINAL SUCCESS: Redirect
                                     Swal.fire({
-                                        title: 'Registration Complete', // <--- UPDATED TEXT
+                                        title: 'Registration Complete',
                                         type: 'success',
                                         html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
                                         timer: 2000,
