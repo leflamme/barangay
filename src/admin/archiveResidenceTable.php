@@ -105,10 +105,11 @@ while($row = $query->fetch_assoc()){
 
     if ($db_residency_type === 'RESIDENT') {
         $residency_type_label = '<span class="badge badge-success text-md">RESIDENT</span>';
-    } elseif ($db_residency_type === 'WORKER') {
-        $residency_type_label = '<span class="badge badge-danger text-md">WORKER</span>';
+    } elseif ($db_residency_type === 'TENANT' || $db_residency_type === 'WORKER') {
+        // Updated to include TENANT logic or keep WORKER if legacy data exists
+        $label_text = $db_residency_type === 'TENANT' ? 'TENANT' : 'WORKER';
+        $residency_type_label = '<span class="badge badge-danger text-md">'.$label_text.'</span>';
     } else {
-        // Fallback: If it's something else (like "YES", "NO" or empty), show it in GREY so you can see it
         $display_text = !empty($db_residency_type) ? $db_residency_type : 'N/A';
         $residency_type_label = '<span class="badge badge-secondary text-md">'.$display_text.'</span>';
     }
@@ -119,6 +120,13 @@ while($row = $query->fetch_assoc()){
         $single_parent = '<span class="badge badge-info text-md ">'.$row['single_parent'].'</span>';
     }else{
         $single_parent = '<span class="badge badge-warning text-md ">'.$row['single_parent'].'</span>';
+    }
+
+    // PWD Logic - UPDATED
+    if($row['pwd'] == 'YES'){
+        $pwd_display = $row['pwd_info'];
+    }else{
+        $pwd_display = 'NO';
     }
 
     // Status Logic
@@ -146,9 +154,9 @@ while($row = $query->fetch_assoc()){
     $subdata[] = $row['residence_id'];
     $subdata[] = ucfirst($row['first_name']).' '. $middle_name .' '. ucfirst($row['last_name']); 
     $subdata[] = $row['age'];
-    $subdata[] = $row['pwd_info']; 
+    $subdata[] = $pwd_display; // Updated to show correct logic
     $subdata[] = $single_parent; 
-    $subdata[] = $residency_type_label; // The new badge
+    $subdata[] = $residency_type_label;
     $subdata[] = $status;
     $subdata[] = '<i style="cursor: pointer;  color: yellow;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-user-edit text-lg px-3 viewResidence" id="'.$row['residence_id'].'"></i>
                   <i style="cursor: pointer;  color: red;  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa fa-times text-lg px-2 unArchiveResidence" id="'.$row['residence_id'].'"></i>';

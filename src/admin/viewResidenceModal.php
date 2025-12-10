@@ -69,7 +69,7 @@ fieldset {
     }
     .editInfo {
     background-color:rgba(0, 0, 0, 0);
-    color:#fff;
+    color:#000; /* CHANGED FROM #fff to #000 */
     border: none;
     outline:none;
     width: 100%;
