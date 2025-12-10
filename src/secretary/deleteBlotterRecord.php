@@ -46,22 +46,35 @@ try{
         }
     }
 
-    // 3. DELETE EXECUTION (Order is Critical: Children First -> Parent Last)
+    // 3. DELETE EXECUTION 
+    // FIXED: Added single quotes '$blotter_id' around the ID variable in all queries
+    // We must ensure every ID in the list is wrapped in quotes
     
-    // A. Delete from blotter_complainant (Child Table)
-    $sql_delete_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
+    // 1. Convert comma-separated string into array
+    $id_array = explode(',', $blotter_id);
+    
+    // 2. Wrap each ID in single quotes
+    $quoted_ids = array_map(function($id) use ($con) {
+        return "'" . $con->real_escape_string(trim($id)) . "'";
+    }, $id_array);
+    
+    // 3. Join back into a string: 'id1', 'id2', 'id3'
+    $clean_ids = implode(',', $quoted_ids);
+
+    // A. Delete from blotter_complainant
+    $sql_delete_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($clean_ids)";
     if(!$con->query($sql_delete_complainant)){
         die("Error deleting complainant: " . $con->error);
     }
 
-    // B. Delete from blotter_status (Child Table)
-    $sql_delete_status = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
+    // B. Delete from blotter_status
+    $sql_delete_status = "DELETE FROM blotter_status WHERE blotter_main IN ($clean_ids)";
     if(!$con->query($sql_delete_status)){
         die("Error deleting status: " . $con->error);
     }
 
-    // C. Delete from blotter_record (Main/Parent Table)
-    $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
+    // C. Delete from blotter_record
+    $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($clean_ids)";
     if(!$con->query($sql_delete_record)){
         die("Error deleting main record: " . $con->error);
     }
