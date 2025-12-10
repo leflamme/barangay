@@ -22,17 +22,23 @@ function getGeo($query) {
     return null;
 }
 
-// CHECK IF THIS IS A SINGLE USER REQUEST (FROM REGISTRATION)
-if(isset($_POST['request'])){
+// --- SAFETY CHECK ---
+// If this script is called via POST (AJAX) but NO ID is provided, STOP immediately.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request'])) {
+    echo "Error: No ID provided for AJAX request.";
+    exit(); // Stop the script here
+}
+
+// 1. SELECT TARGETS
+if(isset($_POST['request']) && !empty($_POST['request'])){
     $target_id = $_POST['request'];
-    // Select specific user by residence_id
     $sql = "SELECT a_i, address, street, barangay FROM residence_information WHERE residence_id = ?";
     $stmt = $con->prepare($sql);
     $stmt->bind_param("s", $target_id);
     $stmt->execute();
     $residents = $stmt->get_result();
 } else {
-    // DEFAULT: Run for everyone with missing coordinates
+    // Only run bulk mode if manually opened in browser (GET request), not during AJAX
     echo "<h2>Retrying Failed Addresses...</h2>";
     $residents = $con->query("SELECT a_i, address, street, barangay FROM residence_information WHERE latitude IS NULL");
 }

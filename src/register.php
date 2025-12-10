@@ -537,6 +537,7 @@ $(document).ready(function(){
                         url: 'signup/fix_locations.php', // Check your path!
                         type: 'POST',
                         data: { request: response.residence_id },
+                        timeout: 10000, // 10 seconds timeout
                         success: function() {
                             
                             // CHAIN 2: Assign Residents (Evacuation)
@@ -565,9 +566,10 @@ $(document).ready(function(){
                                 }
                             });
                         },
-                        error: function() {
-                             // If geocoding fails, we still redirect
-                             window.location.href = 'login.php';
+                        error: function(jqXHR, textStatus) {
+                            // If it times out or fails, just force redirect to login
+                            console.log("Geocoding failed or timed out: " + textStatus);
+                            window.location.href = 'login.php';
                         }
                     });
 
