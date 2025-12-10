@@ -3,7 +3,7 @@ session_start();
 include_once 'connection.php';
 
 // Redirect if already logged in
-if(isset($_SESSION['user_id']) && $_SESSION['user_type']){
+if(isset($_SESSION['user_id']) && isset($_SESSION['user_type'])){
   $user_id = $_SESSION['user_id'];
   $sql = "SELECT * FROM users WHERE id = '$user_id'";
   $query = $con->query($sql) or die ($con->error);
@@ -506,7 +506,7 @@ $(document).ready(function(){
         }
     });
 
-    // --- AJAX SUBMISSION WITH ENHANCED CONFIRMATION LOGIC ---
+    // --- AJAX SUBMISSION WITH CHAINING ---
     function submitRegistration(formData) {
         $.ajax({
             url: 'signup/newResidence.php',
@@ -517,26 +517,61 @@ $(document).ready(function(){
             cache: false,
             success: function(data) {
                 var response;
-                try {
-                    response = (typeof data === 'object') ? data : JSON.parse(data);
-                } catch (e) {
-                    response = { status: 'error', message: data };
-                }
+                try { response = (typeof data === 'object') ? data : JSON.parse(data); } 
+                catch (e) { response = { status: 'error', message: data }; }
 
-                // --- 1. SUCCESS ---
+                // --- 1. SUCCESS: START CHAINING ---
                 if (response.status === 'success') {
+                    
+                    // Show Loading State
                     Swal.fire({
-                        title: 'SUCCESS',
-                        type: 'success',
-                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
-                        timer: 2000,
+                        title: 'Registration Saved!',
+                        html: 'Please wait...<br><b>Calculating Map Coordinates...</b>',
+                        allowOutsideClick: false,
                         showConfirmButton: false,
-                        allowOutsideClick: false
-                    }).then(() => {
-                        window.location.href = 'login.php';
+                        onBeforeOpen: () => { Swal.showLoading() }
                     });
 
-                // --- 2. MATCH FOUND (Show JOIN or CREATE) ---
+                    // CHAIN 1: Fix Locations (Geocoding)
+                    $.ajax({
+                        url: 'signup/fix_locations.php', // Check your path!
+                        type: 'POST',
+                        data: { request: response.residence_id },
+                        success: function() {
+                            
+                            // CHAIN 2: Assign Residents (Evacuation)
+                            Swal.update({ html: 'Please wait...<br><b>Assigning Evacuation Center...</b>' });
+                            
+                            $.ajax({
+                                url: 'signup/assign_residents.php', // Check your path!
+                                type: 'POST',
+                                data: { request: response.residence_id },
+                                success: function() {
+                                    
+                                    // FINAL SUCCESS: Redirect
+                                    Swal.fire({
+                                        title: 'SUCCESS',
+                                        type: 'success',
+                                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    }).then(() => {
+                                        window.location.href = 'login.php';
+                                    });
+                                },
+                                error: function() {
+                                    // If assignment fails, we still redirect (it can be fixed by admin later)
+                                    window.location.href = 'login.php';
+                                }
+                            });
+                        },
+                        error: function() {
+                             // If geocoding fails, we still redirect
+                             window.location.href = 'login.php';
+                        }
+                    });
+
+                // --- REMAINING LOGIC (Match Found / No Match) STAYS THE SAME ---
                 } else if (response.status === 'showHouseholdModal') {
                     Swal.fire({
                         title: 'Household Found!',
@@ -552,15 +587,12 @@ $(document).ready(function(){
                         showCancelButton: true,
                         confirmButtonText: 'Join Household',
                         cancelButtonText: 'Create a New Household',
-                        confirmButtonColor: '#007bff', // Blue for Join
-                        cancelButtonColor: '#28a745'  // Green for Create New
+                        confirmButtonColor: '#007bff',
+                        cancelButtonColor: '#28a745'
                     }).then((result) => {
                         if (result.value) {
-                            // User Clicked "Join Household"
                             askRelationshipAndSubmit('join', response.household.id);
                         } else if (result.dismiss === Swal.DismissReason.cancel) {
-                            // User Clicked "Create a New Household" (cancelButton)
-                            // We double confirm just to be safe (optional, but good for data integrity)
                             Swal.fire({
                                 title: 'Create New Household?',
                                 text: 'You are creating a separate household record at the same address. Continue?',
@@ -576,7 +608,6 @@ $(document).ready(function(){
                         }
                     });
 
-                // --- 3. NO MATCH (Show NO HOUSEHOLD DETECTED) ---
                 } else if (response.status === 'askCreateNew') {
                     Swal.fire({
                         title: 'No household detected',
@@ -589,7 +620,6 @@ $(document).ready(function(){
                         cancelButtonColor: '#d33'
                     }).then((result) => {
                         if (result.value) {
-                            // User Clicked "Yes, Create Household"
                             askRelationshipAndSubmit('new', null);
                         }
                     });

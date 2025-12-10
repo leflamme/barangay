@@ -295,6 +295,7 @@ try {
     echo json_encode([
         'status' => 'success',
         'household_number' => $final_household_number,
+        'residence_id' => $number, // <--- ADD THIS LINE
         'action' => $household_action
     ]);
 
