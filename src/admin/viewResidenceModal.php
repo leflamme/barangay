@@ -300,13 +300,13 @@ fieldset {
           <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['nationality'] ?>" name="edit_nationality" id="edit_nationality">
           <input type="hidden" id="edit_nationality_check" value="false">
       </td> 
-      <td style="display:none">
+      <td>
        MUNICIPALITY
         <br>
        <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['municipality'] ?>" name="edit_municipality" id="edit_municipality">
        <input type="hidden" id="edit_municipality_check" value="false">
       </td>
-      <td style="display:none">
+      <td>
         ZIP
         <br>
         <input type="text" class="editInfo  form-control form-control-sm" value="<?= $row_view_residence['zip'] ?>" name="edit_zip" id="edit_zip">
@@ -315,7 +315,7 @@ fieldset {
      
     </tr>
 
-    <tr style="display:none">
+    <tr>
     <td>
         BARANGAY
         <br>
