@@ -1190,23 +1190,32 @@ $(document).ready(function() {
               cache:false,
               data: 'id='+selected_values,
               success: function(data) {
-              
-                  Swal.fire({
-                    title: '<strong class="text-success">SUCESS</strong>',
-                    text: "Deleted Blotter Record Successfully",
-                    type: 'success',
-                    timer: 1500,
-                    width: '400px',
-                    showConfirmButton: false,
-                    allowOutsideClick: false,
-                  }).then(()=>{
-                   $("#blotterRecordTable").DataTable().ajax.reload();
-                   $("#select_count").text('0');
-                   $('#select_all').prop('checked', false);
-                  })
-                
-                
-              } 
+                  // TRIM whitespace to ensure exact match
+                  if(data.trim() === 'success') {
+                      Swal.fire({
+                        title: '<strong class="text-success">SUCCESS</strong>',
+                        text: "Deleted Blotter Record Successfully",
+                        type: 'success',
+                        timer: 1500,
+                        width: '400px',
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                      }).then(()=>{
+                       $("#blotterRecordTable").DataTable().ajax.reload();
+                       $("#select_count").text('0');
+                       $('#select_all').prop('checked', false);
+                      })
+                  } else {
+                      // If PHP returned an error, SHOW IT!
+                      Swal.fire({
+                        title: '<strong class="text-danger">ERROR</strong>',
+                        html: '<b>Failed to delete:</b><br/>' + data,
+                        type: 'error',
+                        width: '400px',
+                        confirmButtonColor: '#6610f2',
+                      });
+                  }
+              }
             }).fail(function(){
               Swal.fire({
                 title: 'Ooppss...',

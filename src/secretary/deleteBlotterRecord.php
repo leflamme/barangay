@@ -2,7 +2,7 @@
 session_start();
 include_once '../connection.php';
 
-// 1. Check Permissions
+// 1. SECURITY: Check if user is logged in as secretary
 if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'secretary'){
     $user_id = $_SESSION['user_id'];
     $sql_user = "SELECT * FROM `users` WHERE `id` = ? ";
@@ -13,61 +13,63 @@ if(isset($_SESSION['user_id']) && isset($_SESSION['user_type']) && $_SESSION['us
     $row_user = $result_user->fetch_assoc();
     $first_name_user = $row_user['first_name'];
     $last_name_user = $row_user['last_name'];
-    $user_type = $row_user['user_type'];
-    $user_image = $row_user['image'];
-
 } else {
-    // If not logged in or not a secretary
-    echo '<script>window.location.href = "../login.php";</script>';
-    exit(); // Stop execution here
+    // If not authorized, stop immediately
+    echo "Error: Unauthorized access.";
+    exit();
 }
 
-try {
-
+try{
   if(isset($_REQUEST['id'])){
     $blotter_id = $con->real_escape_string($_REQUEST['id']);
 
-    // 2. Fetch data for Activity Log (Before deletion)
-    $sql_blotter = "SELECT * FROM blotter_record WHERE blotter_id IN ($blotter_id)";
-    $stmt_blotter = $con->prepare($sql_blotter) or die ($con->error);
-    $stmt_blotter->execute();
-    $result_blotter = $stmt_blotter->get_result();
-    $row_blotter = $result_blotter->fetch_assoc();
-
-    // Check if record exists before trying to log/delete
-    if ($row_blotter) {
+    // 2. ACTIVITY LOG (Get data before deleting)
+    $sql_blotter = "SELECT * FROM blotter_record WHERE blotter_id IN ($blotter_id) LIMIT 1";
+    $stmt_blotter = $con->query($sql_blotter);
+    
+    if($stmt_blotter && $stmt_blotter->num_rows > 0){
+        $row_blotter = $stmt_blotter->fetch_assoc();
         $old_date_incident = $row_blotter['date_incident'];
         $old_date_reported = $row_blotter['date_reported'];
         $old_location_incident = $row_blotter['location_incident'];
 
         $date_activity = date("j-n-Y g:i A");  
-        $admin = strtoupper('OFFICIAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | '.  'DELETED BLOTTER RECORD - '.' ' .$blotter_id.' | ' . $old_date_incident.' ' . $old_date_reported. ' ' . $old_location_incident;
+        $admin = strtoupper('OFFICIAL').': ' .$first_name_user.' '.$last_name_user. ' - ' .$user_id.' | DELETED BLOTTER RECORD - ' .$blotter_id;
         $status_activity_log = 'delete';
-        
+
         $sql_activity_log = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?,?)";
-        $stmt_activity_log = $con->prepare($sql_activity_log) or die ($con->error);
-        $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
-        $stmt_activity_log->execute();
-        $stmt_activity_log->close();
+        $stmt_activity_log = $con->prepare($sql_activity_log);
+        if($stmt_activity_log){
+            $stmt_activity_log->bind_param('sss',$admin,$date_activity,$status_activity_log);
+            $stmt_activity_log->execute();
+            $stmt_activity_log->close();
+        }
     }
 
-    // 3. EXECUTE DELETION (Reordered Logic)
+    // 3. DELETE EXECUTION (Order is Critical: Children First -> Parent Last)
     
-    // Step A: Delete Child Records (Complainants) FIRST
-    $sql_record_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
-    $stmt_record_complainant = $con->query($sql_record_complainant) or die ($con->error);
+    // A. Delete from blotter_complainant (Child Table)
+    $sql_delete_complainant = "DELETE FROM blotter_complainant WHERE blotter_main IN ($blotter_id)";
+    if(!$con->query($sql_delete_complainant)){
+        die("Error deleting complainant: " . $con->error);
+    }
 
-    // Step B: Delete Child Records (Status/Person Involved) SECOND
-    $sql_blotter_person = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
-    $stmt_blotter_person = $con->query($sql_blotter_person) or die ($con->error);
+    // B. Delete from blotter_status (Child Table)
+    $sql_delete_status = "DELETE FROM blotter_status WHERE blotter_main IN ($blotter_id)";
+    if(!$con->query($sql_delete_status)){
+        die("Error deleting status: " . $con->error);
+    }
 
-    // Step C: Delete Main Record LAST
+    // C. Delete from blotter_record (Main/Parent Table)
     $sql_delete_record = "DELETE FROM blotter_record WHERE blotter_id IN ($blotter_id)";
-    $stmt_delete_record = $con->query($sql_delete_record) or die ($con->error);
+    if(!$con->query($sql_delete_record)){
+        die("Error deleting main record: " . $con->error);
+    }
 
+    // If we reached here, everything worked
+    echo "success";
   }
-
-} catch(Exception $e) {
-  echo $e->getMessage();
+} catch(Exception $e){
+  echo "Error: " . $e->getMessage();
 }
 ?>
