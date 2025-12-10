@@ -401,6 +401,7 @@ try{
                   <p>Resident</p>
                 </a>
               </li>
+              <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
               <li class="nav-item">
                 <a href="userAdministrator.php" class="nav-link">
                   <i class="fas fa-circle nav-icon text-red"></i>
@@ -409,14 +410,7 @@ try{
               </li>
             </ul>
           </li>
-          <li class="nav-item">
-            <a href="report.php" class="nav-link">
-              <i class="nav-icon fas fa-bookmark"></i>
-              <p>
-                Masterlist Report
-              </p>
-            </a>
-          </li>
+          
           <li class="nav-item ">
             <a href="requestCertificate.php" class="nav-link">
               <i class="nav-icon fas fa-certificate"></i>

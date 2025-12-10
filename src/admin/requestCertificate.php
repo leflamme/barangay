@@ -496,14 +496,7 @@ div.dataTables_filter {
 
             </ul>
           </li>
-          <li class="nav-item">
-            <a href="report.php" class="nav-link">
-              <i class="nav-icon fas fa-bookmark"></i>
-              <p>
-                Masterlist Report
-              </p>
-            </a>
-          </li>
+          
           <li class="nav-item ">
             <a href="requestCertificate.php" class="nav-link bg-indigo">
               <i class="nav-icon fas fa-certificate"></i>

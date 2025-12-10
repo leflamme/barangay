@@ -328,6 +328,14 @@ if(isset($_REQUEST['request'])){
                   <p>Official End Term</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="position.php" class="nav-link">
+                  <i class="nav-icon fas fa-user-tie"></i>
+                  <p>
+                    Position
+                  </p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -359,29 +367,7 @@ if(isset($_REQUEST['request'])){
               </li>
             </ul>
           </li>
-          <li class="nav-item ">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-certificate"></i>
-              <p>
-                Certificate
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="requestCertificate.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>Request Certificate</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="allCertificate.php" class="nav-link ">
-                  <i class="fas fa-circle nav-icon text-red"></i>
-                  <p>All Certificate</p>
-                </a>
-              </li>
-            </ul>
-          </li>
+          
           <li class="nav-item ">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-user-shield"></i>
@@ -398,6 +384,12 @@ if(isset($_REQUEST['request'])){
                 </a>
               </li>
               <li class="nav-item">
+                <a href="editRequests.php" class="nav-link">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Edit Requests</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="userAdministrator.php" class="nav-link">
                   <i class="fas fa-circle nav-icon text-red"></i>
                   <p>Administrator</p>
@@ -407,13 +399,11 @@ if(isset($_REQUEST['request'])){
             </ul>
           </li>
           <li class="nav-item">
-            <a href="position.php" class="nav-link">
-              <i class="nav-icon fas fa-user-tie"></i>
-              <p>
-                Position
-              </p>
-            </a>
-          </li>
+                <a href="editRequests.php" class="nav-link">
+                  <i class="fas fa-circle nav-icon text-red"></i>
+                  <p>Edit Requests</p>
+                </a>
+              </li>
           <li class="nav-item">
             <a href="blotterRecord.php" class="nav-link">
               <i class="nav-icon fas fa-clipboard"></i>
@@ -423,10 +413,18 @@ if(isset($_REQUEST['request'])){
             </a>
           </li>
           <li class="nav-item">
-            <a href="report.php" class="nav-link">
-              <i class="nav-icon fas fa-bookmark"></i>
+            <a href="forceTrigger.php" class="nav-link">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
               <p>
-                Reports
+                Force Trigger Emergency
+              </p>
+            </a>
+         
+          <li class="nav-item">
+            <a href="systemLog.php" class="nav-link">
+              <i class="nav-icon fas fa-history"></i>
+              <p>
+                System Logs
               </p>
             </a>
           </li>

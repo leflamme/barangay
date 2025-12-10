@@ -223,7 +223,7 @@ try{
               <li class="nav-item"><a href="userAdministrator.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Administrator</p></a></li>
             </ul>
           </li>
-          <li class="nav-item"><a href="report.php" class="nav-link"><i class="nav-icon fas fa-bookmark"></i><p>Masterlist Report</p></a></li>
+
           <li class="nav-item"><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
           <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
           <li class="nav-item"><a href="forceTrigger.php" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>Force Trigger Emergency</p></a></li>
