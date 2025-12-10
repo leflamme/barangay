@@ -10,12 +10,13 @@
     </thead>
     <tbody>
       <?php 
+      // If there are rows, loop through them
       if ($resultFamilies->num_rows > 0) {
         while ($row = $resultFamilies->fetch_assoc()) {
           $arrived = $row['arrived_count'] ? $row['arrived_count'] : 0;
           $total = $row['total_members'];
           
-          // Color logic: Green if everyone arrived, Red if 0, Orange if partial
+          // Color logic
           $status_color = 'text-danger';
           if($arrived == $total) { $status_color = 'text-success'; }
           elseif($arrived > 0) { $status_color = 'text-warning'; }
@@ -32,9 +33,9 @@
                   </td>
                 </tr>';
         }
-      } else {
-        echo '<tr><td colspan="4" class="text-center">No families assigned to this center.</td></tr>';
-      }
+      } 
+      // REMOVED THE 'ELSE' BLOCK HERE
+      // Leaving the tbody empty allows DataTables to handle the "No Data" state safely.
       ?>
     </tbody>
   </table>
