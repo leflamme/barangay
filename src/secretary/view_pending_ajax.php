@@ -11,6 +11,7 @@ if(isset($_POST['pending_id'])){
     $row = $result->fetch_assoc();
 
     if($row){
+        // --- PREPARE DATA ---
         $full_name = htmlspecialchars($row['first_name'] ?? '') . ' ' . 
                      htmlspecialchars($row['middle_name'] ?? '') . ' ' . 
                      htmlspecialchars($row['last_name'] ?? '') . ' ' . 
@@ -25,18 +26,23 @@ if(isset($_POST['pending_id'])){
         echo '<tr><th>Full Name</th><td>'.$full_name.'</td></tr>';
         echo '<tr><th>Request Type</th><td><span class="badge badge-primary">'.$hh_display.'</span></td></tr>';
         echo '<tr><th>Relationship</th><td>'.htmlspecialchars($row['relationship_to_head'] ?? '').'</td></tr>';
+        
+        // Demographics
         echo '<tr><th>Gender</th><td>'.htmlspecialchars($row['gender'] ?? '').'</td></tr>';
         echo '<tr><th>Civil Status</th><td>'.htmlspecialchars($row['civil_status'] ?? '').'</td></tr>';
         echo '<tr><th>Birth Date</th><td>'.htmlspecialchars($row['birth_date'] ?? '').'</td></tr>';
         echo '<tr><th>Address</th><td>'.htmlspecialchars(($row['house_number'] ?? '').' '.($row['street'] ?? '')).'</td></tr>';
-        echo '<tr><th>Contact</th><td>'.htmlspecialchars($row['contact_number'] ?? '').'</td></tr>';
+        
+        // Contact
+        echo '<tr><th>Contact #</th><td>'.htmlspecialchars($row['contact_number'] ?? '').'</td></tr>';
         echo '<tr><th>Email</th><td>'.htmlspecialchars($row['email_address'] ?? '').'</td></tr>';
         echo '<tr><th>Date Submitted</th><td>'.date('M d, Y h:i A', strtotime($row['date_submitted'])).'</td></tr>';
         echo '</table></div>';
 
         echo '<div class="row mt-3">';
         
-        // 1. Profile Picture (UPDATED PATH: residence_photos)
+        // --- 1. PROFILE PICTURE (File Based) ---
+        // This still uses the folder system (since we didn't change this part to BLOB yet)
         if(!empty($row['image_name'])){
             echo '<div class="col-md-6 text-center">';
             echo '<h6>Profile Picture</h6>';
@@ -45,23 +51,31 @@ if(isset($_POST['pending_id'])){
             echo '</div>';
         }
 
-        // 2. Valid ID Picture (BLOB METHOD)
-        // Check if the blob column has data
-        if(!empty($row['valid_id_blob'])){
-            echo '<div class="col-md-6 text-center">';
-            echo '<h6>Valid ID Submitted</h6>';
+        // --- 2. VALID ID (Dual Method: BLOB or File) ---
+        echo '<div class="col-md-6 text-center">';
+        echo '<h6>Valid ID Submitted</h6>';
+        
+        if (!empty($row['valid_id_blob'])) {
+            // METHOD A: Database BLOB (The new Railway-safe way)
+            $blob_data = base64_encode($row['valid_id_blob']);
+            echo '<img src="data:image/jpeg;base64,'.$blob_data.'" alt="Valid ID (DB)" class="img-thumbnail" style="max-height:200px;">';
+            echo '<br><small class="text-success">Source: Database Secure Storage</small>';
             
-            // MAGIC LINE: Convert DB Data to Image
-            echo '<img src="data:image/jpeg;base64,'.base64_encode($row['valid_id_blob']).'" 
-                 alt="Valid ID" class="img-thumbnail" style="max-height:200px;">';
+        } elseif (!empty($row['valid_id_name'])) {
+            // METHOD B: Old File Path (Fallback for older records)
+            echo '<img src="../permanent-data/residence_photos/'.htmlspecialchars($row['valid_id_name']).'" 
+                 alt="Valid ID (File)" class="img-thumbnail" style="max-height:200px;">';
+            echo '<br><small class="text-muted">Source: File System</small>';
             
-            echo '</div>';
         } else {
-            echo '<div class="col-md-6 text-center text-muted"><br>No ID Uploaded</div>';
+            // No Image Found
+            echo '<div class="alert alert-warning p-2 mt-2">No Valid ID Uploaded</div>';
         }
         
-        echo '</div>'; 
+        echo '</div>'; // End Col
+        echo '</div>'; // End Row
 
+        // Buttons
         echo '<div class="mt-4 text-right border-top pt-3">';
         echo '<button class="btn btn-success approve-btn" data-id="'.$row['pending_id'].'"> <i class="fas fa-check"></i> Approve</button> ';
         echo '<button class="btn btn-danger reject-btn" data-id="'.$row['pending_id'].'"> <i class="fas fa-times"></i> Reject</button>';
