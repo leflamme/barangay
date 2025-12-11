@@ -7,27 +7,36 @@ $user_id = $con->real_escape_string($_POST['user_id']);
 // Get Email and Name
 $sql = "SELECT first_name, email_address FROM residence_information WHERE residence_id = '$user_id'";
 $result = $con->query($sql);
+
 if($row = $result->fetch_assoc()){
     
     $email = $row['email_address'];
     $name = $row['first_name'];
 
     // --- RESEND API CONFIGURATION ---
-    // If you don't have an API Key yet, this part will just skip.
-    $resendApiKey = 're_bygoEX77_Medtrd76SJtddddi8b5TJEB1'; // REPLACE WITH YOUR REAL KEY
+    // Retrieve Key from Server Environment Variables
+    $resendApiKey = getenv('RESEND_API_KEY'); 
+
+    if (!$resendApiKey) {
+        // Fallback or Error Logging if key is missing
+        error_log("Resend API Key is missing in environment variables.");
+        exit;
+    }
     
     $url = 'https://api.resend.com/emails';
     $data = [
-        'from' => 'Barangay Kalusugan <noreply@qc-brgy-kalusugan.online>', // Use your verified domain
+        'from' => 'Barangay Kalusugan <noreply@qc-brgy-kalusugan.online>', // Ensure this domain is verified in Resend
         'to' => [$email],
         'subject' => 'Registration Approved - Barangay Kalusugan',
         'html' => "
-            <h1>Welcome to Barangay Kalusugan!</h1>
-            <p>Dear $name,</p>
-            <p>Your registration has been approved by the Barangay Secretary.</p>
-            <p>You may now login to the portal using the username and password you created.</p>
-            <br>
-            <p>Stay Safe,<br>Barangay Kalusugan Team</p>
+            <div style='font-family: Arial, sans-serif; color: #333;'>
+                <h2 style='color: #003366;'>Welcome to Barangay Kalusugan!</h2>
+                <p>Dear <strong>$name</strong>,</p>
+                <p>We are pleased to inform you that your registration has been <strong>APPROVED</strong> by the Barangay Secretary.</p>
+                <p>You may now login to the resident portal using the username and password you created.</p>
+                <hr>
+                <p><em>Stay Safe,</em><br><strong>Barangay Kalusugan Team</strong></p>
+            </div>
         "
     ];
 
@@ -41,9 +50,11 @@ if($row = $result->fetch_assoc()){
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     $response = curl_exec($ch);
-    curl_close($ch);
     
-    // Log the attempt
-    // $con->query("INSERT INTO activity_log ...");
+    if (curl_errno($ch)) {
+        error_log('Resend Error: ' . curl_error($ch));
+    }
+    
+    curl_close($ch);
 }
 ?>
