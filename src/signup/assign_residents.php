@@ -15,16 +15,16 @@ $centers = [
         'occupancy' => 0 
     ],
     [
-        'name' => 'Kalusugan Open Basketball Court',
-        'lat' => 14.62100000,
-        'lon' => 121.01950000,
+        'name' => 'Kalusugan Open Area',
+        'lat' => 14.625376,
+        'lon' => 121.022461,
         'capacity' => 150,
         'occupancy' => 0
     ],
     [
-        'name' => 'Quezon City High School Annex',
-        'lat' => 14.62600000,
-        'lon' => 121.02500000,
+        'name' => 'St. Joseph\'s College of Quezon City',
+        'lat' => 14.62260,
+        'lon' => 121.02546,
         'capacity' => 300,
         'occupancy' => 0
     ]
