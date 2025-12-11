@@ -712,6 +712,12 @@ body {
                 </a>
               </li>
               <li class="nav-item">
+                <a href="pending_residence.php" class="nav-link">
+                  <i class="nav-icon fas fa-check-circle"></i>
+                  <p>Approval of Residents</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="allResidence.php" class="nav-link ">
                   <i class="fas fa-circle nav-icon text-red"></i>
                   <p>All Residence</p>
@@ -776,8 +782,7 @@ body {
                 Blotter Record
               </p>
             </a>
-          </li>  
-          <li class="nav-item"><a href="pending_residence.php" class="nav-link"><i class="nav-icon fas fa-hourglass-half"></i><p>Pending Residence</p></a></li>
+          </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

@@ -394,6 +394,7 @@ div.dataTables_scrollHead table.dataTable thead th {
         <li class="nav-item menu-open"><a href="#" class="nav-link"><i class="nav-icon fas fa-users"></i><p>Residence<i class="right fas fa-angle-left"></i></p></a>
           <ul class="nav nav-treeview">
             <li class="nav-item"><a href="newResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>New Residence</p></a></li>
+            <li class="nav-item"><a href="pending_residence.php" class="nav-link"><i class="nav-icon fas fa-check-circle"></i><p>Approval of Residents</p></a></li>
             <li class="nav-item"><a href="allResidence.php" class="nav-link bg-indigo"><i class="fas fa-circle nav-icon text-red"></i><p>All Residence</p></a></li>
             <li class="nav-item"><a href="archiveResidence.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Archive Residence</p></a></li>
           </ul>
