@@ -18,7 +18,7 @@ if(isset($_POST['pending_id'])){
                      
         $hh_action = $row['household_action'] ?? 'N/A';
         $hh_target = $row['target_household_id'] ?? 'None';
-        $hh_display = ($hh_action === 'new') ? "Create New Household" : "Join Household #".$hh_target;
+        $hh_display = "Resident Account Request Approval (" . (($hh_action === 'new') ? "New Household" : "Join Request") . ")";
 
         echo '<div class="table-responsive"><table class="table table-bordered">';
         echo '<tr><th width="30%">Pending ID</th><td>'.htmlspecialchars($row['pending_id'] ?? '').'</td></tr>';

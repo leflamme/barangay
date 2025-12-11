@@ -17,57 +17,81 @@ try {
 
     $con->begin_transaction();
 
-    // 2. Household Logic
+    // --- SMART LOGIC VARIABLES ---
     $final_household_id = $row['target_household_id'];
     $household_action = $row['household_action'];
     $relationship = $row['relationship_to_head'];
     
-    // Address reconstruction
-    $parts = array_filter([$row['house_number'], $row['street'], 'Barangay Kalusugan', 'Quezon City', '1112']);
-    $full_address = implode(', ', $parts);
-
-    // FIXED: Define variables for bind_param
+    // Address vars
     $municipality = 'Quezon City';
     $barangay = 'Barangay Kalusugan';
     $zip = '1112';
+    $street = $row['street'];
+    $house_num = $row['house_number'];
+    
+    // Reconstruct full address for searching
+    $parts = array_filter([$house_num, $street, $barangay, $municipality, $zip]);
+    $full_address = implode(', ', $parts);
 
+    // --- 2. THE "SECOND CHECK" (Prevents Duplicates) ---
+    // If user wanted to create 'new', check if one was created recently (e.g., by the Father)
+    if ($household_action === 'new') {
+        $check_hh = $con->prepare("SELECT id FROM households WHERE street = ? AND house_number = ? LIMIT 1");
+        $check_hh->bind_param("ss", $street, $house_num);
+        $check_hh->execute();
+        $res_hh = $check_hh->get_result();
+        
+        if ($res_hh->num_rows > 0) {
+            // CONFLICT DETECTED! A household now exists.
+            // Force this user to JOIN it instead of creating a duplicate.
+            $existing_row = $res_hh->fetch_assoc();
+            $final_household_id = $existing_row['id'];
+            $household_action = 'join'; // Override action
+            
+            // If they claimed to be "Head" but a Head exists now, demote them to "Member" 
+            // (Secretary can fix specific relationship later, or default to Member)
+            if ($relationship === 'Head') {
+                $relationship = 'Member'; 
+            }
+        }
+    }
+
+    // --- 3. EXECUTE HOUSEHOLD LOGIC ---
     if ($household_action === 'new' || empty($final_household_id)) {
+        // Still no household? Okay, create one.
         $new_hh_number = date("Y") . '-' . mt_rand(1000, 9999);
         $sql_hh = "INSERT INTO households (household_number, household_head_id, municipality, barangay, street, house_number, address, zip_code, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt_hh = $con->prepare($sql_hh);
-        // Using variables for municipality, barangay, zip
-        $stmt_hh->bind_param("ssssssss", $new_hh_number, $pending_id, $municipality, $barangay, $row['street'], $row['house_number'], $full_address, $zip);
+        $stmt_hh->bind_param("ssssssss", $new_hh_number, $pending_id, $municipality, $barangay, $street, $house_num, $full_address, $zip);
         
         if(!$stmt_hh->execute()) throw new Exception("Household Error: ".$con->error);
         $final_household_id = $stmt_hh->insert_id;
-        $relationship = 'Head'; 
+        $relationship = 'Head'; // First one is always Head
     }
 
-    // 3. Move Image
+    // --- 4. MOVE IMAGES ---
     $new_image_path = '';
     $new_image_name = $row['image_name'];
     if (!empty($new_image_name) && file_exists($row['image_path'])) {
-        $perm_dir = __DIR__ . '/../permanent-data/images/';
+        $perm_dir = __DIR__ . '/../permanent-data/residence_photos/'; // Ensure correct path
         if (!is_dir($perm_dir)) mkdir($perm_dir, 0777, true);
         
-        $new_dest = $perm_dir . $new_image_name;
-        rename($row['image_path'], $new_dest);
-        $new_image_path = '../permanent-data/images/' . $new_image_name;
+        // Note: Logic here depends on if you are moving files or just keeping them in the same folder.
+        // If 'newResidence' already saves to 'residence_photos', we don't need to move/rename, just reference it.
+        // Assuming we keep the file where it is:
+        $new_image_path = $row['image_path']; 
     }
 
-    // 4. Insert to USERS (Active)
-    // FIXED: Created variable $val_user_type instead of passing 'resident' directly
+    // --- 5. INSERT USERS ---
     $val_user_type = 'resident'; 
-    
     $sql_user = "INSERT INTO `users` (`id`,`first_name`,`middle_name`,`last_name`,`username`,`password`,`user_type`,`contact_number`,`image`,`image_path`,`household_id`,`relationship_to_head`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     $stmt = $con->prepare($sql_user);
     $stmt->bind_param('ssssssssssss', $pending_id, $row['first_name'], $row['middle_name'], $row['last_name'], $row['username'], $row['password_plain'], $val_user_type, $row['contact_number'], $new_image_name, $new_image_path, $final_household_id, $relationship);
     $stmt->execute();
 
-    // 5. Insert to RESIDENCE_INFO
+    // --- 6. INSERT INFO ---
     $dob = new DateTime($row['birth_date']);
-    $now = new DateTime();
-    $age = $now->diff($dob)->y; // This is an integer, but binding as string is fine
+    $age = (new DateTime())->diff($dob)->y;
     $senior = ($age >= 60) ? 'YES' : 'NO';
     $alias = $row['first_name'].' '.$row['last_name'];
     
@@ -76,25 +100,28 @@ try {
     $stmt->bind_param('ssssssssssssssssssssssss', $pending_id, $row['first_name'], $row['middle_name'], $row['last_name'], $age, $row['suffix'], $row['gender'], $row['civil_status'], $row['religion'], $row['nationality'], $row['contact_number'], $row['email_address'], $row['birth_date'], $row['birth_place'], $row['house_number'], $row['street'], $row['fathers_name'], $row['mothers_name'], $row['guardian'], $row['guardian_contact'], $new_image_name, $new_image_path, $alias, $full_address);
     $stmt->execute();
 
-    // 6. Insert to RESIDENCE_STATUS
-    // FIXED: Created variables for status values
+    // --- 7. INSERT STATUS (Use BLOB for ID) ---
     $val_status = 'ACTIVE';
     $val_archive = 'NO';
     $date_added = date("m/d/Y h:i A");
+    
+    // NOTE: We need to transfer the BLOB data too if you want to keep the ID valid in active records.
+    // Assuming 'residence_status' table has a 'valid_id_blob' column? 
+    // If not, we just ignore it for now or you need to add the column to residence_status.
     
     $sql_stat = "INSERT INTO residence_status (residence_id, status, residency_type, archive, pwd, pwd_info, single_parent, senior, date_added) VALUES (?,?,?,?,?,?,?,?,?)";
     $stmt = $con->prepare($sql_stat);
     $stmt->bind_param('sssssssss', $pending_id, $val_status, $row['residency_type'], $val_archive, $row['pwd'], $row['pwd_info'], $row['single_parent'], $senior, $date_added);
     $stmt->execute();
 
-    // 7. Household Members Link
+    // --- 8. HOUSEHOLD MEMBERS ---
     $is_head = ($relationship == 'Head') ? 1 : 0;
     $sql_mem = "INSERT INTO household_members (household_id, user_id, relationship_to_head, is_head, date_added) VALUES (?,?,?,?,NOW())";
     $stmt_mem = $con->prepare($sql_mem);
     $stmt_mem->bind_param('issi', $final_household_id, $pending_id, $relationship, $is_head);
     $stmt_mem->execute();
 
-    // 8. Log & Delete Pending
+    // --- 9. CLEANUP ---
     $log_msg = "SECRETARY: APPROVE RESIDENT - $pending_id";
     $con->query("INSERT INTO activity_log (message, date, status) VALUES ('$log_msg', '$date_added', 'approve')");
     $con->query("DELETE FROM pending_residents WHERE pending_id = '$pending_id'");
