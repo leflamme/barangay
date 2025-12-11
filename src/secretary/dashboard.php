@@ -777,7 +777,7 @@ body {
               </p>
             </a>
           </li>  
-          <li class="nav-item"><a href="pending_residence.php"><i class="nav-icon fas fa-hourglass-half"></i><p>Pending Residence</p></a></li>
+          <li class="nav-item"><a href="pending_residence.php" class="nav-link"><i class="nav-icon fas fa-hourglass-half"></i><p>Pending Residence</p></a></li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

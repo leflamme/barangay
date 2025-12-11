@@ -174,6 +174,13 @@ if(isset($_SESSION['user_id']) && isset($_SESSION['user_type'])){
                       </select>
                     </div>
                   </div>
+                  <div class="col-sm-12 p-0">
+                    <div class="form-group">
+                      <label>Provide Picture for Approval (Valid ID) <span class="text-danger">*</span></label>
+                      <input type="file" class="form-control p-1" id="add_valid_id" name="add_valid_id" accept="image/*">
+                      <small class="text-muted">Upload a clear photo of your Government ID or Brgy ID.</small>
+                    </div>
+                  </div>
                   <div class="col-sm-12">
                     <div class="form-group">
                       <label>Gender</label>
@@ -474,6 +481,7 @@ $(document).ready(function(){
           add_contact_number: { required: true, minlength: 11 },
           add_email_address: { required: true, email: true },
           add_residency_type: { required: true },
+          add_valid_id: { required: true }, // <--- ADD THIS
           add_pwd: { required: true },
           add_single_parent: { required: true },
           add_house_number: { required: true },
