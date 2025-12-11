@@ -98,20 +98,15 @@ try {
         move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $image_path);
     }
 
-    // B. Valid ID Picture (BLOB METHOD - Like Dashboard)
-    // We don't save a path anymore. We save the DATA.
-    $valid_id_blob = null; // Default null
+    // B. Valid ID Picture (BLOB METHOD)
+    $valid_id_blob = null; 
     
     if(isset($_FILES['add_valid_id']['tmp_name']) && !empty($_FILES['add_valid_id']['tmp_name'])){
-        // 1. Get the actual file content
-        $image_data = file_get_contents($_FILES['add_valid_id']['tmp_name']);
-        
-        // 2. Escape it safely for the database
-        $valid_id_blob = $con->real_escape_string($image_data);
+        // Just get the content. DO NOT use real_escape_string here.
+        $valid_id_blob = file_get_contents($_FILES['add_valid_id']['tmp_name']);
     }
 
     // INSERT INTO pending_residents
-    // Notice: We removed 'valid_id_path' and 'valid_id_name' and replaced them with 'valid_id_blob'
     $sql = "INSERT INTO pending_residents (
         pending_id, first_name, middle_name, last_name, suffix, gender, civil_status, religion, nationality,
         contact_number, email_address, birth_date, birth_place, house_number, street, 
@@ -123,8 +118,8 @@ try {
 
     $stmt = $con->prepare($sql);
     
-    // We bind variables. Note: BLOBs can be large, but for standard IDs, binding as string 's' usually works in PHP/MySQLi 
-    // or we send null if empty.
+    // Bind parameters
+    // Note: We are using 's' (string) for the blob, which works for MySQLi standard usage.
     $stmt->bind_param('sssssssssssssssssssssssssssssss',
         $pending_id, $add_first_name, $add_middle_name, $add_last_name, $add_suffix, $add_gender, 
         $add_civil_status, $add_religion, $add_nationality, $add_contact_number, $add_email_address, 
