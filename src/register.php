@@ -178,7 +178,7 @@ if(isset($_SESSION['user_id']) && isset($_SESSION['user_type'])){
                     <div class="form-group">
                       <label>Provide Picture for Approval (Valid ID) <span class="text-danger">*</span></label>
                       <input type="file" class="form-control p-1" id="add_valid_id" name="add_valid_id" accept="image/*">
-                      <small class="text-muted">Upload a clear photo of your Government ID or Brgy ID.</small>
+                      <small class="text-muted">Upload a clear photo of your Valid ID.</small>
                     </div>
                   </div>
                   <div class="col-sm-12">
