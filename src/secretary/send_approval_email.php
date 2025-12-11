@@ -14,11 +14,11 @@ if($row = $result->fetch_assoc()){
 
     // --- RESEND API CONFIGURATION ---
     // If you don't have an API Key yet, this part will just skip.
-    $resendApiKey = 're_123456789'; // REPLACE WITH YOUR REAL KEY
+    $resendApiKey = 're_bygoEX77_Medtrd76SJtddddi8b5TJEB1'; // REPLACE WITH YOUR REAL KEY
     
     $url = 'https://api.resend.com/emails';
     $data = [
-        'from' => 'Barangay Kalusugan <onboarding@resend.dev>', // Use your verified domain
+        'from' => 'Barangay Kalusugan <noreply@qc-brgy-kalusugan.online>', // Use your verified domain
         'to' => [$email],
         'subject' => 'Registration Approved - Barangay Kalusugan',
         'html' => "
