@@ -7,7 +7,6 @@ require __DIR__ . '/../connection.php';
 
 try {  
     date_default_timezone_set('Asia/Manila');
-    $date = new DateTime();
     
     // --- 1. CAPTURE INPUTS ---
     $add_username = $con->real_escape_string($_POST['add_username'] ?? '');
@@ -22,22 +21,21 @@ try {
     $stmt_check->execute();
     if($stmt_check->get_result()->num_rows > 0){ echo json_encode(['status' => 'errorUsername']); exit(); }
 
-    // Address construction
+    // Address
     $add_municipality = 'Quezon City';
     $add_barangay     = 'Barangay Kalusugan';
     $add_zip          = '1112';
     $add_street       = $con->real_escape_string($_POST['add_street'] ?? '');
     $add_house_number = $con->real_escape_string($_POST['add_house_number'] ?? '');
-    
     $parts = array_filter([$add_house_number, $add_street, $add_barangay, $add_municipality, $add_zip]);
     $add_address = implode(', ', $parts);
     
-    // Household Logic Inputs
+    // Household Logic
     $household_action = $_POST['household_action'] ?? null;
     $target_household_id = $_POST['household_id'] ?? null;
     $relationship = $_POST['relationship_to_head'] ?? 'Head';
 
-    // --- 2. SMART HOUSEHOLD CHECK ---
+    // --- 2. HOUSEHOLD CHECK ---
     if (empty($household_action)) {
         $check_sql = "SELECT h.*, u.first_name as head_first_name, u.last_name as head_last_name 
                       FROM households h 
@@ -58,10 +56,11 @@ try {
     }
 
     // --- 3. SAVE TO PENDING ---
+    $date = new DateTime();
     $pending_id = mt_rand(100000, 999999) . $date->format("mdHis");
     $date_submitted = date("Y-m-d H:i:s");
     
-    // Demographics
+    // Variables
     $add_first_name = $con->real_escape_string($_POST['add_first_name'] ?? '');
     $add_middle_name = $con->real_escape_string($_POST['add_middle_name'] ?? '');
     $add_last_name = $con->real_escape_string($_POST['add_last_name'] ?? '');
@@ -74,26 +73,24 @@ try {
     $add_email_address = $con->real_escape_string($_POST['add_email_address'] ?? '');
     $add_birth_date = $con->real_escape_string($_POST['add_birth_date'] ?? '');
     $add_birth_place = $con->real_escape_string($_POST['add_birth_place'] ?? '');
-    
-    // Guardian
     $add_fathers_name = $con->real_escape_string($_POST['add_fathers_name'] ?? '');
     $add_mothers_name = $con->real_escape_string($_POST['add_mothers_name'] ?? '');
     $add_guardian = $con->real_escape_string($_POST['add_guardian'] ?? '');
     $add_guardian_contact = $con->real_escape_string($_POST['add_guardian_contact'] ?? '');
-
-    // Status Flags
     $add_pwd = $con->real_escape_string($_POST['add_pwd'] ?? 'NO');
     $add_pwd_info = $con->real_escape_string($_POST['add_pwd_info'] ?? '');
     $add_single_parent = $con->real_escape_string($_POST['add_single_parent'] ?? 'NO');
     $add_residency_type = $con->real_escape_string($_POST['add_residency_type'] ?? '');
 
-    // --- IMAGE HANDLING ---
-    $target_dir = '../permanent-data/pending_images/';
+    // --- UPDATED IMAGE HANDLING (Use Existing Folder) ---
+    // We use 'residence_photos' because that folder likely exists on your server already
+    $target_dir = '../permanent-data/residence_photos/'; 
+    
+    // Fallback: Try to make it just in case, but assume it exists
     if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
-    // A. Profile Picture
-    $image_name = '';
-    $image_path = '';
+    // Profile Pic
+    $image_name = ''; $image_path = '';
     if(isset($_FILES['add_image_residence']['name']) && !empty($_FILES['add_image_residence']['name'])){
         $temp = explode('.', $_FILES['add_image_residence']['name']);
         $image_name = uniqid('PROF_') . '.' . end($temp);
@@ -101,37 +98,41 @@ try {
         move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $image_path);
     }
 
-    // B. Valid ID Picture (NEW)
-    $valid_id_name = '';
-    $valid_id_path = '';
-    if(isset($_FILES['add_valid_id']['name']) && !empty($_FILES['add_valid_id']['name'])){
-        $temp = explode('.', $_FILES['add_valid_id']['name']);
-        $valid_id_name = uniqid('ID_') . '.' . end($temp);
-        $valid_id_path = $target_dir . $valid_id_name;
-        move_uploaded_file($_FILES['add_valid_id']['tmp_name'], $valid_id_path);
+    // B. Valid ID Picture (BLOB METHOD - Like Dashboard)
+    // We don't save a path anymore. We save the DATA.
+    $valid_id_blob = null; // Default null
+    
+    if(isset($_FILES['add_valid_id']['tmp_name']) && !empty($_FILES['add_valid_id']['tmp_name'])){
+        // 1. Get the actual file content
+        $image_data = file_get_contents($_FILES['add_valid_id']['tmp_name']);
+        
+        // 2. Escape it safely for the database
+        $valid_id_blob = $con->real_escape_string($image_data);
     }
 
     // INSERT INTO pending_residents
-    // Added: valid_id_name, valid_id_path columns
+    // Notice: We removed 'valid_id_path' and 'valid_id_name' and replaced them with 'valid_id_blob'
     $sql = "INSERT INTO pending_residents (
         pending_id, first_name, middle_name, last_name, suffix, gender, civil_status, religion, nationality,
         contact_number, email_address, birth_date, birth_place, house_number, street, 
         fathers_name, mothers_name, guardian, guardian_contact, image_name, image_path,
         residency_type, pwd, pwd_info, single_parent, username, password_plain, date_submitted,
         household_action, target_household_id, relationship_to_head,
-        valid_id_name, valid_id_path
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        valid_id_blob
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    // Count: 33 parameters (31 previous + 2 new)
     $stmt = $con->prepare($sql);
-    $stmt->bind_param('sssssssssssssssssssssssssssssssss',
+    
+    // We bind variables. Note: BLOBs can be large, but for standard IDs, binding as string 's' usually works in PHP/MySQLi 
+    // or we send null if empty.
+    $stmt->bind_param('sssssssssssssssssssssssssssssss',
         $pending_id, $add_first_name, $add_middle_name, $add_last_name, $add_suffix, $add_gender, 
         $add_civil_status, $add_religion, $add_nationality, $add_contact_number, $add_email_address, 
         $add_birth_date, $add_birth_place, $add_house_number, $add_street, 
         $add_fathers_name, $add_mothers_name, $add_guardian, $add_guardian_contact, $image_name, $image_path,
         $add_residency_type, $add_pwd, $add_pwd_info, $add_single_parent, $add_username, $add_password, $date_submitted,
         $household_action, $target_household_id, $relationship,
-        $valid_id_name, $valid_id_path
+        $valid_id_blob
     );
 
     if($stmt->execute()){
