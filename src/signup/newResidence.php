@@ -82,14 +82,11 @@ try {
     $add_single_parent = $con->real_escape_string($_POST['add_single_parent'] ?? 'NO');
     $add_residency_type = $con->real_escape_string($_POST['add_residency_type'] ?? '');
 
-    // --- UPDATED IMAGE HANDLING (Use Existing Folder) ---
-    // We use 'residence_photos' because that folder likely exists on your server already
+    // --- IMAGE HANDLING (Folder for Profile, Blob for ID) ---
     $target_dir = '../permanent-data/residence_photos/'; 
-    
-    // Fallback: Try to make it just in case, but assume it exists
     if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
-    // Profile Pic
+    // Profile Pic (File System)
     $image_name = ''; $image_path = '';
     if(isset($_FILES['add_image_residence']['name']) && !empty($_FILES['add_image_residence']['name'])){
         $temp = explode('.', $_FILES['add_image_residence']['name']);
@@ -98,15 +95,13 @@ try {
         move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $image_path);
     }
 
-    // B. Valid ID Picture (BLOB METHOD)
+    // Valid ID (Blob Database Storage)
     $valid_id_blob = null; 
-    
     if(isset($_FILES['add_valid_id']['tmp_name']) && !empty($_FILES['add_valid_id']['tmp_name'])){
-        // Just get the content. DO NOT use real_escape_string here.
         $valid_id_blob = file_get_contents($_FILES['add_valid_id']['tmp_name']);
     }
 
-    // INSERT INTO pending_residents
+    // INSERT
     $sql = "INSERT INTO pending_residents (
         pending_id, first_name, middle_name, last_name, suffix, gender, civil_status, religion, nationality,
         contact_number, email_address, birth_date, birth_place, house_number, street, 
@@ -118,9 +113,9 @@ try {
 
     $stmt = $con->prepare($sql);
     
-    // Bind parameters
-    // Note: We are using 's' (string) for the blob, which works for MySQLi standard usage.
-    $stmt->bind_param('sssssssssssssssssssssssssssssss',
+    // FIXED: Added one extra 's' to make it 32 characters total
+    // count: 32 variables below
+    $stmt->bind_param('ssssssssssssssssssssssssssssssss', 
         $pending_id, $add_first_name, $add_middle_name, $add_last_name, $add_suffix, $add_gender, 
         $add_civil_status, $add_religion, $add_nationality, $add_contact_number, $add_email_address, 
         $add_birth_date, $add_birth_place, $add_house_number, $add_street, 
