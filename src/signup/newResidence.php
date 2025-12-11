@@ -1,12 +1,21 @@
 <?php 
-ini_set('display_errors', 0);
+// DEBUGGING: Turn ON errors so we can see what is happening
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 session_start();
 header('Content-Type: application/json'); 
 require __DIR__ . '/../connection.php';
 
 try {  
     date_default_timezone_set('Asia/Manila');
+
+    // --- CHECK FOR FILE SIZE LIMITS ---
+    // If the form was posted but $_POST is empty, the file was too big.
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
+        throw new Exception("File too large. Maximum allowed size is " . ini_get('upload_max_filesize'));
+    }
     
     // --- 1. CAPTURE INPUTS ---
     $add_username = $con->real_escape_string($_POST['add_username'] ?? '');
@@ -82,11 +91,11 @@ try {
     $add_single_parent = $con->real_escape_string($_POST['add_single_parent'] ?? 'NO');
     $add_residency_type = $con->real_escape_string($_POST['add_residency_type'] ?? '');
 
-    // --- IMAGE HANDLING (Folder for Profile, Blob for ID) ---
+    // --- IMAGE HANDLING ---
     $target_dir = '../permanent-data/residence_photos/'; 
     if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
-    // Profile Pic (File System)
+    // Profile Pic
     $image_name = ''; $image_path = '';
     if(isset($_FILES['add_image_residence']['name']) && !empty($_FILES['add_image_residence']['name'])){
         $temp = explode('.', $_FILES['add_image_residence']['name']);
@@ -95,7 +104,7 @@ try {
         move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $image_path);
     }
 
-    // Valid ID (Blob Database Storage)
+    // Valid ID (Blob)
     $valid_id_blob = null; 
     if(isset($_FILES['add_valid_id']['tmp_name']) && !empty($_FILES['add_valid_id']['tmp_name'])){
         $valid_id_blob = file_get_contents($_FILES['add_valid_id']['tmp_name']);
@@ -113,8 +122,7 @@ try {
 
     $stmt = $con->prepare($sql);
     
-    // FIXED: Added one extra 's' to make it 32 characters total
-    // count: 32 variables below
+    // BIND PARAM (32 items)
     $stmt->bind_param('ssssssssssssssssssssssssssssssss', 
         $pending_id, $add_first_name, $add_middle_name, $add_last_name, $add_suffix, $add_gender, 
         $add_civil_status, $add_religion, $add_nationality, $add_contact_number, $add_email_address, 
@@ -128,11 +136,11 @@ try {
     if($stmt->execute()){
         echo json_encode(['status' => 'success']);
     } else {
-        throw new Exception($con->error);
+        throw new Exception($stmt->error);
     }
 
 } catch (Throwable $e) {
-    http_response_code(500);
+    // IMPORTANT: I removed http_response_code(500) so you can read the message in the browser!
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 ?>
