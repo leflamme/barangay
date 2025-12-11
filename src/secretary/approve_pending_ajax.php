@@ -22,19 +22,18 @@ try {
     $household_action = $row['household_action'];
     $relationship = $row['relationship_to_head'];
     
-    // Address vars
+    // Default Location Vars
     $municipality = 'Quezon City';
     $barangay = 'Barangay Kalusugan';
     $zip = '1112';
     $street = $row['street'];
     $house_num = $row['house_number'];
     
-    // Reconstruct full address for searching
+    // Reconstruct full address
     $parts = array_filter([$house_num, $street, $barangay, $municipality, $zip]);
     $full_address = implode(', ', $parts);
 
-    // --- 2. THE "SECOND CHECK" (Prevents Duplicates) ---
-    // If user wanted to create 'new', check if one was created recently (e.g., by the Father)
+    // --- 2. THE "SECOND CHECK" (Smart Logic) ---
     if ($household_action === 'new') {
         $check_hh = $con->prepare("SELECT id FROM households WHERE street = ? AND house_number = ? LIMIT 1");
         $check_hh->bind_param("ss", $street, $house_num);
@@ -42,23 +41,15 @@ try {
         $res_hh = $check_hh->get_result();
         
         if ($res_hh->num_rows > 0) {
-            // CONFLICT DETECTED! A household now exists.
-            // Force this user to JOIN it instead of creating a duplicate.
             $existing_row = $res_hh->fetch_assoc();
             $final_household_id = $existing_row['id'];
-            $household_action = 'join'; // Override action
-            
-            // If they claimed to be "Head" but a Head exists now, demote them to "Member" 
-            // (Secretary can fix specific relationship later, or default to Member)
-            if ($relationship === 'Head') {
-                $relationship = 'Member'; 
-            }
+            $household_action = 'join'; 
+            if ($relationship === 'Head') { $relationship = 'Member'; }
         }
     }
 
-    // --- 3. EXECUTE HOUSEHOLD LOGIC ---
+    // --- 3. CREATE HOUSEHOLD IF NEEDED ---
     if ($household_action === 'new' || empty($final_household_id)) {
-        // Still no household? Okay, create one.
         $new_hh_number = date("Y") . '-' . mt_rand(1000, 9999);
         $sql_hh = "INSERT INTO households (household_number, household_head_id, municipality, barangay, street, house_number, address, zip_code, date_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt_hh = $con->prepare($sql_hh);
@@ -66,19 +57,16 @@ try {
         
         if(!$stmt_hh->execute()) throw new Exception("Household Error: ".$con->error);
         $final_household_id = $stmt_hh->insert_id;
-        $relationship = 'Head'; // First one is always Head
+        $relationship = 'Head'; 
     }
 
-    // --- 4. MOVE IMAGES ---
+    // --- 4. HANDLE IMAGES (File System) ---
+    // If using the BLOB method for ID, we don't need to move the ID file.
+    // We only check if the Profile Picture needs moving (if you use folders for Profile Pics)
     $new_image_path = '';
     $new_image_name = $row['image_name'];
-    if (!empty($new_image_name) && file_exists($row['image_path'])) {
-        $perm_dir = __DIR__ . '/../permanent-data/residence_photos/'; // Ensure correct path
-        if (!is_dir($perm_dir)) mkdir($perm_dir, 0777, true);
-        
-        // Note: Logic here depends on if you are moving files or just keeping them in the same folder.
-        // If 'newResidence' already saves to 'residence_photos', we don't need to move/rename, just reference it.
-        // Assuming we keep the file where it is:
+    if (!empty($new_image_name) && !empty($row['image_path']) && file_exists($row['image_path'])) {
+        // Assuming images are already in the permanent folder from newResidence.php
         $new_image_path = $row['image_path']; 
     }
 
@@ -89,26 +77,45 @@ try {
     $stmt->bind_param('ssssssssssss', $pending_id, $row['first_name'], $row['middle_name'], $row['last_name'], $row['username'], $row['password_plain'], $val_user_type, $row['contact_number'], $new_image_name, $new_image_path, $final_household_id, $relationship);
     $stmt->execute();
 
-    // --- 6. INSERT INFO ---
+    // --- 6. INSERT RESIDENCE INFO (FIXED) ---
+    // Added: municipality, barangay, zip
     $dob = new DateTime($row['birth_date']);
     $age = (new DateTime())->diff($dob)->y;
     $senior = ($age >= 60) ? 'YES' : 'NO';
     $alias = $row['first_name'].' '.$row['last_name'];
     
-    $sql_info = "INSERT INTO residence_information (residence_id, first_name, middle_name, last_name, age, suffix, gender, civil_status, religion, nationality, contact_number, email_address, birth_date, birth_place, house_number, street, fathers_name, mothers_name, guardian, guardian_contact, image, image_path, alias, address) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    // UPDATED SQL: Added 3 new columns
+    $sql_info = "INSERT INTO residence_information (
+        residence_id, first_name, middle_name, last_name, age, suffix, gender, civil_status, religion, nationality, 
+        contact_number, email_address, birth_date, birth_place, house_number, street, 
+        municipality, barangay, zip, 
+        fathers_name, mothers_name, guardian, guardian_contact, image, image_path, alias, address
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?, 
+        ?, ?, ?, ?, ?, ?, ?, ?
+    )";
+    
     $stmt = $con->prepare($sql_info);
-    $stmt->bind_param('ssssssssssssssssssssssss', $pending_id, $row['first_name'], $row['middle_name'], $row['last_name'], $age, $row['suffix'], $row['gender'], $row['civil_status'], $row['religion'], $row['nationality'], $row['contact_number'], $row['email_address'], $row['birth_date'], $row['birth_place'], $row['house_number'], $row['street'], $row['fathers_name'], $row['mothers_name'], $row['guardian'], $row['guardian_contact'], $new_image_name, $new_image_path, $alias, $full_address);
+    
+    // UPDATED BIND: Added 3 variables ($municipality, $barangay, $zip)
+    // Total params: 27
+    $stmt->bind_param('sssssssssssssssssssssssssss', 
+        $pending_id, $row['first_name'], $row['middle_name'], $row['last_name'], $age, $row['suffix'], $row['gender'], $row['civil_status'], $row['religion'], $row['nationality'], 
+        $row['contact_number'], $row['email_address'], $row['birth_date'], $row['birth_place'], $row['house_number'], $row['street'], 
+        $municipality, $barangay, $zip, 
+        $row['fathers_name'], $row['mothers_name'], $row['guardian'], $row['guardian_contact'], $new_image_name, $new_image_path, $alias, $full_address
+    );
     $stmt->execute();
 
-    // --- 7. INSERT STATUS (Use BLOB for ID) ---
+    // --- 7. INSERT STATUS (With ID Blob Logic) ---
     $val_status = 'ACTIVE';
     $val_archive = 'NO';
     $date_added = date("m/d/Y h:i A");
     
-    // NOTE: We need to transfer the BLOB data too if you want to keep the ID valid in active records.
-    // Assuming 'residence_status' table has a 'valid_id_blob' column? 
-    // If not, we just ignore it for now or you need to add the column to residence_status.
-    
+    // Note: If you have a blob column in residence_status, add it here. 
+    // Otherwise, we proceed with standard status fields.
     $sql_stat = "INSERT INTO residence_status (residence_id, status, residency_type, archive, pwd, pwd_info, single_parent, senior, date_added) VALUES (?,?,?,?,?,?,?,?,?)";
     $stmt = $con->prepare($sql_stat);
     $stmt->bind_param('sssssssss', $pending_id, $val_status, $row['residency_type'], $val_archive, $row['pwd'], $row['pwd_info'], $row['single_parent'], $senior, $date_added);
