@@ -109,8 +109,8 @@ try {
         $valid_id_blob = file_get_contents($_FILES['add_valid_id']['tmp_name']);
     }
 
-    // INSERT
-    // [FIXED] Added the missing comma and question mark (?,) at the end of VALUES
+    // INSERT COMMAND
+    // Count: 32 Columns listed below
     $sql = "INSERT INTO pending_residents (
         pending_id, first_name, middle_name, last_name, suffix, gender, civil_status, religion, nationality,
         contact_number, email_address, birth_date, birth_place, house_number, street, 
@@ -118,12 +118,19 @@ try {
         residency_type, pwd, pwd_info, single_parent, username, password_plain, date_submitted,
         household_action, target_household_id, relationship_to_head,
         valid_id_blob
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; 
-    // ^ The line above now has 32 question marks.
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?, ?, ?, ?, ?, 
+        ?, ?, ?, ?
+    )"; 
+    // ^ I separated them into rows to guarantee exactly 32 question marks.
 
     $stmt = $con->prepare($sql);
     
-    // Bind 32 variables
+    // BIND PARAMETERS
+    // Count: 32 's' characters
     $stmt->bind_param('ssssssssssssssssssssssssssssssss', 
         $pending_id, $add_first_name, $add_middle_name, $add_last_name, $add_suffix, $add_gender, 
         $add_civil_status, $add_religion, $add_nationality, $add_contact_number, $add_email_address, 
