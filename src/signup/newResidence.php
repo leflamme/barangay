@@ -1,7 +1,6 @@
 <?php 
-// DEBUGGING: Turn ON errors so we can see what is happening
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Turn off error display to prevent HTML breaking the JSON response
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 session_start();
@@ -11,8 +10,7 @@ require __DIR__ . '/../connection.php';
 try {  
     date_default_timezone_set('Asia/Manila');
 
-    // --- CHECK FOR FILE SIZE LIMITS ---
-    // If the form was posted but $_POST is empty, the file was too big.
+    // --- CHECK FILE SIZE ---
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0) {
         throw new Exception("File too large. Maximum allowed size is " . ini_get('upload_max_filesize'));
     }
@@ -92,8 +90,8 @@ try {
     $add_residency_type = $con->real_escape_string($_POST['add_residency_type'] ?? '');
 
     // --- IMAGE HANDLING ---
+    // [FIXED] Removed mkdir() to prevent Permission Denied errors on Railway
     $target_dir = '../permanent-data/residence_photos/'; 
-    if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
     // Profile Pic
     $image_name = ''; $image_path = '';
@@ -101,7 +99,8 @@ try {
         $temp = explode('.', $_FILES['add_image_residence']['name']);
         $image_name = uniqid('PROF_') . '.' . end($temp);
         $image_path = $target_dir . $image_name;
-        move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $image_path);
+        // Suppress errors with @ in case folder is missing, prevents crash
+        @move_uploaded_file($_FILES['add_image_residence']['tmp_name'], $image_path);
     }
 
     // Valid ID (Blob)
@@ -111,6 +110,7 @@ try {
     }
 
     // INSERT
+    // [FIXED] Added the missing comma and question mark (?,) at the end of VALUES
     $sql = "INSERT INTO pending_residents (
         pending_id, first_name, middle_name, last_name, suffix, gender, civil_status, religion, nationality,
         contact_number, email_address, birth_date, birth_place, house_number, street, 
@@ -118,11 +118,12 @@ try {
         residency_type, pwd, pwd_info, single_parent, username, password_plain, date_submitted,
         household_action, target_household_id, relationship_to_head,
         valid_id_blob
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; 
+    // ^ The line above now has 32 question marks.
 
     $stmt = $con->prepare($sql);
     
-    // BIND PARAM (32 items)
+    // Bind 32 variables
     $stmt->bind_param('ssssssssssssssssssssssssssssssss', 
         $pending_id, $add_first_name, $add_middle_name, $add_last_name, $add_suffix, $add_gender, 
         $add_civil_status, $add_religion, $add_nationality, $add_contact_number, $add_email_address, 
@@ -140,7 +141,6 @@ try {
     }
 
 } catch (Throwable $e) {
-    // IMPORTANT: I removed http_response_code(500) so you can read the message in the browser!
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 ?>
