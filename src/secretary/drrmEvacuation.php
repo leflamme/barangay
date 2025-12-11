@@ -316,10 +316,10 @@ try{
                 <a class="nav-link active" id="tab-a" data-toggle="pill" href="#center-a" role="tab">Elem. School</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="tab-b" data-toggle="pill" href="#center-b" role="tab">Basketball Court</a>
+                <a class="nav-link" id="tab-b" data-toggle="pill" href="#center-b" role="tab">Open Area</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="tab-c" data-toggle="pill" href="#center-c" role="tab">High School Annex</a>
+                <a class="nav-link" id="tab-c" data-toggle="pill" href="#center-c" role="tab">St. Joseph's College of Quezon City</a>
               </li>
             </ul>
           </div>
@@ -337,17 +337,20 @@ try{
               </div>
 
               <div class="tab-pane fade" id="center-b" role="tabpanel">
-                <h4>Kalusugan Open Basketball Court</h4>
+                <h4>Kalusugan Open Area</h4>
                 <?php 
-                  $resultFamilies = getFamiliesByCenter($con, 'Kalusugan Open Basketball Court'); 
+                  // UPDATED: Changed from 'Kalusugan Open Basketball Court' to 'Kalusugan Open Area'
+                  $resultFamilies = getFamiliesByCenter($con, 'Kalusugan Open Area'); 
                   include 'evacuation_table_template.php'; 
                 ?>
               </div>
 
               <div class="tab-pane fade" id="center-c" role="tabpanel">
-                <h4>Quezon City High School Annex</h4>
+                <h4>St. Joseph's College of Quezon City</h4>
                 <?php 
-                  $resultFamilies = getFamiliesByCenter($con, 'Quezon City High School Annex'); 
+                  // UPDATED: Changed from 'Quezon City High School Annex'
+                  // Note: We use double quotes " " on the outside because the name has a single quote ' inside (Joseph's)
+                  $resultFamilies = getFamiliesByCenter($con, "St. Joseph's College of Quezon City"); 
                   include 'evacuation_table_template.php'; 
                 ?>
               </div>
