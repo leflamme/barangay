@@ -530,65 +530,16 @@ $(document).ready(function(){
                 try { response = (typeof data === 'object') ? data : JSON.parse(data); } 
                 catch (e) { response = { status: 'error', message: data }; }
 
-                // --- 1. SUCCESS: START CHAINING ---
                 if (response.status === 'success') {
-                    
-                    // --- 1. INDICATOR: MAP COORDINATES ---
-                    Swal.fire({
-                        title: 'Registration Saved!',
-                        html: 'Please wait...<br><b>Finding your coordinates</b>',
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        onBeforeOpen: () => { Swal.showLoading() }
-                    });
-
-                    // CHAIN 1: Fix Locations (Geocoding)
-                    $.ajax({
-                        url: 'signup/fix_locations.php', 
-                        type: 'POST',
-                        data: { request: response.residence_id },
-                        timeout: 10000, 
-                        success: function() {
-                            
-                            // --- 2. INDICATOR: ASSIGNMENT ---
-                            // FIXED: Replaced Swal.update() with Swal.fire() to prevent errors
-                            Swal.fire({
-                                title: 'Processing...',
-                                html: 'Please wait...<br><b>currently assigning the nearest evacuation center for you</b>',
-                                allowOutsideClick: false,
-                                showConfirmButton: false,
-                                onBeforeOpen: () => { Swal.showLoading() }
-                            });
-                            
-                            $.ajax({
-                                url: 'signup/assign_residents.php', 
-                                type: 'POST',
-                                data: { request: response.residence_id },
-                                success: function() {
-                                    
-                                    // FINAL SUCCESS: Redirect
-                                    Swal.fire({
-                                        title: 'Registration Complete',
-                                        type: 'success',
-                                        html: '<b>Registered Successfully!</b><br>Household #: ' + response.household_number,
-                                        timer: 2000,
-                                        showConfirmButton: false
-                                    }).then(() => {
-                                        window.location.href = 'login.php';
-                                    });
-                                },
-                                error: function() {
-                                    // If assignment fails, we still redirect
-                                    window.location.href = 'login.php';
-                                }
-                            });
-                        },
-                        error: function(jqXHR, textStatus) {
-                            console.log("Geocoding failed or timed out: " + textStatus);
-                            window.location.href = 'login.php';
-                        }
-                    });
-
+                  Swal.fire({
+                      title: 'Registration Pending',
+                      type: 'success',
+                      html: '<b>Registration Submitted!</b><br>Your account is now pending for approval by the Barangay Secretary.',
+                      timer: 3000,
+                      showConfirmButton: false
+                  }).then(() => {
+                      window.location.href = 'login.php';
+                  });
                 } else if (response.status === 'showHouseholdModal') {
                     // Close the loading swal if showing modal
                     Swal.close(); 
