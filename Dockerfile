@@ -31,10 +31,6 @@ COPY ./src /var/www/html/
 RUN mkdir -p /var/www/html/permanent-data && \
     chmod -R 777 /var/www/html/permanent-data
 
-# --- THE ULTIMATE FIX ---
-# Instead of trusting the build, we fix it when the container STARTS.
-# This runs every single time the app boots up.
-# 1. Force delete mpm_event and mpm_worker files (using wildcard *)
-# 2. Enable mpm_prefork
-# 3. Start Apache normally
-CMD ["/bin/bash", "-c", "rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* && a2enmod mpm_prefork && apache2-foreground"]
+# --- THE FINAL FIX ---
+# We added 'rewrite' to the a2enmod command below.
+CMD ["/bin/bash", "-c", "rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* && a2enmod mpm_prefork rewrite && apache2-foreground"]
