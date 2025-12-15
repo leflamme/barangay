@@ -44,15 +44,16 @@ try {
 
     if (isset($_GET['search']) && !empty($_GET['search'])) {
         $search = $_GET['search'];
-        $search_where = " AND (h.household_number LIKE ? OR h.address LIKE ? OR 
-                            CONCAT(ri.first_name, ' ', ri.last_name) LIKE ? OR 
-                            ri.last_name LIKE ? OR ri.first_name LIKE ?)";
+        // Search mostly by household number or address since head name is dynamic now
+        $search_where = " AND (h.household_number LIKE ? OR h.address LIKE ?)";
         $search_param = "%{$search}%";
-        $params = array_fill(0, 5, $search_param);
-        $types = str_repeat('s', 5);
+        $params = array_fill(0, 2, $search_param);
+        $types = str_repeat('s', 2);
     }
 
-    // Base query for household monitoring - CORRECTED TO FILTER ACTIVE ONLY
+    // --- SMART FIX SQL QUERY ---
+    // 1. Dynamically finds the Active Head (ignoring stale household_head_id)
+    // 2. Filters all counts to only include 'ACTIVE' members
     $base_sql = "SELECT 
                     h.id as household_id,
                     h.household_number,
@@ -61,62 +62,57 @@ try {
                     h.municipality,
                     h.zip_code,
                     h.date_created,
-                    h.household_head_id,
                     
-                    -- 1. Count Total Members (ACTIVE ONLY)
+                    -- DYNAMIC HEAD LOOKUP (Self-Correcting)
+                    (SELECT CONCAT(ri_head.first_name, ' ', ri_head.last_name)
+                     FROM household_members hm_head
+                     JOIN residence_status rs_head ON hm_head.user_id = rs_head.residence_id
+                     JOIN residence_information ri_head ON hm_head.user_id = ri_head.residence_id
+                     WHERE hm_head.household_id = h.id 
+                       AND hm_head.is_head = 1 
+                       AND rs_head.status = 'ACTIVE'
+                     LIMIT 1
+                    ) as head_name,
+
+                    -- Count Total Members (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm2 
                      JOIN residence_status rs2 ON hm2.user_id = rs2.residence_id
                      WHERE hm2.household_id = h.id AND rs2.status = 'ACTIVE') as total_members,
                      
-                    -- 2. Count Seniors (ACTIVE ONLY)
+                    -- Count Seniors (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm3 
                      JOIN residence_information ri3 ON hm3.user_id = ri3.residence_id 
-                     JOIN residence_status rs3 ON hm3.user_id = rs3.residence_id
+                     JOIN residence_status rs3 ON hm3.user_id = rs3.residence_id 
                      WHERE hm3.household_id = h.id AND ri3.age >= 60 AND rs3.status = 'ACTIVE') as senior_count,
                      
-                    -- 3. Count PWD (ACTIVE ONLY)
+                    -- Count PWD (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm4 
                      JOIN residence_status rs4 ON hm4.user_id = rs4.residence_id 
                      WHERE hm4.household_id = h.id AND rs4.pwd = 'YES' AND rs4.status = 'ACTIVE') as pwd_count,
                      
-                    -- 4. Count Single Parents (ACTIVE ONLY)
+                    -- Count Single Parents (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm5 
                      JOIN residence_status rs5 ON hm5.user_id = rs5.residence_id 
                      WHERE hm5.household_id = h.id AND rs5.single_parent = 'YES' AND rs5.status = 'ACTIVE') as single_parent_count,
                      
-                    -- 5. Count Residents (ACTIVE ONLY)
+                    -- Count Residents (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm6 
                      JOIN residence_status rs6 ON hm6.user_id = rs6.residence_id 
                      WHERE hm6.household_id = h.id AND rs6.residency_type = 'Resident' AND rs6.status = 'ACTIVE') as resident_count,
                      
-                    -- 6. Count Tenants (ACTIVE ONLY)
+                    -- Count Tenants (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                     FROM household_members hm8 
                     JOIN residence_status rs8 ON hm8.user_id = rs8.residence_id 
-                    WHERE hm8.household_id = h.id AND rs8.residency_type = 'Tenant' AND rs8.status = 'ACTIVE') as tenant_count,
+                    WHERE hm8.household_id = h.id AND rs8.residency_type = 'Tenant' AND rs8.status = 'ACTIVE') as tenant_count
                     
-                    -- Get household head name
-                    CONCAT(ri.first_name, ' ', ri.last_name) as head_name
                 FROM households h
-                LEFT JOIN users u ON h.household_head_id = u.id
-                LEFT JOIN residence_information ri ON u.id = ri.residence_id
                 WHERE 1=1 {$search_where}
-                GROUP BY 
-                    h.id, 
-                    h.household_number, 
-                    h.address, 
-                    h.barangay, 
-                    h.municipality, 
-                    h.zip_code, 
-                    h.date_created, 
-                    h.household_head_id,
-                    ri.first_name,
-                    ri.last_name
                 ORDER BY h.date_created DESC";
 
     // Prepare and execute query
@@ -159,10 +155,10 @@ try {
                 $priority = 'LOW';
             }
             
-            // Get head name
-            $head_name = $row['head_name'] ?? 'No head assigned';
+            // Get head name (Handle cases where no active head exists)
+            $head_name = $row['head_name'];
             if (empty(trim($head_name))) {
-                $head_name = 'No head assigned';
+                $head_name = '<span class="text-danger font-italic">No Active Head</span>';
             }
 
             $table .= '<tr class="household-row" data-id="' . $row['household_id'] . '">
@@ -170,7 +166,7 @@ try {
                     <strong>' . htmlspecialchars($row['household_number']) . '</strong>
                     <br><small class="text-muted">' . date('M d, Y', strtotime($row['date_created'])) . '</small>
                 </td>
-                <td>' . htmlspecialchars($head_name) . '</td>
+                <td>' . $head_name . '</td>
                 <td>' . htmlspecialchars($row['address'] ?? 'N/A') . '<br>
                     <small class="text-muted">' . htmlspecialchars($row['barangay'] ?? '') . '</small>
                 </td>
@@ -226,27 +222,20 @@ try {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Household Monitoring</title>
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
   <link rel="stylesheet" href="../assets/plugins/jquery-ui/jquery-ui.min.css">
-  <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="../assets/dist/css/admin.css">
 
   <style>
@@ -502,14 +491,11 @@ try {
 <body class="hold-transition sidebar-mini layout-footer-fixed">
 <div class="wrapper">
 
-   <!-- Preloader -->
    <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <h5><a class="nav-link text-white" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></h5>
@@ -531,7 +517,6 @@ try {
       </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
@@ -560,17 +545,11 @@ try {
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
-    <!-- Brand Logo -->
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
 
-<!-- Sidebar -->
-    <div class="sidebar">
+<div class="sidebar">
   
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
@@ -593,30 +572,23 @@ try {
           
         <li class="nav-item"><a href="editRequests.php" class="nav-link"><i class="fas fa-circle nav-icon text-red"></i><p>Edit Requests</p></a></li>
 
-        <!-- DRM Part   (START)   -->
         <li class="nav-item has-treeview"><a href="#" class="nav-link"><i class="nav-icon fas fa-exclamation-triangle"></i><p>DRRM<i class="right fas fa-angle-left"></i></p></a>
           <ul class="nav nav-treeview"> 
             <li class="nav-item"><a href="drrmEvacuation.php" class="nav-link"><i class="fas fa-house-damage nav-icon text-red"></i><p>Evacuation Center</p></a></li>
             <li class="nav-item"><a href="report.php" class="nav-link bg-indigo"><i class="nav-icon fas fa-bookmark"></i><p>Masterlist Report</p></a></li>
           </ul>
         </li>
-        <!-- End of DRM Part -->
-
         <li class="nav-item"><a href="requestCertificate.php" class="nav-link"><i class="nav-icon fas fa-certificate"></i><p>Certificate</p></a></li>
         <li class="nav-item"><a href="blotterRecord.php" class="nav-link"><i class="nav-icon fas fa-clipboard"></i><p>Blotter Record</p></a></li>
           
       </ul>
       </nav>
-      <!-- /.sidebar-menu -->
-    </div>
-    <!-- /.sidebar -->
-  </aside>
+      </div>
+    </aside>
 
-  <!-- Content Wrapper -->
   <div class="content-wrapper">
     <section class="content">
       <div class="container-fluid">
-        <!-- Statistics Cards -->
         <div class="row mb-4">
           <div class="col-lg-3 col-6">
             <div class="stats-card card">
@@ -636,7 +608,7 @@ try {
                   <i class="fas fa-users stats-icon"></i>
                 </div>
                 <div class="stats-number"><?= $total_residents ?></div>
-                <div class="stats-label">TOTAL RESIDENTS</div>
+                <div class="stats-label">TOTAL ACTIVE RESIDENTS</div>
               </div>
             </div>
           </div>
@@ -647,7 +619,7 @@ try {
                   <i class="fas fa-wheelchair stats-icon"></i>
                 </div>
                 <div class="stats-number"><?= $total_seniors ?></div>
-                <div class="stats-label">SENIOR CITIZENS</div>
+                <div class="stats-label">ACTIVE SENIOR CITIZENS</div>
               </div>
             </div>
           </div>
@@ -658,13 +630,12 @@ try {
                   <i class="fas fa-accessible-icon stats-icon"></i>
                 </div>
                 <div class="stats-number"><?= $total_pwd ?></div>
-                <div class="stats-label">PWD RESIDENTS</div>
+                <div class="stats-label">ACTIVE PWD RESIDENTS</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Search and Filter -->
         <div class="card mb-4">
           <div class="card-header">
             <h3 class="card-title"><i class="fas fa-search mr-2"></i>Quick Search & Filter</h3>
@@ -674,7 +645,7 @@ try {
               <div class="col-md-8">
                 <div class="input-group">
                   <input type="text" name="search" class="form-control search-box" 
-                         placeholder="Search by Household No, Address, or Head Name..." 
+                         placeholder="Search by Household No or Address..." 
                          value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
                   <div class="input-group-append">
                     <button class="btn btn-primary" type="submit">
@@ -692,7 +663,6 @@ try {
           </div>
         </div>
 
-        <!-- Main Table -->
         <div class="card">
           <div class="card-header">
             <h3 class="card-title"><i class="fas fa-list mr-2"></i>Household List for Disaster Response</h3>
@@ -710,7 +680,7 @@ try {
                     <th>Household No.</th>
                     <th>Head of Household</th>
                     <th>Address</th>
-                    <th class="text-center">Members</th>
+                    <th class="text-center">Active Members</th>
                     <th class="text-center">Vulnerable Groups</th>
                     <th class="text-center">Residency Type</th>
                     <th class="text-center">Rescue Priority</th>
@@ -737,7 +707,6 @@ try {
           </div>
         </div>
 
-        <!-- Emergency Info Card -->
         <div class="card">
           <div class="card-header bg-danger text-white">
             <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-2"></i>Emergency Response Information</h3>
@@ -768,7 +737,6 @@ try {
     </section>
   </div>
 
-  <!-- Footer -->
   <footer class="main-footer">
     <strong>&copy; <?= date("Y") ?> - <?= date('Y', strtotime('+1 year')) ?> Barangay Kalusugan Disaster Response System</strong>
     <div class="float-right d-none d-sm-inline-block">
@@ -777,7 +745,6 @@ try {
   </footer>
 </div>
 
-<!-- View Members Modal -->
 <div class="modal fade" id="viewMembersModal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -797,7 +764,6 @@ try {
   </div>
 </div>
 
-<!-- REQUIRED SCRIPTS -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
@@ -810,7 +776,6 @@ try {
 <script src="../assets/plugins/pdfmake/vfs_fonts.js"></script>
 
 <script>
-// View Household Members - IMPROVED ERROR HANDLING
 // View Household Members - SIMPLIFIED FOR SAME DIRECTORY
 $(document).on('click', '.view-members', function(e) {
     e.stopPropagation();

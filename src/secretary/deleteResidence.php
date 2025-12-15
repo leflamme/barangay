@@ -132,7 +132,7 @@ try{
                 $stmt_pm->close();
 
                 // 3. Update Household Master
-                $sql_master = "UPDATE households SET household_head_id = ? WHERE household_id = ?";
+                $sql_master = "UPDATE households SET household_head_id = ? WHERE id = ?";
                 $stmt_m = $con->prepare($sql_master);
                 $stmt_m->bind_param('ss', $new_head_id, $household_id);
                 $stmt_m->execute();
