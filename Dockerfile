@@ -5,7 +5,6 @@ FROM php:8.2-apache
 WORKDIR /var/www/html
 
 # 2. Install system dependencies
-#    We need 'git', 'unzip', 'curl' for Composer
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -15,24 +14,24 @@ RUN apt-get update && apt-get install -y \
 # 3. Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mysqli
 
-# 4. Enable pretty URLs
-RUN a2enmod rewrite
+# 4. FIX: Resolve the "More than one MPM loaded" error
+#    We disable the default 'mpm_event' and force 'mpm_prefork' (required for PHP).
+#    (Removed 'rewrite' as requested)
+RUN a2dismod mpm_event && a2enmod mpm_prefork
 
 # 5. Download and install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | \
+    php -- --install-dir=/usr/local/bin --filename=composer
 
 # 6. Copy ONLY your composer files from 'src'
-#    This is for build caching.
 COPY src/composer.json src/composer.lock ./
 
-# 7. Install all your libraries (This will now work)
-#    It will install PHPMailer and Twilio, and skip MongoDB.
+# 7. Install all your libraries
 RUN composer install --no-dev --optimize-autoloader
 
 # 8. Copy the rest of your PHP code
 COPY ./src /var/www/html/
 
 # 9. Create AND set permissions for your SINGLE volume mount point
-#    This creates the 'permanent-data' folder. The volume will be mounted here.
 RUN mkdir -p /var/www/html/permanent-data && \
     chmod -R 777 /var/www/html/permanent-data
