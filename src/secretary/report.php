@@ -52,7 +52,7 @@ try {
         $types = str_repeat('s', 5);
     }
 
-    // Base query for household monitoring - CORRECTED
+    // Base query for household monitoring - CORRECTED TO FILTER ACTIVE ONLY
     $base_sql = "SELECT 
                     h.id as household_id,
                     h.household_number,
@@ -62,33 +62,43 @@ try {
                     h.zip_code,
                     h.date_created,
                     h.household_head_id,
-                    -- Count all household members
-                    (SELECT COUNT(*) FROM household_members hm2 WHERE hm2.household_id = h.id) as total_members,
-                    -- Count seniors (age >= 60)
+                    
+                    -- 1. Count Total Members (ACTIVE ONLY)
+                    (SELECT COUNT(*) 
+                     FROM household_members hm2 
+                     JOIN residence_status rs2 ON hm2.user_id = rs2.residence_id
+                     WHERE hm2.household_id = h.id AND rs2.status = 'ACTIVE') as total_members,
+                     
+                    -- 2. Count Seniors (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm3 
                      JOIN residence_information ri3 ON hm3.user_id = ri3.residence_id 
-                     WHERE hm3.household_id = h.id AND ri3.age >= 60) as senior_count,
-                    -- Count PWD
+                     JOIN residence_status rs3 ON hm3.user_id = rs3.residence_id
+                     WHERE hm3.household_id = h.id AND ri3.age >= 60 AND rs3.status = 'ACTIVE') as senior_count,
+                     
+                    -- 3. Count PWD (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm4 
                      JOIN residence_status rs4 ON hm4.user_id = rs4.residence_id 
-                     WHERE hm4.household_id = h.id AND rs4.pwd = 'YES') as pwd_count,
-                    -- Count single parents
+                     WHERE hm4.household_id = h.id AND rs4.pwd = 'YES' AND rs4.status = 'ACTIVE') as pwd_count,
+                     
+                    -- 4. Count Single Parents (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm5 
                      JOIN residence_status rs5 ON hm5.user_id = rs5.residence_id 
-                     WHERE hm5.household_id = h.id AND rs5.single_parent = 'YES') as single_parent_count,
-                    -- Count Residents
+                     WHERE hm5.household_id = h.id AND rs5.single_parent = 'YES' AND rs5.status = 'ACTIVE') as single_parent_count,
+                     
+                    -- 5. Count Residents (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                      FROM household_members hm6 
                      JOIN residence_status rs6 ON hm6.user_id = rs6.residence_id 
-                     WHERE hm6.household_id = h.id AND rs6.residency_type = 'Resident') as resident_count,
-                    -- Count Tenants (Replaced Workers with Tenants for clarity)
+                     WHERE hm6.household_id = h.id AND rs6.residency_type = 'Resident' AND rs6.status = 'ACTIVE') as resident_count,
+                     
+                    -- 6. Count Tenants (ACTIVE ONLY)
                     (SELECT COUNT(*) 
                     FROM household_members hm8 
                     JOIN residence_status rs8 ON hm8.user_id = rs8.residence_id 
-                    WHERE hm8.household_id = h.id AND rs8.residency_type = 'Tenant') as tenant_count,
+                    WHERE hm8.household_id = h.id AND rs8.residency_type = 'Tenant' AND rs8.status = 'ACTIVE') as tenant_count,
                     
                     -- Get household head name
                     CONCAT(ri.first_name, ' ', ri.last_name) as head_name
@@ -105,8 +115,8 @@ try {
                     h.zip_code, 
                     h.date_created, 
                     h.household_head_id,
-                    ri.first_name,   /* ADDED THIS LINE */
-                    ri.last_name     /* ADDED THIS LINE */
+                    ri.first_name,
+                    ri.last_name
                 ORDER BY h.date_created DESC";
 
     // Prepare and execute query

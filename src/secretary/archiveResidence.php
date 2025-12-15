@@ -779,7 +779,7 @@ legend {
             html: "How should this resident be restored?",
             input: 'radio',
             inputOptions: {
-              'MEMBER': 'Restore as Regular Member (Mistake)',
+              'MEMBER': 'Restore as Regular Member',
               'HEAD': 'Restore as Head of Household'
             },
             inputValue: 'MEMBER', // Default selection
