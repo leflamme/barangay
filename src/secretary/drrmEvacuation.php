@@ -28,25 +28,31 @@ try{
         $district = $row['district'];
     }
 
-    // 3. Helper Function: Get Families by Center Name
+    // 3. Helper Function: Get Families by Center Name (CORRECTED)
     function getFamiliesByCenter($con, $centerName) {
-        // We use LIKE here just in case of small spaces differences, but exact match is better
-        // This looks for the exact string saved in 'assigned_center'
+        $active = 'Active'; // Variable for binding
+        
         $sql = "SELECT 
-                  last_name,
+                  residence_information.last_name,
                   COUNT(*) as total_members,
                   (SELECT COUNT(*) 
                    FROM residence_information r2 
                    INNER JOIN evacuation_status es ON r2.residence_id = es.residence_id 
+                   /* Ensure we only count Arrived members who are ALSO Active */
+                   INNER JOIN residence_status rs2 ON r2.residence_id = rs2.residence_id
                    WHERE r2.last_name = residence_information.last_name 
-                   AND es.status = 'Arrived') as arrived_count
+                   AND es.status = 'Arrived'
+                   AND rs2.status = 'Active') as arrived_count
                 FROM residence_information 
-                WHERE assigned_center = ? 
-                GROUP BY last_name
-                ORDER BY last_name ASC";
+                INNER JOIN residence_status ON residence_information.residence_id = residence_status.residence_id
+                WHERE residence_information.assigned_center = ? 
+                AND residence_status.status = ? 
+                GROUP BY residence_information.last_name
+                ORDER BY residence_information.last_name ASC";
         
         $stmt = $con->prepare($sql);
-        $stmt->bind_param('s', $centerName);
+        // Bind both the center name and the status string
+        $stmt->bind_param('ss', $centerName, $active);
         $stmt->execute();
         return $stmt->get_result();
     }

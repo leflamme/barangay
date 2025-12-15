@@ -131,11 +131,9 @@ try{
         $query_workers->execute();
         $row_workers = $query_workers->get_result()->fetch_assoc();
         
-        // This variable name ($count_workers) is used later in your JavaScript
-        // We keep the variable name the same so the dashboard display doesn't break
-        $count_workers = $row_workers['workers_count'] ?? 0;
+        $count_tenants = $row_workers['workers_count'] ?? 0;
     } catch (Exception $e) {
-        $count_workers = 0;
+        $count_tenants = 0;
     }
 
     // ========== DRRM DATA FETCHING WITH ERROR HANDLING ==========
@@ -1373,7 +1371,7 @@ $(function () {
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     Tenant
-                    <span class="badge badge-info badge-pill"><?= number_format($count_workers) ?></span>
+                    <span class="badge badge-info badge-pill"><?= number_format($count_tenants) ?></span>
                 </li>
             </ul>
         </div>`
