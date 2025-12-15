@@ -135,16 +135,16 @@ try{
         $count_residents = 0;
     }
 
-    // 2. Count WORKERS
+    // 2. Count TENANTS (Replaces Workers)
     try {
-        // Count those explicitly marked as 'Worker'
-        $sql_workers = "SELECT COUNT(residence_id) AS workers_count FROM residence_status WHERE residency_type = 'Worker' AND archive = 'NO'";
-        $query_workers = $con->prepare($sql_workers);
-        $query_workers->execute();
-        $row_workers = $query_workers->get_result()->fetch_assoc();
-        $count_workers = $row_workers['workers_count'] ?? 0;
+        // Count those explicitly marked as 'Tenant'
+        $sql_tenants = "SELECT COUNT(residence_id) AS tenants_count FROM residence_status WHERE residency_type = 'Tenant' AND archive = 'NO'";
+        $query_tenants = $con->prepare($sql_tenants);
+        $query_tenants->execute();
+        $row_tenants = $query_tenants->get_result()->fetch_assoc();
+        $count_tenants = $row_tenants['tenants_count'] ?? 0;
     } catch (Exception $e) {
-        $count_workers = 0;
+        $count_tenants = 0;
     }
 
     /* ======= DRRM ======= */
@@ -346,22 +346,16 @@ if (empty($slides)) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard</title>
-  <!-- Website Logo -->
   <link rel="icon" type="image/png" href="../assets/logo/ksugan.jpg">
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="../assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-  <!-- Theme style -->
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <link rel="stylesheet" href="../assets/plugins/sweetalert2/css/sweetalert2.min.css">
-  <!-- Tempusdominus -->
   <link rel="stylesheet" href="../assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="../assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
@@ -423,12 +417,10 @@ if (empty($slides)) {
 <body class="hold-transition sidebar-mini layout-footer-fixed">
 <div class="wrapper">
 
-  <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble " src="../assets/dist/img/loader.gif" alt="AdminLTELogo" height="70" width="70">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
     <ul class="navbar-nav">
       <li class="nav-item">
@@ -467,9 +459,6 @@ if (empty($slides)) {
       </li>
     </ul>
   </nav>
-  <!-- /.navbar -->
-
-  <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-no-expand">
     <img src="../assets/logo/ksugan.jpg" alt="Barangay Kalusugan Logo" id="logo_image" class="img-circle elevation-5 img-bordered-sm" style="width: 70%; margin: 10px auto; display: block;">
     <div class="sidebar">
@@ -514,7 +503,6 @@ if (empty($slides)) {
     </div>
   </aside>
 
-  <!-- Content Wrapper -->
   <div class="content-wrapper">
     <div class="content-header"><div class="container-fluid"><div class="row mb-2"><div class="col-sm-6"></div><div class="col-sm-6"><ol class="breadcrumb float-sm-right"></ol></div></div></div></div>
 
@@ -697,7 +685,6 @@ if (empty($slides)) {
   </footer>
 </div>
 
-<!-- REQUIRED SCRIPTS -->
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
@@ -783,7 +770,6 @@ $(document).ready(function(){
 });
 </script>
 
-<!-- Info Modal -->
 <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content shadow-lg">
@@ -858,9 +844,6 @@ $(function () {
               <span class="badge badge-secondary badge-pill"><?= number_format($count_single_parent) ?></span>
             </li>
 
-            <li class="list-group-item d-flex justify-content-between align-items-center">Registered Voters
-              <span class="badge badge-secondary badge-pill"><?= number_format($count_voters) ?></span>
-            </li>
           </ul>
 
           <h6 class="font-weight-bold mt-4">Residency Status</h6>
@@ -870,8 +853,8 @@ $(function () {
                     <span class="badge badge-primary badge-pill"><?= number_format($count_residents) ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Workers
-                    <span class="badge badge-info badge-pill"><?= number_format($count_workers) ?></span>
+                    Tenants
+                    <span class="badge badge-info badge-pill"><?= number_format($count_tenants) ?></span>
                 </li>
             </ul>
         </div>`
