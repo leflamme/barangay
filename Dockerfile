@@ -1,4 +1,4 @@
-# CHANGE 1: Use 'bullseye' (Debian 11) instead of latest to avoid the conflict
+# Keep using Bullseye (Debian 11) for stability
 FROM php:8.2-apache-bullseye
 
 # 1. Set the working directory
@@ -18,7 +18,7 @@ RUN docker-php-ext-install pdo_mysql mysqli
 RUN curl -sS https://getcomposer.org/installer | \
     php -- --install-dir=/usr/local/bin --filename=composer
 
-# 5. Copy ONLY your composer files from 'src'
+# 5. Copy ONLY your composer files
 COPY src/composer.json src/composer.lock ./
 
 # 6. Install all your libraries
@@ -27,14 +27,14 @@ RUN composer install --no-dev --optimize-autoloader
 # 7. Copy the rest of your PHP code
 COPY ./src /var/www/html/
 
-# 8. Create AND set permissions for your SINGLE volume mount point
+# 8. Create AND set permissions for your volume
 RUN mkdir -p /var/www/html/permanent-data && \
     chmod -R 777 /var/www/html/permanent-data
 
-# CHANGE 2: Run the Fix at the VERY END so nothing undoes it.
-# We remove BOTH event and worker modules to be 100% sure.
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.conf \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load \
-    && a2enmod mpm_prefork
+# --- THE ULTIMATE FIX ---
+# Instead of trusting the build, we fix it when the container STARTS.
+# This runs every single time the app boots up.
+# 1. Force delete mpm_event and mpm_worker files (using wildcard *)
+# 2. Enable mpm_prefork
+# 3. Start Apache normally
+CMD ["/bin/bash", "-c", "rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* && a2enmod mpm_prefork && apache2-foreground"]
