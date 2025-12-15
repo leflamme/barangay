@@ -772,30 +772,46 @@ legend {
     function unArchiveResidence(){
       $(document).on('click','.unArchiveResidence',function(){
         var residence_id = $(this).attr('id');
+        
+        // UPDATED: Changed from simple warning to Radio Input
         Swal.fire({
-            title: '<strong class="text-danger">Are you sure?</strong>',
-            html: "You want Unarchive this Resident?",
-            type: 'warning',
+            title: '<strong class="text-primary">Restoration Options</strong>',
+            html: "How should this resident be restored?",
+            input: 'radio',
+            inputOptions: {
+              'MEMBER': 'Restore as Regular Member (Mistake)',
+              'HEAD': 'Restore as Head of Household'
+            },
+            inputValue: 'MEMBER', // Default selection
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             allowOutsideClick: false,
-            confirmButtonText: 'Yes, Unarchive it!',
-            width: '400px',
+            confirmButtonText: 'Confirm Restore',
+            width: '450px', // Slightly wider to fit text
+            inputValidator: (value) => {
+              if (!value) {
+                return 'You need to choose an option!'
+              }
+            }
           }).then((result) => {
             if (result.value) {
+              
+              var restore_mode = result.value; // Get the chosen option (MEMBER or HEAD)
+
               $.ajax({
                 url: 'unArchiveResidence.php',
                 type: 'POST',
                 data: {
-                  residence_id:residence_id,
+                  residence_id: residence_id,
+                  restore_mode: restore_mode // PASS THE DECISION TO BACKEND
                 },
                 cache: false,
                 success:function(data){
                   Swal.fire({
                     title: '<strong class="text-success">Success</strong>',
                     type: 'success',
-                    html: '<b>Unarchive Resident has Successfully<b>',
+                    html: '<b>Resident has been successfully restored!<b>',
                     width: '400px',
                     showConfirmButton: false,
                     allowOutsideClick: false,

@@ -22,12 +22,12 @@ try{
   if(isset($_REQUEST['residence_id'])){
     $residence_id = $con->real_escape_string(trim($_REQUEST['residence_id']));
     
-    // --- 1. ARCHIVE THE RESIDENT (Standard Procedure) ---
+    // --- 1. ARCHIVE THE RESIDENT ---
     $archive_status = 'YES';
     $residence_status = 'INACTIVE';
     $date_archive = date("m/d/Y h:i A");
 
-    // Fetch name for logs
+    // Get info of person being archived
     $sql_check = "SELECT first_name, last_name, gender FROM residence_information WHERE residence_id = ?";
     $stmt_check = $con->prepare($sql_check);
     $stmt_check->bind_param('s',$residence_id);
@@ -36,7 +36,7 @@ try{
     $row_check = $res_check->fetch_assoc();
     $first_name = $row_check['first_name'];
     $last_name = $row_check['last_name'];
-    $gender_of_archived = $row_check['gender']; // Needed for logic later
+    $gender_old_head = strtoupper($row_check['gender']); 
     $stmt_check->close();
 
     $sql_archive = "UPDATE `residence_status` SET `archive` = ?, `date_archive` = ?,  `status` = ? WHERE `residence_id` = ?";
@@ -45,11 +45,9 @@ try{
     $stmt_a->execute();
     $stmt_a->close();
 
-    // ---------------------------------------------------------
-    // --- SIMPLIFIED TITLE SWAP LOGIC -------------------------
-    // ---------------------------------------------------------
+    // --- 2. SUCCESSION & TITLE SWAP LOGIC ---
     
-    // A. Is this person currently the Head?
+    // Check if this person was a Head
     $sql_is_head = "SELECT household_id, is_head FROM household_members WHERE user_id = ?";
     $stmt_h = $con->prepare($sql_is_head);
     $stmt_h->bind_param('s', $residence_id);
@@ -59,13 +57,12 @@ try{
     if($res_h->num_rows > 0){
         $row_h = $res_h->fetch_assoc();
         
-        // ONLY RUN IF THEY ARE HEAD (is_head = 1)
         if($row_h['is_head'] == 1){
             $household_id = $row_h['household_id'];
 
-            // B. Find the Wife/Husband (Priority) or Eldest Child
+            // Find Successor (Spouse > Child)
             $sql_find_new = "
-                SELECT hm.user_id, ri.gender 
+                SELECT hm.user_id, hm.relationship_to_head, ri.gender 
                 FROM household_members hm
                 JOIN residence_status rs ON hm.user_id = rs.residence_id
                 JOIN residence_information ri ON hm.user_id = ri.residence_id
@@ -90,68 +87,65 @@ try{
             if($res_new->num_rows > 0){
                 $row_new = $res_new->fetch_assoc();
                 $new_head_id = $row_new['user_id'];
-                $new_head_gender = $row_new['gender'];
-
-                // C. DETERMINE TITLES (The Logic You Requested)
-                // New Head becomes "Head".
-                // Old Head becomes "Husband" if male, "Wife" if female (or just "Member" if not a spouse).
+                $successor_relation = strtoupper($row_new['relationship_to_head']);
                 
+                // --- DETERMINE NEW TITLES ---
                 $title_for_new_head = "Head";
-                
-                // Determine title for the OLD head based on their gender
-                if(strtoupper($gender_of_archived) == 'MALE'){
-                    $title_for_old_head = "Husband"; 
-                } elseif(strtoupper($gender_of_archived) == 'FEMALE'){
-                     $title_for_old_head = "Wife";
-                } else {
-                    $title_for_old_head = "Member";
+                $title_for_old_head = "Member"; // Default
+
+                // Logic: What should the Old Head be called now?
+                // If Successor is Spouse (Wife) -> Old Head is Husband
+                if(in_array($successor_relation, ['WIFE', 'HUSBAND', 'SPOUSE'])){
+                    $title_for_old_head = ($gender_old_head == 'MALE') ? "Husband" : "Wife";
+                }
+                // If Successor is Child -> Old Head is Father/Mother
+                elseif(in_array($successor_relation, ['SON', 'DAUGHTER', 'CHILD'])){
+                    $title_for_old_head = ($gender_old_head == 'MALE') ? "Father" : "Mother";
                 }
 
-                // --- EXECUTE THE SWAP ---
+                // --- EXECUTE SWAP ---
 
-                // 1. UPDATE OLD HEAD (The person being archived)
-                // Set is_head = 0, and Change Title (e.g., to "Husband")
-                $sql_demote_users = "UPDATE users SET relationship_to_head = ? WHERE id = ?";
-                $stmt_d1 = $con->prepare($sql_demote_users);
-                $stmt_d1->bind_param('ss', $title_for_old_head, $residence_id);
-                $stmt_d1->execute();
-                $stmt_d1->close();
+                // 1. Update Old Head
+                $sql_demote = "UPDATE users SET relationship_to_head = ? WHERE id = ?";
+                $stmt_d = $con->prepare($sql_demote);
+                $stmt_d->bind_param('ss', $title_for_old_head, $residence_id);
+                $stmt_d->execute();
+                $stmt_d->close();
 
-                $sql_demote_members = "UPDATE household_members SET is_head = 0, relationship_to_head = ? WHERE user_id = ?";
-                $stmt_d2 = $con->prepare($sql_demote_members);
-                $stmt_d2->bind_param('ss', $title_for_old_head, $residence_id);
-                $stmt_d2->execute();
-                $stmt_d2->close();
+                $sql_demote_m = "UPDATE household_members SET is_head = 0, relationship_to_head = ? WHERE user_id = ?";
+                $stmt_dm = $con->prepare($sql_demote_m);
+                $stmt_dm->bind_param('ss', $title_for_old_head, $residence_id);
+                $stmt_dm->execute();
+                $stmt_dm->close();
 
-                // 2. UPDATE NEW HEAD (The Successor)
-                // Set is_head = 1, Change Title to "Head"
-                $sql_promote_users = "UPDATE users SET relationship_to_head = ? WHERE id = ?";
-                $stmt_p1 = $con->prepare($sql_promote_users);
-                $stmt_p1->bind_param('ss', $title_for_new_head, $new_head_id);
-                $stmt_p1->execute();
-                $stmt_p1->close();
+                // 2. Update New Head
+                $sql_promote = "UPDATE users SET relationship_to_head = ? WHERE id = ?";
+                $stmt_p = $con->prepare($sql_promote);
+                $stmt_p->bind_param('ss', $title_for_new_head, $new_head_id);
+                $stmt_p->execute();
+                $stmt_p->close();
 
-                $sql_promote_members = "UPDATE household_members SET is_head = 1, relationship_to_head = ? WHERE user_id = ?";
-                $stmt_p2 = $con->prepare($sql_promote_members);
-                $stmt_p2->bind_param('ss', $title_for_new_head, $new_head_id);
-                $stmt_p2->execute();
-                $stmt_p2->close();
+                $sql_promote_m = "UPDATE household_members SET is_head = 1, relationship_to_head = ? WHERE user_id = ?";
+                $stmt_pm = $con->prepare($sql_promote_m);
+                $stmt_pm->bind_param('ss', $title_for_new_head, $new_head_id);
+                $stmt_pm->execute();
+                $stmt_pm->close();
 
-                // 3. FIX HOUSEHOLD MASTER TABLE
+                // 3. Update Household Master
                 $sql_master = "UPDATE households SET household_head_id = ? WHERE household_id = ?";
                 $stmt_m = $con->prepare($sql_master);
                 $stmt_m->bind_param('ss', $new_head_id, $household_id);
                 $stmt_m->execute();
                 $stmt_m->close();
-                
-                // Log it
-                $sys_msg = "SWAP: $residence_id became $title_for_old_head. $new_head_id became Head.";
+
+                // Log
+                $sys_msg = "SUCCESSION: $residence_id ($title_for_old_head) -> $new_head_id (Head)";
                 $sys_stat = "system";
-                $sql_log_sys = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?,?)";
-                $stmt_sys = $con->prepare($sql_log_sys);
-                $stmt_sys->bind_param('sss', $sys_msg, $date_archive, $sys_stat);
-                $stmt_sys->execute();
-                $stmt_sys->close();
+                $sql_log = "INSERT INTO activity_log (`message`,`date`,`status`) VALUES (?,?,?)";
+                $stmt_l = $con->prepare($sql_log);
+                $stmt_l->bind_param('sss', $sys_msg, $date_archive, $sys_stat);
+                $stmt_l->execute();
+                $stmt_l->close();
             }
             $stmt_new->close();
         }
