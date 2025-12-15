@@ -5,6 +5,7 @@ FROM php:8.2-apache
 WORKDIR /var/www/html
 
 # 2. Install system dependencies
+#    (We run apt-get update here)
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -14,10 +15,12 @@ RUN apt-get update && apt-get install -y \
 # 3. Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mysqli
 
-# 4. FIX: Resolve the "More than one MPM loaded" error
-#    We disable the default 'mpm_event' and force 'mpm_prefork' (required for PHP).
-#    (Removed 'rewrite' as requested)
-RUN a2dismod mpm_event && a2enmod mpm_prefork
+# 4. FORCE FIX: Manually DELETE the conflicting configuration
+#    We use 'rm -f' to physically remove the 'mpm_event' links so they cannot be loaded.
+#    Then we ensure 'mpm_prefork' is enabled.
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.conf \
+    && rm -f /etc/apache2/mods-enabled/mpm_event.load \
+    && a2enmod mpm_prefork
 
 # 5. Download and install Composer globally
 RUN curl -sS https://getcomposer.org/installer | \
