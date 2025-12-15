@@ -123,13 +123,16 @@ try{
         $count_residents = 0;
     }
 
-    // 2. Count WORKERS
+    // 2. Count TENANTS (Formerly Workers)
     try {
-        // Count those explicitly marked as 'Worker'
-        $sql_workers = "SELECT COUNT(residence_id) AS workers_count FROM residence_status WHERE residency_type = 'Worker' AND archive = 'NO'";
+        // Updated to look for 'Tenant' instead of 'Worker'
+        $sql_workers = "SELECT COUNT(residence_id) AS workers_count FROM residence_status WHERE residency_type = 'Tenant' AND archive = 'NO'";
         $query_workers = $con->prepare($sql_workers);
         $query_workers->execute();
         $row_workers = $query_workers->get_result()->fetch_assoc();
+        
+        // This variable name ($count_workers) is used later in your JavaScript
+        // We keep the variable name the same so the dashboard display doesn't break
         $count_workers = $row_workers['workers_count'] ?? 0;
     } catch (Exception $e) {
         $count_workers = 0;
