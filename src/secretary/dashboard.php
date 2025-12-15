@@ -1360,14 +1360,6 @@ $(function () {
                     <span class="badge badge-secondary badge-pill"><?= number_format($count_single_parent) ?></span>
                 </li>
 
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Residents
-                    <span class="badge badge-primary badge-pill"><?= number_format($count_residents) ?></span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Workers
-                    <span class="badge badge-info badge-pill"><?= number_format($count_workers) ?></span>
-                </li>
             </ul>
 
             <h6 class="font-weight-bold mt-4">Residency Status</h6>
@@ -1377,7 +1369,7 @@ $(function () {
                     <span class="badge badge-primary badge-pill"><?= number_format($count_residents) ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Workers
+                    Tenant
                     <span class="badge badge-info badge-pill"><?= number_format($count_workers) ?></span>
                 </li>
             </ul>
