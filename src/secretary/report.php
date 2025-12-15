@@ -746,9 +746,9 @@ try {
               <div class="col-md-6">
                 <h5><i class="fas fa-map-marker-alt text-danger"></i> Evacuation Centers</h5>
                 <ul class="list-unstyled">
-                  <li><strong>Primary:</strong> Barangay Covered Court</li>
-                  <li><strong>Secondary:</strong> Kalusugan Elementary School</li>
-                  <li><strong>Tertiary:</strong> Community Center</li>
+                  <li><strong>Primary:</strong> Barangay Kalusugan Elementary School</li>
+                  <li><strong>Secondary:</strong> Kalusugan Open Area</li>
+                  <li><strong>Tertiary:</strong> St. Joseph's College of Quezon City</li>
                 </ul>
               </div>
             </div>
